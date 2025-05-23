@@ -3,8 +3,8 @@
 
 import type React from 'react';
 import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { usePathname, useParams } from 'next/navigation';
-import { useRaffles } from './RaffleContext';
+// import { usePathname, useParams } from 'next/navigation'; // No longer needed here
+// import { useRaffles } from './RaffleContext'; // No longer needed here
 import { getLocaleFromCountryCode, type SupportedLocale, SUPPORTED_LOCALES } from '@/lib/locale-utils';
 
 // Import locale files directly
@@ -43,9 +43,9 @@ export const LocalizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   
   const [loadedTranslations, setLoadedTranslations] = useState<Record<string, any>>(() => translationsData[locale] || translationsData.en);
 
-  const pathname = usePathname();
-  const params = useParams();
-  const { getRaffleById } = useRaffles(); // Assuming useRaffles doesn't depend on LocalizationContext itself
+  // const pathname = usePathname(); // Removed
+  // const params = useParams(); // Removed
+  // const { getRaffleById } = useRaffles(); // Removed
 
   const persistLocale = (newLocale: SupportedLocale) => {
     if (SUPPORTED_LOCALES.includes(newLocale)) {
@@ -67,28 +67,10 @@ export const LocalizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       newLocaleKey = (storedLocale && SUPPORTED_LOCALES.includes(storedLocale)) ? storedLocale : 'en';
     }
     persistLocale(newLocaleKey);
-  }, []);
+  }, []); // Empty dependency array ensures persistLocale refers to the correct one
   
-  // Effect to set locale based on current raffle page
-  useEffect(() => {
-    const raffleId = params.id as string;
-    if (pathname.startsWith('/raffles/') && raffleId) {
-      const raffle = getRaffleById(raffleId); // This might be an issue if getRaffleById needs translations
-      if (raffle) {
-        const raffleLocale = getLocaleFromCountryCode(raffle.country.code);
-        if (translationsData[raffleLocale] && raffleLocale !== locale) { // Only change if different and supported
-            // persistLocale(raffleLocale); // Let user override with switcher
-        }
-      }
-    } else if (pathname === '/configure') {
-       const storedLocale = localStorage.getItem(LOCAL_STORAGE_LOCALE_KEY) as SupportedLocale;
-       const targetLocale = (storedLocale && SUPPORTED_LOCALES.includes(storedLocale)) ? storedLocale : 'en';
-       if (targetLocale !== locale) {
-           // persistLocale(targetLocale);
-       }
-    }
-  }, [pathname, params, getRaffleById, locale]); // Added locale to dependencies
-
+  // Removed the useEffect that depended on pathname, params, getRaffleById, locale
+  // as its logic was commented out and page-level effects are more explicit.
 
   useEffect(() => {
     setLoadedTranslations(translationsData[locale] || translationsData.en);

@@ -23,9 +23,16 @@ export default function EditRafflePage() {
   const [canEdit, setCanEdit] = useState<boolean | null>(null);
   const [disableReason, setDisableReason] = useState<string>('');
 
+  // Effect to set locale based on raffle country
   useEffect(() => {
     if (raffle) {
       changeLocaleForRaffle(raffle.country.code);
+    }
+  }, [raffle, changeLocaleForRaffle]);
+
+  // Effect to determine editability and set messages
+  useEffect(() => {
+    if (raffle) {
       const hasSoldNumbers = raffle.numbers.some(n => n.status !== 'Available');
       if (raffle.status === 'Closed') {
         setCanEdit(false);
@@ -35,12 +42,13 @@ export default function EditRafflePage() {
         setDisableReason(t('editRafflePage.cannotEditDescriptionSales'));
       } else {
         setCanEdit(true);
+        setDisableReason(''); // Clear reason if editable
       }
     } else if (!isLoading) { // Raffle not found and not loading
         setCanEdit(false);
         setDisableReason(t('raffleDetailsPage.raffleNotFoundDescription'));
     }
-  }, [raffle, isLoading, t, changeLocaleForRaffle]);
+  }, [raffle, isLoading, t]);
 
   if (isLoading || canEdit === null) {
     return <div className="flex justify-center items-center min-h-[calc(100vh-10rem)]"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>;
