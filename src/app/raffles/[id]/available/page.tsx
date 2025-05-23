@@ -33,7 +33,6 @@ export default function AvailableNumbersPage() {
     if (raffle) {
       changeLocaleForRaffle(raffle.country.code);
       if (typeof window !== 'undefined') {
-        // Share the main raffle page URL
         setShareUrl(window.location.origin + `/raffles/${raffle.id}`);
       }
     }
@@ -124,11 +123,7 @@ export default function AvailableNumbersPage() {
       <div className="text-center py-10">
         <Image src="https://placehold.co/300x200.png" alt={t('raffleDetailsPage.raffleNotFoundTitle')} width={300} height={200} className="mx-auto rounded-md shadow-md mb-4" data-ai-hint="error notfound"/>
         <h2 className="text-2xl font-semibold mb-4">{t('raffleDetailsPage.raffleNotFoundTitle')}</h2>
-        <Button asChild>
-          <Link href="/">
-            <ArrowLeft className="mr-2 h-4 w-4" /> {t('actions.backToHome')}
-          </Link>
-        </Button>
+        {/* Button to go home was here, removed as per request */}
       </div>
     );
   }
@@ -156,11 +151,8 @@ export default function AvailableNumbersPage() {
             {t('raffleDetailsPage.exportImageButton')}
           </Button>
         </div>
-
-        <h1 className="text-3xl font-bold text-center">{t('availableNumbersPage.title', { raffleName: raffle.name })}</h1>
         
-        <ScrollArea className="h-auto max-h-[70vh] border rounded-md p-1">
-          <div ref={exportTargetRef} className="bg-white p-4"> {/* Ensure background for export */}
+        <div ref={exportTargetRef} className="bg-white p-4 rounded-lg shadow"> {/* Wrapper for export */}
             <AvailableNumbersList
               numbers={raffle.numbers}
               currencySymbol={raffle.country.currencySymbol}
@@ -201,8 +193,12 @@ export default function AvailableNumbersPage() {
                 </CardContent>
               </Card>
             )}
-          </div>
+        </div>
+        
+        <ScrollArea className="h-auto max-h-[70vh] border rounded-md p-1 hidden"> {/* This ScrollArea is now hidden as exportTargetRef handles full content */}
+          {/* Content is now directly in exportTargetRef */}
         </ScrollArea>
+
 
         <Card className="mt-8">
           <CardHeader>

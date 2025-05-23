@@ -23,14 +23,12 @@ export default function EditRafflePage() {
   const [canEdit, setCanEdit] = useState<boolean | null>(null);
   const [disableReason, setDisableReason] = useState<string>('');
 
-  // Effect to set locale based on raffle country
   useEffect(() => {
     if (raffle) {
       changeLocaleForRaffle(raffle.country.code);
     }
   }, [raffle, changeLocaleForRaffle]);
 
-  // Effect to determine editability and set messages
   useEffect(() => {
     if (raffle) {
       const hasSoldNumbers = raffle.numbers.some(n => n.status !== 'Available');
@@ -42,9 +40,9 @@ export default function EditRafflePage() {
         setDisableReason(t('editRafflePage.cannotEditDescriptionSales'));
       } else {
         setCanEdit(true);
-        setDisableReason(''); // Clear reason if editable
+        setDisableReason(''); 
       }
-    } else if (!isLoading) { // Raffle not found and not loading
+    } else if (!isLoading) { 
         setCanEdit(false);
         setDisableReason(t('raffleDetailsPage.raffleNotFoundDescription'));
     }
@@ -73,22 +71,17 @@ export default function EditRafflePage() {
             data-ai-hint="restriction warning sign"
           />
           <p className="text-muted-foreground">{disableReason}</p>
-          <Button onClick={() => router.push(raffle ? `/raffles/${raffleId}` : '/')}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> 
-            {raffle ? t('availableNumbersPage.backToRaffleDetails') : t('actions.backToHome')}
-          </Button>
+          {/* Button to go home/back was here, removed as per request */}
         </CardContent>
       </Card>
     );
   }
   
-  // Raffle exists and can be edited
   return (
     <div>
       <Button variant="outline" onClick={() => router.push(`/raffles/${raffleId}`)} className="mb-6">
         <ArrowLeft className="mr-2 h-4 w-4" /> {t('availableNumbersPage.backToRaffleDetails')}
       </Button>
-      {/* RaffleConfigureForm will handle its own title based on editMode */}
       <RaffleConfigureForm editingRaffle={raffle} />
     </div>
   );

@@ -6,7 +6,7 @@ import { useParams, usePathname, useRouter } from 'next/navigation';
 import { useRaffles } from '@/contexts/RaffleContext';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { LayoutGrid, Edit3, Trophy, ArrowLeft, ListChecks } from 'lucide-react'; // Added ListChecks back
+import { LayoutGrid, Edit3, Trophy, ListChecks } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from 'next/image';
 import { useTranslations } from '@/contexts/LocalizationContext';
@@ -29,8 +29,7 @@ export default function RaffleDetailLayout({
     if (raffle) {
       changeLocaleForRaffle(raffle.country.code);
     } else {
-      // If raffle not found, or on a path that might not have a raffle yet
-      changeLocaleForRaffle(undefined); // Fallback to default locale
+      changeLocaleForRaffle(undefined); 
     }
   }, [raffle, changeLocaleForRaffle]);
 
@@ -45,11 +44,7 @@ export default function RaffleDetailLayout({
         <Image src="https://placehold.co/300x200.png" alt={t('raffleDetailsPage.raffleNotFoundTitle')} width={300} height={200} className="mx-auto rounded-md shadow-md mb-4" data-ai-hint="error notfound"/>
         <h2 className="text-2xl font-semibold mb-4">{t('raffleDetailsPage.raffleNotFoundTitle')}</h2>
         <p className="text-muted-foreground mb-6">{t('raffleDetailsPage.raffleNotFoundDescription')}</p>
-        <Button asChild>
-          <Link href="/">
-            <ArrowLeft className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.backToHomeButton')}
-          </Link>
-        </Button>
+        {/* Button to go home was here, removed as per request */}
       </div>
     );
   }
@@ -58,20 +53,19 @@ export default function RaffleDetailLayout({
   const navLinks = [
     { nameKey: "raffleTabs.grid", href: basePath, icon: LayoutGrid },
     { nameKey: "raffleTabs.purchase", href: `${basePath}/purchase`, icon: Edit3, disabled: raffle.status === 'Closed' },
-    { nameKey: "raffleTabs.available", href: `${basePath}/available`, icon: ListChecks }, // Re-added this line
+    { nameKey: "raffleTabs.available", href: `${basePath}/available`, icon: ListChecks },
     { nameKey: "raffleTabs.draw", href: `${basePath}/draw`, icon: Trophy, disabled: raffle.status === 'Closed' },
   ];
 
   let currentTabValue = basePath;
   if (pathname.startsWith(`${basePath}/purchase`)) currentTabValue = `${basePath}/purchase`;
-  else if (pathname.startsWith(`${basePath}/available`)) currentTabValue = `${basePath}/available`; // Added this condition
+  else if (pathname.startsWith(`${basePath}/available`)) currentTabValue = `${basePath}/available`;
   else if (pathname.startsWith(`${basePath}/draw`)) currentTabValue = `${basePath}/draw`;
 
 
   return (
     <div className="space-y-6">
       <Tabs value={currentTabValue} onValueChange={(value) => router.push(value)} className="w-full">
-        {/* Adjusted grid columns for tabs */}
         <TabsList className="grid w-full grid-cols-1 md:grid-cols-4 h-auto md:h-10 mb-6">
           {navLinks.map((link) => (
             <TabsTrigger key={link.href} value={link.href} disabled={link.disabled} className="flex-col md:flex-row h-auto py-2 md:py-1.5">
