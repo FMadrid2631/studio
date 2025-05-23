@@ -68,10 +68,9 @@ export default function RafflePage() {
     try {
       const dataUrl = await toPng(gridRef.current, { 
         quality: 0.95, 
-        backgroundColor: 'white' // Explicitly set background to white for the image
+        backgroundColor: 'white'
       });
       const link = document.createElement('a');
-      // Sanitize raffle name for filename
       const sanitizedRaffleName = raffle.name.replace(/[^\w\s-]/gi, '').replace(/\s+/g, '_').toLowerCase();
       link.download = `rifa-${sanitizedRaffleName}-numeros.png`;
       link.href = dataUrl;
@@ -193,16 +192,16 @@ export default function RafflePage() {
         
         <Card>
           <CardContent className="pt-6">
+            <div className="text-red-500 font-bold p-4 border border-red-500">DEBUG: IS THIS TEXT VISIBLE?</div>
             <Button 
               onClick={handleExportImage} 
-              disabled={isExporting} 
-              variant="default"
-              className="mb-4 w-full md:w-auto"
+              disabled={isExporting}
+              variant="destructive" 
+              className="mb-4 p-4 text-lg" 
             >
-              {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
-              EXPORT: {t('raffleDetailsPage.exportImageButton')}
+              {isExporting ? "GENERANDO..." : "BOTON EXPORTAR PRUEBA"}
             </Button>
-            <div ref={gridRef}> {/* This div is passed to html-to-image */}
+            <div ref={gridRef}>
               <RaffleGrid 
                 numbers={raffle.numbers} 
                 currencySymbol={raffle.country.currencySymbol}
@@ -210,7 +209,7 @@ export default function RafflePage() {
                 numberValue={raffle.numberValue}
                 onNumberClick={handleNumberClick}
                 interactive={raffle.status === 'Open'}
-                t={t} // Pass translation function
+                t={t}
               />
             </div>
           </CardContent>
@@ -236,4 +235,3 @@ export default function RafflePage() {
       </div>
     </TooltipProvider>
   );
-}
