@@ -39,7 +39,7 @@
     "prizesLabel": "Prizes",
     "salesProgressLabel": "Sales Progress",
     "purchaseNumbersButton": "Purchase Numbers",
-    "viewAvailableButton": "View Available",
+    "exportImageButton": "Export Image",
     "conductDrawButton": "Conduct Draw",
     "prizesListTitle": "Prizes",
     "prizeItem": "Prize {{order}}",
@@ -49,7 +49,6 @@
     "backToHomeButton": "Back to Home",
     "configureButton": "Configure",
     "configureDisabledTooltip": "Configuration cannot be changed after sales have started or raffle is closed.",
-    "exportImageButton": "Export Image",
     "exportSuccessTitle": "Image Exported",
     "exportSuccessDescription": "The raffle grid image has been downloaded.",
     "exportAvailableSuccessDescription": "The list of available numbers has been downloaded as an image.",
@@ -159,8 +158,7 @@
     "raffleClosedDescription": "This raffle is no longer open for purchases.",
     "backToRaffleButton": "Back to Raffle",
     "grid": {
-      "numberTitle": "Number {{id}} (Available)",
-      "numberStatusTitle": "Number {{id}} (Status: {{status}})",
+      "numberTitle": "Number {{id}} (Status: {{status}})",
       "noNumbersInRaffle": "No numbers configured for this raffle yet."
     }
   },
@@ -175,11 +173,12 @@
   "drawPage": {
     "backToRaffleDetails": "Back to Raffle Details",
     "title": "Conduct Draw for \"{{raffleName}}\"",
-    "statusAllAwarded": "All prizes have been awarded. This raffle is closed.",
+    "statusAllAwardedOrClosed": "All prizes have been awarded or the raffle is closed.",
     "statusReadyToDraw": "Ready to draw for the next prize: {{prizeDescription}}.",
     "statusNoMorePrizes": "No more prizes to award in this round.",
     "errorNoEligibleNumbers": "No eligible purchased numbers available to draw from.",
     "errorDrawFailed": "The draw did not return any winning numbers.",
+    "errorDrawFailedNoNumberReturned": "Draw failed to return a winning number. Please check raffle status and available numbers.",
     "errorUnexpected": "An unexpected error occurred during the draw.",
     "raffleConcludedTitle": "Raffle Concluded",
     "raffleConcludedDescription": "All prizes have been successfully awarded. The raffle is now officially closed. Congratulations to all the winners!",
@@ -191,9 +190,10 @@
     "winningNumberLabel": "Winning Number",
     "winnerLabel": "Winner",
     "phoneLabel": "Phone",
-    "awardedPrizesTitle": "Awarded Prizes",
-    "noPrizesAwardedYet": "No prizes awarded yet.",
+    "allPrizesStatusTitle": "All Prizes Status",
+    "noPrizesDefinedInRaffle": "No prizes have been configured for this raffle.",
     "prizeWonByDetails": "Won by: {{winnerName}} (Number: {{winningNumber}}, Phone: {{winnerPhone}})",
+    "prizePendingDraw": "Pending Draw",
     "morePrizesHint": "{{count}} more prize(s) to draw after this one.",
     "toast": {
         "infoTitle": "Info",
