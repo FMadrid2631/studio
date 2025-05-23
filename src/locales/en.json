@@ -220,15 +220,17 @@
     "buttonDrawNext": "Next Prize",
     "drawOnePrizeHint": "Only one prize will be drawn per click.",
     "lastDrawWinnersTitle": "🎉 Last Draw Winner(s) 🎉",
-    "prizeDetailsTitle": "Prize Details",
-    "winningNumberLabel": "Winning Number",
     "winnerLabel": "Winner",
     "phoneLabel": "Phone",
+    "winningNumberLabelTitle": "Winning Number",
     "allPrizesStatusTitle": "All Prizes Status",
     "noPrizesDefinedInRaffle": "No prizes have been configured for this raffle.",
     "prizeWonByDetails": "Won by: {{winnerName}} (Number: {{winningNumber}}, Phone: {{winnerPhone}})",
     "prizePendingDraw": "Pending Draw",
     "morePrizesHint": "{{count}} more prize(s) to draw after this one.",
+    "displayLabelWinnerForPrize": "Winner for: {{prizeDescription}}",
+    "displayLabelDrawingForPrize": "Drawing for: {{prizeDescription}}",
+    "displayLabelGeneral": "Winning Number",
     "toast": {
         "infoTitle": "Info",
         "infoAllPrizesAwardedOrClosed": "All prizes have been awarded or the raffle is closed.",
@@ -282,5 +284,3 @@
     "pt": "Portuguese"
   }
 }
-
-    

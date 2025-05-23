@@ -220,15 +220,17 @@
     "buttonDrawNext": "Siguiente Premio",
     "drawOnePrizeHint": "Solo se sorteará un premio por clic.",
     "lastDrawWinnersTitle": "🎉 Último(s) Ganador(es) del Sorteo 🎉",
-    "prizeDetailsTitle": "Detalles del Premio",
-    "winningNumberLabel": "Número Ganador",
     "winnerLabel": "Ganador(a)",
     "phoneLabel": "Teléfono",
+    "winningNumberLabelTitle": "Número Ganador",
     "allPrizesStatusTitle": "Estado de Todos los Premios",
     "noPrizesDefinedInRaffle": "No se han configurado premios para esta rifa.",
     "prizeWonByDetails": "Ganado por: {{winnerName}} (Número: {{winningNumber}}, Teléfono: {{winnerPhone}})",
     "prizePendingDraw": "Pendiente de Sorteo",
     "morePrizesHint": "{{count}} premio(s) más para sortear después de este.",
+    "displayLabelWinnerForPrize": "Ganador para: {{prizeDescription}}",
+    "displayLabelDrawingForPrize": "Sorteando para: {{prizeDescription}}",
+    "displayLabelGeneral": "Número Ganador",
     "toast": {
         "infoTitle": "Información",
         "infoAllPrizesAwardedOrClosed": "Todos los premios han sido entregados o la rifa está cerrada.",
@@ -282,5 +284,3 @@
     "pt": "Portugués (Português)"
   }
 }
-
-    
