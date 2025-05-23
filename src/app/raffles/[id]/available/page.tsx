@@ -6,13 +6,12 @@ import { useRaffles } from '@/contexts/RaffleContext';
 import { AvailableNumbersList } from '@/components/raffle/AvailableNumbersList';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Banknote, Info } from 'lucide-react'; // Added Banknote, Info
 import Image from 'next/image';
 import { useTranslations } from '@/contexts/LocalizationContext';
-import { useEffect, useRef } from 'react';
-// Removed: Download, Loader2, toPng, useToast, useState, exportTargetRef logic
-
+import { useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; // Added Card components
 
 export default function AvailableNumbersPage() {
   const params = useParams();
@@ -22,8 +21,6 @@ export default function AvailableNumbersPage() {
   const { t, changeLocaleForRaffle } = useTranslations();
 
   const raffle = getRaffleById(raffleId);
-  // exportTargetRef is no longer needed here as export functionality is removed.
-  // const exportTargetRef = useRef<HTMLDivElement>(null); 
 
   useEffect(() => {
     if (raffle) {
@@ -55,20 +52,52 @@ export default function AvailableNumbersPage() {
         <Button variant="outline" onClick={() => router.push(`/raffles/${raffleId}`)}>
           <ArrowLeft className="mr-2 h-4 w-4" /> {t('availableNumbersPage.backToRaffleDetails')}
         </Button>
-        {/* Export button and related logic completely removed */}
       </div>
 
       <h1 className="text-3xl font-bold text-center">{t('availableNumbersPage.title', { raffleName: raffle.name })}</h1>
       
       <ScrollArea className="h-96 border rounded-md">
         <AvailableNumbersList
-          // ref={exportTargetRef} // Ref no longer passed
           numbers={raffle.numbers}
           currencySymbol={raffle.country.currencySymbol}
           currencyCode={raffle.country.currencyCode}
           numberValue={raffle.numberValue}
         />
       </ScrollArea>
+
+      {raffle.bankDetails && (
+        <Card className="mt-6 shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-xl text-primary flex items-center gap-2">
+              <Banknote className="h-5 w-5" />
+              {t('purchaseForm.bankTransferDetails.title')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            {raffle.bankDetails.bankName && <p><strong>{t('configureForm.labels.bankName')}:</strong> {raffle.bankDetails.bankName}</p>}
+            {raffle.bankDetails.accountHolderName && <p><strong>{t('configureForm.labels.accountHolderName')}:</strong> {raffle.bankDetails.accountHolderName}</p>}
+            {raffle.bankDetails.accountNumber && <p><strong>{t('configureForm.labels.accountNumber')}:</strong> {raffle.bankDetails.accountNumber}</p>}
+            {raffle.bankDetails.accountType && <p><strong>{t('configureForm.labels.accountType')}:</strong> {raffle.bankDetails.accountType}</p>}
+            {raffle.bankDetails.identificationNumber && <p><strong>{t('configureForm.labels.identificationNumber')}:</strong> {raffle.bankDetails.identificationNumber}</p>}
+            
+            {raffle.bankDetails.transferInstructions && (
+              <div className="mt-3 pt-3 border-t border-border/50">
+                <p className="font-semibold flex items-center gap-1"><Info className="h-4 w-4 text-muted-foreground" />{t('configureForm.labels.transferInstructions')}:</p>
+                <p className="whitespace-pre-wrap text-xs text-muted-foreground">{raffle.bankDetails.transferInstructions}</p>
+              </div>
+            )}
+
+            {!(raffle.bankDetails.bankName ||
+               raffle.bankDetails.accountHolderName ||
+               raffle.bankDetails.accountNumber ||
+               raffle.bankDetails.accountType ||
+               raffle.bankDetails.identificationNumber ||
+               raffle.bankDetails.transferInstructions) && (
+              <p className="text-muted-foreground">{t('availableNumbersPage.noBankDetailsProvided')}</p>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

@@ -39,22 +39,15 @@
     "prizesLabel": "Premios",
     "salesProgressLabel": "Progreso de Ventas",
     "purchaseNumbersButton": "Comprar Números",
-    "exportImageButton": "Exportar Imagen",
     "conductDrawButton": "Realizar Sorteo",
     "prizesListTitle": "Premios",
     "prizeItem": "Premio {{order}}",
     "prizeWonBy": "Ganado por #{{number}} - {{name}}",
-    "prizeRefValue": "Valor Ref: {{value}}",
     "raffleNotFoundTitle": "Rifa No Encontrada",
     "raffleNotFoundDescription": "La rifa que buscas no existe o ha sido eliminada.",
     "backToHomeButton": "Volver al Inicio",
     "configureButton": "Configurar",
-    "configureDisabledTooltip": "La configuración no se puede cambiar después de que hayan comenzado las ventas o la rifa esté cerrada.",
-    "exportSuccessTitle": "Imagen Exportada",
-    "exportSuccessDescription": "La imagen de la cuadrícula de la rifa ha sido descargada.",
-    "exportAvailableSuccessDescription": "La lista de números disponibles ha sido descargada como imagen.",
-    "exportErrorTitle": "Error de Exportación",
-    "exportErrorDescription": "No se pudo exportar la imagen."
+    "configureDisabledTooltip": "La configuración no se puede cambiar después de que hayan comenzado las ventas o la rifa esté cerrada."
   },
   "configurePage": {
     "title": "Crear Nueva Rifa"
@@ -205,7 +198,8 @@
     "listTitle": "Números Disponibles",
     "listDescription": "¡Estos números aún están disponibles! Cada uno cuesta {{price}}.",
     "allSoldOut": "¡Todos los números han sido vendidos o están pendientes de pago!",
-    "countSummary": "{{availableCount}} de {{totalCount}} números disponibles."
+    "countSummary": "{{availableCount}} de {{totalCount}} números disponibles.",
+    "noBankDetailsProvided": "No se han proporcionado detalles bancarios para esta rifa."
   },
   "drawPage": {
     "backToRaffleDetails": "Volver a Detalles de la Rifa",
