@@ -4,8 +4,9 @@
 import type { RaffleNumber } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import Image from 'next/image';
-import { useTranslations } from '@/contexts/LocalizationContext';
+// Image component is removed as per user request if all numbers are sold
+// import Image from 'next/image';
+// import { useTranslations } from '@/contexts/LocalizationContext'; // No longer needed directly if t is passed
 import React from 'react';
 
 interface AvailableNumbersListProps {
@@ -13,25 +14,29 @@ interface AvailableNumbersListProps {
   currencySymbol: string;
   numberValue: number;
   currencyCode: string;
+  t: (key: string, params?: Record<string, string | number>) => string; // Added t as a prop
 }
 
 export const AvailableNumbersList = React.forwardRef<
   HTMLDivElement,
   AvailableNumbersListProps
->(({ numbers, currencySymbol, numberValue, currencyCode }, ref) => {
+>(({ numbers, currencySymbol, numberValue, currencyCode, t }, ref) => {
   const availableNumbers = numbers.filter(num => num.status === 'Available');
-  const { t, locale } = useTranslations();
+  // const { locale } = useTranslations(); // locale can be derived from t or passed if needed for formatting
 
-  const formatPrice = () => {
-    if (currencyCode === 'CLP') {
-      return `${currencySymbol}${numberValue.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  const formatPrice = (value: number, cSymbol: string, cCode: string) => {
+    // Using a generic approach for locale, assuming t's locale is representative
+    // For more precise locale formatting, 'locale' prop would be better
+    const currentLocale = typeof navigator !== 'undefined' ? navigator.language : 'en'; 
+    if (cCode === 'CLP') {
+      return `${cSymbol}${value.toLocaleString(currentLocale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
     }
-    return `${currencySymbol}${numberValue.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    return `${cSymbol}${value.toLocaleString(currentLocale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
-  const priceDisplay = formatPrice();
+  const priceDisplay = formatPrice(numberValue, currencySymbol, currencyCode);
 
   return (
-    <Card ref={ref} className="shadow-lg">
+    <Card ref={ref} className="shadow-lg bg-white"> {/* Added bg-white for consistent export background */}
       <CardHeader>
         <CardTitle className="text-2xl text-primary">{t('availableNumbersPage.listTitle')}</CardTitle>
         <CardDescription>
@@ -41,7 +46,6 @@ export const AvailableNumbersList = React.forwardRef<
       <CardContent>
         {availableNumbers.length === 0 ? (
           <div className="text-center py-8">
-            {/* Image component is removed from here if all numbers are sold */}
             <p className="text-xl font-semibold text-muted-foreground">{t('availableNumbersPage.allSoldOut')}</p>
           </div>
         ) : (
@@ -51,7 +55,7 @@ export const AvailableNumbersList = React.forwardRef<
                 key={num.id}
                 variant="outline"
                 className="aspect-square flex items-center justify-center text-sm font-medium border-primary text-primary hover:bg-primary/10 transition-colors cursor-default"
-                title={`Number ${num.id}`}
+                title={`${t('raffleGrid.tooltip.number', {id: num.id})} (${t('numberStatus.Available')})`}
               >
                 {num.id}
               </Badge>

@@ -43,6 +43,7 @@
     "prizesListTitle": "Prizes",
     "prizeItem": "Prize {{order}}",
     "prizeWonBy": "Won by #{{number}} - {{name}}",
+    "prizeReferenceValueLabel": "(Ref. Value: {{value}})",
     "raffleNotFoundTitle": "Raffle Not Found",
     "raffleNotFoundDescription": "The raffle you are looking for does not exist or may have been removed.",
     "backToHomeButton": "Back to Home",
@@ -205,7 +206,8 @@
     "allSoldOut": "All numbers have been sold or are pending payment!",
     "countSummary": "{{availableCount}} of {{totalCount}} numbers available.",
     "noBankDetailsProvided": "No bank details have been provided for this raffle.",
-    "exportAllSuccessDescription": "Image of available numbers and bank details exported successfully."
+    "exportAllSuccessDescription": "Image of available numbers and bank details exported successfully.",
+    "exportDisabledRaffleClosedTooltip": "Export is disabled because the raffle is closed."
   },
   "drawPage": {
     "backToRaffleDetails": "Back to Raffle Details",
@@ -226,6 +228,7 @@
     "winnerLabel": "Winner",
     "phoneLabel": "Phone",
     "winningNumberLabelTitle": "Winning Number",
+    "prizeReferenceValueLabel": "(Ref. Value: {{value}})",
     "allPrizesStatusTitle": "All Prizes Status",
     "noPrizesDefinedInRaffle": "No prizes have been configured for this raffle.",
     "prizeWonByDetails": "Won by: {{winnerName}} (Number: {{winningNumber}}, Phone: {{winnerPhone}})",

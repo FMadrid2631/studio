@@ -43,6 +43,7 @@
     "prizesListTitle": "Prêmios",
     "prizeItem": "Prêmio {{order}}",
     "prizeWonBy": "Ganhado por #{{number}} - {{name}}",
+    "prizeReferenceValueLabel": "(Valor Ref.: {{value}})",
     "raffleNotFoundTitle": "Rifa Não Encontrada",
     "raffleNotFoundDescription": "A rifa que você está procurando não existe ou pode ter sido removida.",
     "backToHomeButton": "Voltar ao Início",
@@ -205,7 +206,8 @@
     "allSoldOut": "Todos os números foram vendidos ou estão com pagamento pendente!",
     "countSummary": "{{availableCount}} de {{totalCount}} números disponíveis.",
     "noBankDetailsProvided": "Nenhum detalhe bancário foi fornecido para esta rifa.",
-    "exportAllSuccessDescription": "Imagem de números disponíveis e dados bancários exportada com sucesso."
+    "exportAllSuccessDescription": "Imagem de números disponíveis e dados bancários exportada com sucesso.",
+    "exportDisabledRaffleClosedTooltip": "A exportação está desabilitada porque a rifa está fechada."
   },
   "drawPage": {
     "backToRaffleDetails": "Voltar para Detalhes da Rifa",
@@ -226,6 +228,7 @@
     "winnerLabel": "Ganhador(a)",
     "phoneLabel": "Telefone",
     "winningNumberLabelTitle": "Número Ganhador",
+    "prizeReferenceValueLabel": "(Valor Ref.: {{value}})",
     "allPrizesStatusTitle": "Status de Todos os Prêmios",
     "noPrizesDefinedInRaffle": "Nenhum prêmio foi configurado para esta rifa.",
     "prizeWonByDetails": "Ganhador: {{winnerName}} (Número: {{winningNumber}}, Telefone: {{winnerPhone}})",

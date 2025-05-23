@@ -46,7 +46,7 @@ export default function AvailableNumbersPage() {
 
     try {
       const dataUrl = await toPng(exportTargetRef.current, {
-        backgroundColor: '#ffffff',
+        backgroundColor: '#ffffff', // Explicitly set background color for the image
         height: exportTargetRef.current.scrollHeight,
         width: exportTargetRef.current.offsetWidth,
       });
@@ -88,13 +88,20 @@ export default function AvailableNumbersPage() {
     );
   }
 
+  const isRaffleClosed = raffle.status === 'Closed';
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap justify-between items-center gap-2 mb-6">
         <Button variant="outline" onClick={() => router.push(`/raffles/${raffleId}`)}>
           <ArrowLeft className="mr-2 h-4 w-4" /> {t('availableNumbersPage.backToRaffleDetails')}
         </Button>
-        <Button onClick={handleExportImage} disabled={isExporting} variant="outline">
+        <Button 
+          onClick={handleExportImage} 
+          disabled={isExporting || isRaffleClosed} 
+          variant="outline"
+          title={isRaffleClosed ? t('availableNumbersPage.exportDisabledRaffleClosedTooltip') : t('raffleDetailsPage.exportImageButton')}
+        >
           {isExporting ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
@@ -106,13 +113,14 @@ export default function AvailableNumbersPage() {
 
       <h1 className="text-3xl font-bold text-center">{t('availableNumbersPage.title', { raffleName: raffle.name })}</h1>
       
-      <ScrollArea className="h-auto max-h-[70vh] border rounded-md p-1"> {/* Adjusted max-height */}
+      <ScrollArea className="h-auto max-h-[70vh] border rounded-md p-1">
         <div ref={exportTargetRef}>
           <AvailableNumbersList
             numbers={raffle.numbers}
             currencySymbol={raffle.country.currencySymbol}
             currencyCode={raffle.country.currencyCode}
             numberValue={raffle.numberValue}
+            t={t}
           />
           {raffle.bankDetails && (
             <Card className="mt-6 shadow-lg">
