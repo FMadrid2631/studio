@@ -1,0 +1,215 @@
+
+{
+  "app": {
+    "title": "Rifa Fácil",
+    "description": "Gerencie e participe de rifas facilmente."
+  },
+  "navbar": {
+    "home": "Início",
+    "newRaffle": "Nova Rifa",
+    "language": "Idioma"
+  },
+  "homePage": {
+    "welcomeTitle": "Bem-vindo ao Rifa Fácil!",
+    "welcomeSubtitle": "Sua solução completa para criar e gerenciar rifas sem esforço.",
+    "createNewRaffleButton": "Criar Nova Rifa",
+    "noRafflesTitle": "Ainda Não Há Rifas",
+    "noRafflesDescription": "Comece criando sua primeira rifa!",
+    "viewGridButton": "Ver Grade",
+    "purchaseButton": "Comprar",
+    "availableButton": "Disponíveis",
+    "drawButton": "Sortear",
+    "raffleStatusOpen": "Aberta",
+    "raffleStatusClosed": "Fechada",
+    "labels": {
+        "totalNumbers": "{{count}} números",
+        "numberValue": "{{value}} {{currencySymbol}} cada",
+        "country": "País: {{countryName}}",
+        "prizes": "Prêmios: {{count}}",
+        "drawDate": "Data do Sorteio: {{date}}"
+    }
+  },
+  "raffleDetailsPage": {
+    "backToAllRaffles": "Voltar para Todas as Rifas",
+    "raffleDetailsTitle": "Detalhes da Rifa",
+    "drawDateLabel": "Data do Sorteio: {{date}}",
+    "pricePerNumberLabel": "{{value}} {{currencySymbol}} por número",
+    "totalNumbersLabel": "Números Totais",
+    "numbersSoldLabel": "Números Vendidos",
+    "prizesLabel": "Prêmios",
+    "salesProgressLabel": "Progresso das Vendas",
+    "purchaseNumbersButton": "Comprar Números",
+    "viewAvailableButton": "Ver Disponíveis",
+    "conductDrawButton": "Realizar Sorteio",
+    "raffleGridTitle": "Grade da Rifa",
+    "raffleGridDescription": "Clique em um número disponível para comprá-lo.",
+    "prizesListTitle": "Prêmios",
+    "prizeItem": "Prêmio {{order}}",
+    "prizeWonBy": "Ganhado por #{{number}} - {{name}}",
+    "raffleNotFoundTitle": "Rifa Não Encontrada",
+    "raffleNotFoundDescription": "A rifa que você está procurando não existe ou pode ter sido removida.",
+    "backToHomeButton": "Voltar ao Início",
+    "configureButton": "Configurar",
+    "configureDisabledTooltip": "A configuração não pode ser alterada após o início das vendas ou se a rifa estiver fechada."
+  },
+  "configurePage": {
+    "title": "Criar Nova Rifa"
+  },
+  "configureForm": {
+    "title": "Criar Nova Rifa",
+    "description": "Preencha os detalhes abaixo para configurar sua rifa.",
+    "labels": {
+      "raffleName": "Nome/Descrição da Rifa",
+      "country": "País",
+      "numberValue": "Valor por Número ({{currencySymbol}})",
+      "totalNumbers": "Total de Números na Rifa",
+      "drawDate": "Data do Sorteio",
+      "numberOfPrizes": "Quantidade de Prêmios",
+      "prizeDescription": "Descrição do Prêmio {{index}} (Do Maior para o Menor)"
+    },
+    "placeholders": {
+      "raffleName": "Ex: Rifa Beneficente de Natal",
+      "selectCountry": "Selecione um país",
+      "numberValue": "Ex: 5",
+      "totalNumbers": "Ex: 500",
+      "pickDate": "Escolha uma data",
+      "numberOfPrizes": "Ex: 3",
+      "prizeDescription": "Ex: Grande Prêmio: Um carro novo"
+    },
+    "buttons": {
+      "createRaffle": "Criar Rifa",
+      "updateRaffle": "Atualizar Rifa"
+    },
+     "validation": {
+        "nameMin": "O nome da rifa deve ter pelo menos 3 caracteres.",
+        "countryRequired": "Por favor, selecione um país.",
+        "totalNumbersPositive": "O total de números deve ser positivo.",
+        "totalNumbersMin": "Mínimo de 10 números.",
+        "totalNumbersMax": "Máximo de 10000 números.",
+        "numberValuePositive": "O valor do número deve ser positivo.",
+        "numberOfPrizesPositive": "A quantidade de prêmios deve ser positiva.",
+        "numberOfPrizesMin": "Mínimo de 1 prêmio.",
+        "numberOfPrizesMax": "Máximo de 20 prêmios.",
+        "prizeDescriptionEmpty": "A descrição do prêmio não pode estar vazia.",
+        "atLeastOnePrize": "É necessário pelo menos um prêmio.",
+        "drawDateRequired": "A data do sorteio é obrigatória."
+    },
+    "toast": {
+      "successTitle": "Sucesso!",
+      "successDescription": "Rifa \"{{raffleName}}\" criada.",
+      "updateSuccessTitle": "Atualizado!",
+      "updateSuccessDescription": "Rifa \"{{raffleName}}\" atualizada.",
+      "errorTitle": "Erro",
+      "errorCountry": "País selecionado inválido.",
+      "errorUpdate": "Falha ao atualizar a rifa. Pode estar bloqueada ou ocorreu um problema."
+    },
+    "fieldsDisabledEdit": "Este campo não pode ser alterado após a criação se as vendas tiverem começado."
+  },
+  "editRafflePage": {
+    "title": "Editar Configuração da Rifa",
+    "description": "Modifique os detalhes da sua rifa abaixo. Alguns campos могут estar bloqueados se as vendas tiverem começado.",
+    "cannotEditTitle": "Não é Possível Editar a Rifa",
+    "cannotEditDescriptionSales": "Esta rifa não pode ser editada porque as vendas já começaram.",
+    "cannotEditDescriptionClosed": "Esta rifa não pode ser editada porque está fechada."
+  },
+  "purchaseForm": {
+    "title": "Comprar Números para \"{{raffleName}}\"",
+    "description": "Selecione seus números e preencha seus dados.",
+    "labels": {
+      "fullName": "Nome Completo",
+      "phoneNumber": "Número de Telefone",
+      "selectNumbers": "Selecionar Números",
+      "paymentMethod": "Método de Pagamento"
+    },
+    "placeholders": {
+      "fullName": "João Silva",
+      "phoneNumber": "+5511912345678",
+      "selectPaymentMethod": "Selecione o método de pagamento"
+    },
+    "selectNumbersDescription": "Escolha seus números da sorte. {{value}} {{currencySymbol}} cada.",
+    "allNumbersSoldOut": "Todos os números estão esgotados!",
+    "paymentMethods": {
+        "cash": "Dinheiro",
+        "transfer": "Transferência",
+        "pending": "Pagamento Pendente"
+    },
+    "totalAmount": "Valor Total",
+    "totalAmountDetails": "({{count}} número(s) x {{value}} {{currencySymbol}})",
+    "purchaseButton": "Comprar",
+    "toast": {
+        "successTitle": "Sucesso!",
+        "successDescription": "{{count}} número(s) comprados para {{buyerName}}.",
+        "errorTitle": "Erro",
+        "errorDescription": "Falha ao comprar números. Alguns podem ter sido ocupados."
+    },
+    "validation": {
+        "nameMin": "O nome deve ter pelo menos 2 caracteres.",
+        "phoneMin": "O número de telefone parece muito curto.",
+        "selectedNumbersMin": "Por favor, selecione pelo menos um número.",
+        "selectedNumbersUnavailable": "Um ou mais números selecionados não estão disponíveis.",
+        "paymentMethodRequired": "O método de pagamento é obrigatório."
+    },
+    "raffleClosedTitle": "Rifa Encerrada",
+    "raffleClosedDescription": "Esta rifa não está mais aberta para compras.",
+    "backToRaffleButton": "Voltar para a Rifa"
+  },
+  "availableNumbersPage": {
+    "backToRaffleDetails": "Voltar para Detalhes da Rifa",
+    "title": "Números Disponíveis para \"{{raffleName}}\"",
+    "listTitle": "Números Disponíveis",
+    "listDescription": "Estes números ainda estão disponíveis! Cada um custa {{value}} {{currencySymbol}}.",
+    "allSoldOut": "Todos os números foram vendidos ou estão com pagamento pendente!",
+    "countSummary": "{{availableCount}} de {{totalCount}} números disponíveis."
+  },
+  "drawPage": {
+    "backToRaffleDetails": "Voltar para Detalhes da Rifa",
+    "title": "Realizar Sorteio para \"{{raffleName}}\"",
+    "statusAllAwarded": "Todos os prêmios foram entregues. Esta rifa está fechada.",
+    "statusReadyToDraw": "Pronto para sortear o próximo prêmio: {{prizeDescription}}.",
+    "statusNoMorePrizes": "Não há mais prêmios para sortear nesta rodada.",
+    "errorNoEligibleNumbers": "Não há números comprados elegíveis disponíveis para sortear.",
+    "errorDrawFailed": "O sorteio não retornou nenhum número vencedor.",
+    "errorUnexpected": "Ocorreu um erro inesperado durante o sorteio.",
+    "raffleConcludedTitle": "Rifa Concluída",
+    "raffleConcludedDescription": "Todos os prêmios foram entregues com sucesso. A rifa está oficialmente fechada. Parabéns a todos os vencedores!",
+    "buttonDrawFor": "Sortear: {{prizeDescription}}",
+    "buttonDrawNext": "Próximo Prêmio",
+    "drawOnePrizeHint": "Apenas um prêmio será sorteado por clique.",
+    "lastDrawWinnersTitle": "🎉 Último(s) Ganhador(es) 🎉",
+    "prizeDetailsTitle": "Detalhes do Prêmio",
+    "winningNumberLabel": "Número Ganhador",
+    "winnerLabel": "Ganhador(a)",
+    "phoneLabel": "Telefone",
+    "awardedPrizesTitle": "Prêmios Entregues",
+    "noPrizesAwardedYet": "Nenhum prêmio entregue ainda.",
+    "prizeWonByDetails": "Ganhador: {{winnerName}} (Número: {{winningNumber}}, Telefone: {{winnerPhone}})",
+    "morePrizesHint": "{{count}} prêmio(s) mais para sortear depois deste.",
+    "toast": {
+        "infoTitle": "Informação",
+        "infoAllPrizesAwardedOrClosed": "Todos os prêmios foram entregues ou a rifa está fechada.",
+        "infoNoMorePrizesThisRound": "Não há mais prêmios para sortear nesta rodada.",
+        "winnerDrawnTitle": "Ganhador Sorteado!",
+        "winnerDrawnDescription": "O número {{winningNumber}} ganha {{prizeDescription}}! Parabéns a {{winnerName}}!",
+        "raffleCompleteTitle": "Rifa Completa!",
+        "raffleCompleteDescription": "Todos os prêmios foram entregues. A rifa agora está fechada.",
+        "drawErrorTitle": "Erro no Sorteio",
+        "drawErrorDescriptionGeneric": "Falha ao realizar o sorteio."
+    }
+  },
+  "raffleTabs": {
+    "grid": "Grade",
+    "purchase": "Comprar",
+    "available": "Disponíveis",
+    "draw": "Sortear"
+  },
+  "loading": "Carregando...",
+  "actions": {
+    "backToHome": "Voltar ao Início"
+  },
+  "languageSwitcher": {
+    "selectLanguage": "Selecionar Idioma",
+    "en": "Inglês (English)",
+    "es": "Espanhol (Español)",
+    "pt": "Português (Português)"
+  }
+}

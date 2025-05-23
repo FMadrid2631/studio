@@ -6,21 +6,17 @@ import { Button } from '@/components/ui/button';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useTranslations } from '@/contexts/LocalizationContext';
+import { LanguageSwitcher } from './LanguageSwitcher'; // Import LanguageSwitcher
 
 export function Navbar() {
   const pathname = usePathname();
-  const { t, locale } = useTranslations(); // Added locale for potential lang attribute on html
+  const { t } = useTranslations(); 
 
   const navItems = [
     { href: '/', labelKey: 'navbar.home', icon: Home },
     { href: '/configure', labelKey: 'navbar.newRaffle', icon: PlusCircle },
   ];
   
-  // Update html lang attribute
-  if (typeof document !== 'undefined') {
-    document.documentElement.lang = locale;
-  }
-
   return (
     <nav className="border-b bg-card shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -42,6 +38,7 @@ export function Navbar() {
               </Link>
             </Button>
           ))}
+          <LanguageSwitcher /> 
         </div>
       </div>
     </nav>

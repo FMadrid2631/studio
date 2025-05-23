@@ -6,7 +6,8 @@
   },
   "navbar": {
     "home": "Inicio",
-    "newRaffle": "Nueva Rifa"
+    "newRaffle": "Nueva Rifa",
+    "language": "Idioma"
   },
   "homePage": {
     "welcomeTitle": "¡Bienvenido a Rifa Fácil!",
@@ -204,6 +205,11 @@
   "loading": "Cargando...",
   "actions": {
     "backToHome": "Volver al Inicio"
+  },
+  "languageSwitcher": {
+    "selectLanguage": "Seleccionar Idioma",
+    "en": "Inglés (English)",
+    "es": "Español (Español)",
+    "pt": "Portugués (Português)"
   }
 }
-

@@ -6,7 +6,8 @@
   },
   "navbar": {
     "home": "Home",
-    "newRaffle": "New Raffle"
+    "newRaffle": "New Raffle",
+    "language": "Language"
   },
   "homePage": {
     "welcomeTitle": "Welcome to Rifa Fácil!",
@@ -204,6 +205,11 @@
   "loading": "Loading...",
   "actions": {
     "backToHome": "Back to Home"
+  },
+  "languageSwitcher": {
+    "selectLanguage": "Select Language",
+    "en": "English",
+    "es": "Spanish",
+    "pt": "Portuguese"
   }
 }
-
