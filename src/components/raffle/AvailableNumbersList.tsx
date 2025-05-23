@@ -7,19 +7,20 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { useTranslations } from '@/contexts/LocalizationContext';
+import React from 'react'; // Import React
 
 interface AvailableNumbersListProps {
   numbers: RaffleNumber[];
   currencySymbol: string;
   numberValue: number;
-  // It seems currencyCode is missing here for proper formatting, assuming we want similar formatting.
-  // For now, I'll use a generic formatting or add currencyCode if complex logic is needed.
-  // Let's assume a simple display for now or that the description key handles it.
-  // Adding currencyCode to ensure consistency:
   currencyCode: string;
 }
 
-export function AvailableNumbersList({ numbers, currencySymbol, numberValue, currencyCode }: AvailableNumbersListProps) {
+// Usa React.forwardRef para pasar el ref al componente ScrollArea
+export const AvailableNumbersList = React.forwardRef<
+  React.ElementRef<typeof ScrollArea>, // El tipo del elemento al que se aplica el ref (ScrollArea)
+  AvailableNumbersListProps
+>(({ numbers, currencySymbol, numberValue, currencyCode }, ref) => {
   const availableNumbers = numbers.filter(num => num.status === 'Available');
   const { t, locale } = useTranslations();
 
@@ -46,12 +47,13 @@ export function AvailableNumbersList({ numbers, currencySymbol, numberValue, cur
             <p className="text-xl font-semibold text-muted-foreground">{t('availableNumbersPage.allSoldOut')}</p>
           </div>
         ) : (
-          <ScrollArea className="h-72">
+          // Adjunta el ref al componente ScrollArea
+          <ScrollArea ref={ref} className="h-72">
             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2 p-1">
               {availableNumbers.map(num => (
-                <Badge 
-                  key={num.id} 
-                  variant="outline" 
+                <Badge
+                  key={num.id}
+                  variant="outline"
                   className="aspect-square flex items-center justify-center text-sm font-medium border-primary text-primary hover:bg-primary/10 transition-colors cursor-default"
                   title={`Number ${num.id}`}
                 >
@@ -67,4 +69,6 @@ export function AvailableNumbersList({ numbers, currencySymbol, numberValue, cur
       </CardContent>
     </Card>
   );
-}
+});
+
+AvailableNumbersList.displayName = 'AvailableNumbersList';
