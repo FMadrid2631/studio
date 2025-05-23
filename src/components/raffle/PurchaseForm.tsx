@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import type { PurchaseFormInput, Raffle } from '@/types';
 import { useRaffles } from '@/contexts/RaffleContext';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'; // Added usePathname
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Checkbox } from '../ui/checkbox';
@@ -35,22 +35,27 @@ const createPurchaseFormSchema = (availableNumbers: number[], t: Function) => z.
 
 
 export function PurchaseForm({ raffle }: PurchaseFormProps) {
-  const { purchaseNumbers, getRaffleById } = useRaffles(); // Added getRaffleById for latest state
+  const { purchaseNumbers, getRaffleById } = useRaffles();
   const { toast } = useToast();
   const router = useRouter();
+  const pathname = usePathname(); // Get current pathname
   const searchParams = useSearchParams();
   const [totalAmount, setTotalAmount] = useState(0);
   const { t, locale } = useTranslations();
 
-  const initialUrlParamProcessed = useRef(false);
+  // Refs to manage URL parameter processing state
+  const paramProcessedForCurrentState = useRef(false);
+  const processedRaffleIdRef = useRef<string | null>(null);
+  const processedParamValueRef = useRef<string | null>(null);
 
   const availableRaffleNumbers = useMemo(() => {
-    // Ensure we are using the latest raffle state for available numbers
     const currentRaffle = getRaffleById(raffle.id) || raffle;
     return currentRaffle.numbers.filter(n => n.status === 'Available').map(n => n.id);
-  }, [raffle.id, raffle.numbers, getRaffleById]); // Depend on raffle.numbers too
+  }, [raffle.id, raffle.numbers, getRaffleById]);
 
-  const purchaseFormSchema = createPurchaseFormSchema(availableRaffleNumbers, t);
+  const purchaseFormSchema = useMemo(() => {
+    return createPurchaseFormSchema(availableRaffleNumbers, t);
+  }, [availableRaffleNumbers, t]);
   
   const form = useForm<PurchaseFormInput>({
     resolver: zodResolver(purchaseFormSchema),
@@ -62,39 +67,45 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
     },
   });
 
-  const { setValue, getValues, watch } = form;
+  const { watch, control } = form; // Removed setValue, getValues as we use form.setValue etc.
   const selectedNumbersWatch = watch('selectedNumbers');
 
-  // Effect for pre-selecting a number from URL query parameter.
-  // This should run once per relevant change in searchParams or raffle.id.
   useEffect(() => {
-    if (initialUrlParamProcessed.current && searchParams.get('selectedNumber') === null) {
-      // If already processed and no new selectedNumber param, do nothing to avoid interference
-      return;
-    }
-
+    const currentRaffleId = raffle.id;
     const preSelectedNumberStr = searchParams.get('selectedNumber');
-    if (preSelectedNumberStr) {
-      const preSelectedNumberVal = Number(preSelectedNumberStr);
-      
-      // Use the memoized availableRaffleNumbers which is derived from the latest raffle state
-      if (availableRaffleNumbers.includes(preSelectedNumberVal)) {
-        const currentSelections = getValues('selectedNumbers') || [];
-        if (!currentSelections.includes(preSelectedNumberVal)) {
-          setValue('selectedNumbers', [...currentSelections, preSelectedNumberVal], { shouldDirty: true, shouldValidate: true });
-        }
-      }
-      initialUrlParamProcessed.current = true; // Mark as processed for this specific param value
-    } else {
-      // If there's no selectedNumber in the URL, ensure the flag allows future processing if a param appears
-      initialUrlParamProcessed.current = false;
-    }
-  }, [searchParams, raffle.id, availableRaffleNumbers, setValue, getValues]);
 
-  // Reset the processing flag if the raffle ID changes (e.g., navigating to a different purchase page)
-  useEffect(() => {
-    initialUrlParamProcessed.current = false;
-  }, [raffle.id]);
+    // Determine if we need to re-evaluate the param processing:
+    // 1. If the raffle ID has changed.
+    // 2. If the 'selectedNumber' URL parameter value itself has changed.
+    if (currentRaffleId !== processedRaffleIdRef.current || preSelectedNumberStr !== processedParamValueRef.current) {
+        paramProcessedForCurrentState.current = false; // Reset flag, indicating a new state to evaluate
+        processedRaffleIdRef.current = currentRaffleId;
+        processedParamValueRef.current = preSelectedNumberStr;
+    }
+
+    // Process the URL parameter only if it exists and hasn't been processed for the current (raffleId, paramValue) state.
+    if (preSelectedNumberStr && !paramProcessedForCurrentState.current) {
+        // Ensure availableRaffleNumbers is populated before trying to use it
+        if (availableRaffleNumbers.length > 0) {
+            const preSelectedNumberVal = Number(preSelectedNumberStr);
+            if (availableRaffleNumbers.includes(preSelectedNumberVal)) {
+                const currentSelections = form.getValues('selectedNumbers') || [];
+                if (!currentSelections.includes(preSelectedNumberVal)) {
+                    form.setValue('selectedNumbers', [...currentSelections, preSelectedNumberVal], {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                    });
+                }
+            }
+            // Mark as processed for this specific raffle ID and param value combination
+            paramProcessedForCurrentState.current = true; 
+        }
+    } else if (!preSelectedNumberStr && processedParamValueRef.current !== null) {
+        // If the param is removed from the URL, reset the processed state for it.
+        paramProcessedForCurrentState.current = false;
+        processedParamValueRef.current = null;
+    }
+  }, [searchParams, raffle.id, availableRaffleNumbers, form]);
 
 
   useEffect(() => {
@@ -103,7 +114,7 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
 
 
   function onSubmit(data: PurchaseFormInput) {
-    const currentRaffleState = getRaffleById(raffle.id); // Fetch latest state
+    const currentRaffleState = getRaffleById(raffle.id); 
     const currentAvailableAtSubmit = currentRaffleState 
         ? currentRaffleState.numbers.filter(n => n.status === 'Available').map(n => n.id)
         : availableRaffleNumbers; 
@@ -128,7 +139,15 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
         title: t('purchaseForm.toast.successTitle'), 
         description: t('purchaseForm.toast.successDescription', { count: data.selectedNumbers.length, buyerName: data.buyerName }) 
       });
-      router.push(`/raffles/${raffle.id}`);
+      // Remove the selectedNumber query param after successful purchase to avoid re-selection if user navigates back.
+      const newSearchParams = new URLSearchParams(searchParams.toString());
+      if (newSearchParams.has('selectedNumber')) {
+        newSearchParams.delete('selectedNumber');
+        router.replace(`${pathname}?${newSearchParams.toString()}`, { scroll: false });
+      } else {
+        router.push(`/raffles/${raffle.id}`);
+      }
+      
     } else {
       toast({ 
         title: t('purchaseForm.toast.errorTitle'), 
