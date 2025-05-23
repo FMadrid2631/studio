@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, CheckCircle } from 'lucide-react';
-import { Trophy } from 'lucide-react'; // Corrected import
+import { Trophy } from 'lucide-react';
 import Image from 'next/image';
 import { useTranslations } from '@/contexts/LocalizationContext';
 
@@ -47,11 +47,19 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
     setDrawError(null);
     setLastDrawnWinners([]);
 
+    // 1. Get all numbers that are fully 'Purchased' and have buyer details.
     const purchasedNumbers = raffle.numbers.filter(
       (n) => n.status === 'Purchased' && n.buyerName && n.buyerPhone
     );
 
-    const winningNumbersSoFar = raffle.prizes.map(p => p.winningNumber).filter(n => n !== undefined) as number[];
+    // 2. Get all numbers that have already won a prize in this raffle.
+    const winningNumbersSoFar = raffle.prizes
+      .map(p => p.winningNumber)
+      .filter(n => n !== undefined) as number[];
+
+    // 3. Determine eligible numbers for this specific draw:
+    //    - Must be from 'purchasedNumbers'.
+    //    - Must NOT be in 'winningNumbersSoFar'.
     const eligibleNumbersToDrawFrom = purchasedNumbers.filter(n => !winningNumbersSoFar.includes(n.id));
 
     if (eligibleNumbersToDrawFrom.length === 0) {
@@ -61,25 +69,27 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
     }
 
     try {
+      // The flow will randomly select one number from the provided list of eligible IDs.
       const result = await automatedRaffleDraw({
-        numberOfPrizes: 1,
-        availableNumbers: eligibleNumbersToDrawFrom.map(n => n.id),
+        numberOfPrizes: 1, // We draw one prize at a time.
+        availableNumbers: eligibleNumbersToDrawFrom.map(n => n.id), // Pass only IDs of eligible numbers.
       });
 
       if (result.drawnNumbers.length > 0) {
-        const winningNumber = result.drawnNumbers[0];
-        const winnerDetails = purchasedNumbers.find(n => n.id === winningNumber);
+        const winningNumberId = result.drawnNumbers[0];
+        const winnerDetails = purchasedNumbers.find(n => n.id === winningNumberId); // Find details from purchased list
 
         if (winnerDetails && winnerDetails.buyerName && winnerDetails.buyerPhone) {
-          recordPrizeWinner(raffle.id, currentPrizeToAward.order, winningNumber, winnerDetails.buyerName, winnerDetails.buyerPhone);
-          const awardedPrizeDetails = { ...currentPrizeToAward, winningNumber, winnerName: winnerDetails.buyerName, winnerPhone: winnerDetails.buyerPhone };
+          recordPrizeWinner(raffle.id, currentPrizeToAward.order, winningNumberId, winnerDetails.buyerName, winnerDetails.buyerPhone);
+          const awardedPrizeDetails = { ...currentPrizeToAward, winningNumber: winningNumberId, winnerName: winnerDetails.buyerName, winnerPhone: winnerDetails.buyerPhone };
           setLastDrawnWinners([awardedPrizeDetails]);
           toast({ 
             title: t('drawPage.toast.winnerDrawnTitle'), 
-            description: t('drawPage.toast.winnerDrawnDescription', { winningNumber: String(winningNumber), prizeDescription: currentPrizeToAward.description, winnerName: winnerDetails.buyerName })
+            description: t('drawPage.toast.winnerDrawnDescription', { winningNumber: String(winningNumberId), prizeDescription: currentPrizeToAward.description, winnerName: winnerDetails.buyerName })
           });
 
-          if (prizesToAward.length === 1) {
+          // If this was the last prize to award, close the raffle.
+          if (prizesToAward.length === 1) { 
             closeRaffle(raffle.id);
             toast({ 
               title: t('drawPage.toast.raffleCompleteTitle'), 
@@ -88,7 +98,8 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
             });
           }
         } else {
-          setDrawError(t('drawPage.errorUnexpected')); // Generic error if winner details not found (shouldn't happen)
+          // This case should ideally not be reached if eligibleNumbersToDrawFrom is derived from purchasedNumbers with details.
+          setDrawError(t('drawPage.errorUnexpected')); 
         }
       } else {
         setDrawError(t('drawPage.errorDrawFailed'));
@@ -122,7 +133,7 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
       <CardContent className="space-y-6">
         {drawError && (
           <Alert variant="destructive">
-            <AlertTitle>{t('configureForm.toast.errorTitle')}</AlertTitle> {/* Re-use generic error title */}
+            <AlertTitle>{t('configureForm.toast.errorTitle')}</AlertTitle>
             <AlertDescription>{drawError}</AlertDescription>
           </Alert>
         )}
@@ -200,3 +211,5 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
     </Card>
   );
 }
+
+    
