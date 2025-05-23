@@ -47,7 +47,15 @@
     "raffleNotFoundDescription": "A rifa que você está procurando não existe ou pode ter sido removida.",
     "backToHomeButton": "Voltar ao Início",
     "configureButton": "Configurar",
-    "configureDisabledTooltip": "A configuração não pode ser alterada após o início das vendas ou se a rifa estiver fechada."
+    "configureDisabledTooltip": "A configuração não pode ser alterada após o início das vendas ou se a rifa estiver fechada.",
+    "legend": {
+      "title": "Legenda:",
+      "available": "Disponível",
+      "pendingPayment": "Pagamento Pendente",
+      "purchasedCash": "Pago (Dinheiro)",
+      "purchasedTransfer": "Pago (Transferência)",
+      "purchasedOther": "Pago (Outro)"
+    }
   },
   "configurePage": {
     "title": "Criar Nova Rifa"

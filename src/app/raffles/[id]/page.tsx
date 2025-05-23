@@ -6,7 +6,7 @@ import { useRaffles } from '@/contexts/RaffleContext';
 import { RaffleGrid } from '@/components/raffle/RaffleGrid';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, Edit, Settings, Trophy, ListChecks, Download } from 'lucide-react';
+import { ArrowLeft, Edit, Settings, Trophy, ListChecks } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -15,9 +15,6 @@ import { format } from 'date-fns';
 import { getLocaleFromString } from '@/lib/date-fns-locales';
 import { useEffect, useRef, useState } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { toPng } from 'html-to-image';
-import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
 
 
 export default function RafflePage() {
@@ -26,12 +23,9 @@ export default function RafflePage() {
   const { getRaffleById, isLoading } = useRaffles();
   const router = useRouter();
   const { t, locale, changeLocaleForRaffle } = useTranslations();
-  const { toast } = useToast();
-
+  
   const raffle = getRaffleById(raffleId);
-  const gridRef = useRef<HTMLDivElement>(null);
-  const [isExporting, setIsExporting] = useState(false);
-
+  
   useEffect(() => {
     if (raffle) {
       changeLocaleForRaffle(raffle.country.code);
@@ -70,47 +64,6 @@ export default function RafflePage() {
   const handleNumberClick = (numberId: number) => {
     router.push(`/raffles/${raffleId}/purchase?selectedNumber=${numberId}`);
   };
-
-  const handleExportImage = async () => {
-    if (!gridRef.current) {
-      toast({
-        title: t('raffleDetailsPage.exportErrorTitle'),
-        description: t('raffleDetailsPage.exportErrorDescription'),
-        variant: 'destructive',
-      });
-      return;
-    }
-    setIsExporting(true);
-    try {
-      // Ensure the grid has loaded and has dimensions
-      await new Promise(resolve => setTimeout(resolve, 100)); // Short delay to help with rendering
-
-      const dataUrl = await toPng(gridRef.current, { 
-        backgroundColor: '#ffffff', // Set background to white for better contrast
-        // Consider explicitly setting width/height if scrollHeight/Width are problematic
-        // width: gridRef.current.scrollWidth,
-        // height: gridRef.current.scrollHeight,
-      });
-      const link = document.createElement('a');
-      link.download = `rifa-${raffle.name.replace(/\s+/g, '_').toLowerCase()}-numeros.png`;
-      link.href = dataUrl;
-      link.click();
-      toast({
-        title: t('raffleDetailsPage.exportSuccessTitle'),
-        description: t('raffleDetailsPage.exportSuccessDescription'),
-      });
-    } catch (error) {
-      console.error('Error exporting image:', error);
-      toast({
-        title: t('raffleDetailsPage.exportErrorTitle'),
-        description: t('raffleDetailsPage.exportErrorDescription'),
-        variant: 'destructive',
-      });
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
 
   const purchasedCount = raffle.numbers.filter(n => n.status === 'Purchased' || n.status === 'PendingPayment').length;
   const progress = raffle.totalNumbers > 0 ? (purchasedCount / raffle.totalNumbers) * 100 : 0;
@@ -171,7 +124,7 @@ export default function RafflePage() {
                           <Settings className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.configureButton')}
                         </Link>
                       ) : (
-                        <span> {/* Span wrapper for disabled button tooltip */}
+                        <span> 
                           <Settings className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.configureButton')}
                         </span>
                       )}
@@ -189,7 +142,7 @@ export default function RafflePage() {
                   <Edit className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.purchaseNumbersButton')}
                 </Link>
               </Button>
-              <Button variant="outline" asChild className="w-full">
+               <Button variant="outline" asChild className="w-full">
                 <Link href={`/raffles/${raffle.id}/available`}>
                   <ListChecks className="mr-2 h-4 w-4" /> {t('homePage.availableButton')}
                 </Link>
@@ -205,23 +158,42 @@ export default function RafflePage() {
         </Card>
         
         <Card>
-          <CardHeader>
-             {/* Removed title "Raffle Grid" and export button from here */}
-          </CardHeader>
           <CardContent className="pt-6">
-            <div ref={gridRef}>
-              <RaffleGrid 
-                numbers={raffle.numbers} 
-                currencySymbol={raffle.country.currencySymbol}
-                currencyCode={raffle.country.currencyCode}
-                numberValue={raffle.numberValue}
-                onNumberClick={handleNumberClick}
-                interactive={raffle.status === 'Open'}
-                t={t}
-              />
-            </div>
+            <RaffleGrid 
+              numbers={raffle.numbers} 
+              currencySymbol={raffle.country.currencySymbol}
+              currencyCode={raffle.country.currencyCode}
+              numberValue={raffle.numberValue}
+              onNumberClick={handleNumberClick}
+              interactive={raffle.status === 'Open'}
+              t={t}
+            />
           </CardContent>
         </Card>
+
+        <div className="p-4 border rounded-md bg-muted/30 text-sm space-y-2">
+          <h4 className="font-semibold text-base">{t('raffleDetailsPage.legend.title')}</h4>
+          <div className="flex items-center gap-2">
+            <div className="h-4 w-4 rounded-sm border bg-card"></div>
+            <span>{t('raffleDetailsPage.legend.available')}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-4 w-4 rounded-sm bg-yellow-400"></div>
+            <span>{t('raffleDetailsPage.legend.pendingPayment')}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-4 w-4 rounded-sm bg-sky-500"></div>
+            <span>{t('raffleDetailsPage.legend.purchasedCash')}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-4 w-4 rounded-sm bg-emerald-500"></div>
+            <span>{t('raffleDetailsPage.legend.purchasedTransfer')}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-4 w-4 rounded-sm bg-green-600"></div>
+            <span>{t('raffleDetailsPage.legend.purchasedOther')}</span>
+          </div>
+        </div>
 
         <Card>
           <CardHeader>
@@ -238,7 +210,6 @@ export default function RafflePage() {
                         <span className="ml-2 text-sm text-green-600 font-semibold">({t('raffleDetailsPage.prizeWonBy', { number: prize.winningNumber, name: prize.winnerName})})</span>
                       )}
                     </div>
-                    {/* Removed prize.referenceValue display from here */}
                   </div>
                 </li>
               ))}
@@ -249,3 +220,5 @@ export default function RafflePage() {
     </TooltipProvider>
   );
 }
+
+    
