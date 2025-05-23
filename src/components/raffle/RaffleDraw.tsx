@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, CheckCircle } from 'lucide-react';
 import { Trophy } from 'lucide-react';
-import Image from 'next/image';
+// Image import was removed as it's no longer used here
 import { useTranslations } from '@/contexts/LocalizationContext';
 
 interface RaffleDrawProps {
@@ -29,6 +29,7 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
   const [lastDrawnWinners, setLastDrawnWinners] = useState<Prize[]>([]);
   
   const prizesToAward = raffle.prizes.filter(p => !p.winningNumber);
+  // This variable determines if the UI should show the "concluded" state or the drawing interface.
   const allPrizesAwardedOrRaffleClosed = prizesToAward.length === 0 || raffle.status === 'Closed';
 
   const handleDraw = async () => {
@@ -40,13 +41,12 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
     const currentPrizeToAward = prizesToAward.sort((a, b) => a.order - b.order)[0];
     if (!currentPrizeToAward) {
         toast({ title: t('drawPage.toast.infoTitle'), description: t('drawPage.toast.infoNoMorePrizesThisRound'), variant: 'default' });
+        setIsDrawing(false); // Ensure drawing state is reset if somehow reached here
         return;
     }
 
     setIsDrawing(true);
     setDrawError(null);
-    // Do not clear lastDrawnWinners here, so the '000' or previous number persists until new draw
-    // setLastDrawnWinners([]); 
 
     const purchasedNumbers = raffle.numbers.filter(
       (n) => n.status === 'Purchased' && n.buyerName && n.buyerPhone
@@ -76,33 +76,36 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
 
         if (winnerDetails && winnerDetails.buyerName && winnerDetails.buyerPhone) {
           recordPrizeWinner(raffle.id, currentPrizeToAward.order, winningNumberId, winnerDetails.buyerName, winnerDetails.buyerPhone);
+          
           const awardedPrizeDetails = { ...currentPrizeToAward, winningNumber: winningNumberId, winnerName: winnerDetails.buyerName, winnerPhone: winnerDetails.buyerPhone };
-          setLastDrawnWinners([awardedPrizeDetails]); // Update lastDrawnWinners with the new winner
+          setLastDrawnWinners([awardedPrizeDetails]);
           toast({ 
             title: t('drawPage.toast.winnerDrawnTitle'), 
             description: t('drawPage.toast.winnerDrawnDescription', { winningNumber: String(winningNumberId).padStart(String(raffle.totalNumbers).length, '0'), prizeDescription: currentPrizeToAward.description, winnerName: winnerDetails.buyerName })
           });
 
-          // Check if this was the last prize to award
-          const remainingPrizesAfterThisDraw = raffle.prizes.filter(p => !p.winningNumber && p.id !== currentPrizeToAward.id).length;
-          if (remainingPrizesAfterThisDraw === 0 && raffle.prizes.find(p=>p.id === currentPrizeToAward.id && p.winningNumber === undefined )) { // Double check based on updated raffle state from context might be better
-            // A more robust check would be to get the updated raffle from context and check its prizes.
-            // For now, assume this draw + recordPrizeWinner updates context, and next render will show raffle closed if it is.
-             const refreshedRaffle = getRaffleById(raffle.id);
-             if (refreshedRaffle && refreshedRaffle.prizes.every(p => p.winningNumber)) {
-                closeRaffle(raffle.id);
-                toast({ 
+          // Get the latest state of the raffle after recording the winner
+          const updatedRaffleState = getRaffleById(raffle.id);
+
+          // Check if ALL prizes are now awarded
+          if (updatedRaffleState && updatedRaffleState.prizes.every(p => !!p.winningNumber)) {
+            // If all prizes are awarded and the raffle is not already 'Closed', then close it.
+            if (updatedRaffleState.status !== 'Closed') {
+              closeRaffle(raffle.id);
+              toast({ 
                 title: t('drawPage.toast.raffleCompleteTitle'), 
                 description: t('drawPage.toast.raffleCompleteDescription'), 
                 duration: 5000 
-                });
-             }
+              });
+            }
           }
         } else {
+          // This case should ideally not be reached if eligibleNumbersToDrawFrom implies winnerDetails exist.
+          // However, as a fallback.
           setDrawError(t('drawPage.errorUnexpected')); 
+          console.error("Winner details not found for drawn number:", winningNumberId);
         }
       } else {
-        // This case implies the AI flow failed to return a drawn number even if eligible numbers were provided.
         setDrawError(t('drawPage.errorDrawFailedNoNumberReturned'));
         toast({ title: t('drawPage.toast.drawErrorTitle'), description: t('drawPage.errorDrawFailedNoNumberReturned'), variant: 'destructive' });
       }
@@ -120,8 +123,8 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
      return <div className="flex justify-center items-center min-h-[20rem]"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
   }
 
-  const nextPrizeToAward = prizesToAward.sort((a, b) => a.order - b.order)[0];
-  const nextPrizeDescription = nextPrizeToAward?.description || t('drawPage.buttonDrawNext');
+  const nextPrizeToAwardDisplay = prizesToAward.sort((a, b) => a.order - b.order)[0];
+  const nextPrizeDescription = nextPrizeToAwardDisplay?.description || t('drawPage.buttonDrawNext');
   
   const displayWinningNumber = lastDrawnWinners.length > 0 && lastDrawnWinners[0].winningNumber 
                                ? String(lastDrawnWinners[0].winningNumber).padStart(String(raffle.totalNumbers).length, '0') 
@@ -150,6 +153,7 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
              <CheckCircle className="h-5 w-5 text-green-600" />
             <AlertTitle className="font-semibold">{t('drawPage.raffleConcludedTitle')}</AlertTitle>
             <AlertDescription>{t('drawPage.raffleConcludedDescription')}</AlertDescription>
+            {/* Image was removed from here */}
           </Alert>
         ) : (
           <div className="text-center">
@@ -233,3 +237,4 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
     </Card>
   );
 }
+
