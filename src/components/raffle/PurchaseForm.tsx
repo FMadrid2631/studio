@@ -23,7 +23,6 @@ interface PurchaseFormProps {
   raffle: Raffle;
 }
 
-// Schema factory remains the same, validation is on the array of numbers.
 const createPurchaseFormSchema = (allRaffleNumbers: RaffleNumberType[], t: Function) => z.object({
   buyerName: z.string().min(2, { message: t('purchaseForm.validation.nameMin') }),
   buyerPhone: z.string().min(5, { message: t('purchaseForm.validation.phoneMin') }),
@@ -32,7 +31,7 @@ const createPurchaseFormSchema = (allRaffleNumbers: RaffleNumberType[], t: Funct
       const raffleNum = allRaffleNumbers.find(n => n.id === numId);
       return raffleNum && raffleNum.status === 'Available';
     }), {
-      message: t('purchaseForm.validation.selectedNumbersUnavailable')
+      message: t('purchaseForm.validation.selectedNumbersUnavailableGeneral')
     }),
   paymentMethod: z.enum(['Cash', 'Transfer', 'Pending'], { required_error: t('purchaseForm.validation.paymentMethodRequired') }),
 });
@@ -47,7 +46,6 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
   const [totalAmount, setTotalAmount] = useState(0);
   const { t, locale } = useTranslations();
 
-  // Get the latest raffle state
   const raffle = useMemo(() => getRaffleById(initialRaffle.id) || initialRaffle, [getRaffleById, initialRaffle]);
 
   const paramProcessedForCurrentState = useRef(false);
@@ -94,9 +92,8 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
                 });
             }
         }
-        paramProcessedForCurrentState.current = true;
+        paramProcessedForCurrentState.current = true; 
     } else if (!preSelectedNumberStr && processedParamValueRef.current !== null) {
-        // Reset if param is removed
         paramProcessedForCurrentState.current = false;
         processedParamValueRef.current = null;
     }
@@ -109,7 +106,7 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
 
 
   function onSubmit(data: PurchaseFormInput) {
-    const currentRaffleState = getRaffleById(raffle.id); // Get latest state
+    const currentRaffleState = getRaffleById(raffle.id); 
     if (!currentRaffleState) {
         toast({ title: t('raffleDetailsPage.raffleNotFoundTitle'), description: t('purchaseForm.toast.errorRaffleState'), variant: 'destructive' });
         return;
@@ -123,7 +120,7 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
     if (!allSelectedAreStillAvailable) {
         toast({
             title: t('purchaseForm.toast.errorTitle'),
-            description: t('purchaseForm.validation.selectedNumbersUnavailable'),
+            description: t('purchaseForm.validation.selectedNumbersUnavailableGeneral'),
             variant: 'destructive'
         });
         const stillValidSelections = data.selectedNumbers.filter(numId => currentAvailableAtSubmit.includes(numId));
@@ -142,9 +139,9 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
         newSearchParams.delete('selectedNumber');
         router.replace(`${pathname}?${newSearchParams.toString()}`, { scroll: false });
       } else {
-        router.push(`/raffles/${raffle.id}`); // Go to raffle details page after purchase
+        router.push(`/raffles/${raffle.id}`); 
       }
-       form.reset(); // Reset form after successful purchase
+       form.reset(); 
 
     } else {
       toast({
@@ -152,11 +149,10 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
         description: t('purchaseForm.toast.errorDescription'),
         variant: 'destructive'
       });
-      // Refresh available numbers and update user's selection if some were taken
       const refreshedRaffleState = getRaffleById(raffle.id);
       const stillAvailableForSelectionAfterFailedSubmit = refreshedRaffleState
         ? refreshedRaffleState.numbers.filter(n => n.status === 'Available').map(n => n.id)
-        : currentAvailableAtSubmit; // Fallback to previous check
+        : currentAvailableAtSubmit; 
       const stillValidUserSelection = data.selectedNumbers.filter(numId => stillAvailableForSelectionAfterFailedSubmit.includes(numId));
       setValue('selectedNumbers', stillValidUserSelection);
     }
@@ -173,7 +169,7 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
   const totalAmountFormatted = formatPrice(totalAmount, raffle.country.currencySymbol, raffle.country.currencyCode);
 
   const handleNumberClick = (numberId: number, status: RaffleNumberType['status']) => {
-    if (status !== 'Available') return; // Only allow clicking available numbers
+    if (status !== 'Available') return; 
 
     const currentSelected = getValues('selectedNumbers') || [];
     let newSelected: number[];
@@ -188,12 +184,12 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
   const getNumberStatusClass = (status: RaffleNumberType['status'], isSelected: boolean) => {
     if (status === 'Purchased') return 'bg-green-500 text-white cursor-not-allowed opacity-70';
     if (status === 'PendingPayment') return 'bg-yellow-400 text-black cursor-not-allowed opacity-70';
-    // Available
     if (isSelected) return 'bg-primary text-primary-foreground border-primary';
     return 'bg-card hover:bg-accent/50 border';
   };
   
-  const allRaffleNumbersForGrid = raffle.numbers; // Use the latest raffle state
+  const allRaffleNumbersForGrid = raffle.numbers; 
+  const getTranslatedStatus = (status: RaffleNumberType['status']) => t(`numberStatus.${status}`);
 
   return (
     <Card className="max-w-lg mx-auto shadow-lg">
@@ -233,8 +229,8 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
 
             <FormField
               control={form.control}
-              name="selectedNumbers" // This field still tracks the array of selected numbers
-              render={({ field }) => ( // field.value is selectedNumbersWatch
+              name="selectedNumbers" 
+              render={({ field }) => ( 
                 <FormItem>
                   <div className="mb-2">
                     <FormLabel>{t('purchaseForm.labels.selectNumbers')}</FormLabel>
@@ -243,13 +239,16 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
                     </FormDescription>
                   </div>
                   <ScrollArea className="h-60 border rounded-md p-2">
-                    <div className="grid grid-cols-10 gap-1.5"> {/* Always 10 columns for consistency */}
+                    <div className="grid grid-cols-10 gap-1.5"> 
                     {allRaffleNumbersForGrid.length === 0 ? (
-                        <p className="col-span-full text-center text-muted-foreground">{t('purchaseForm.noNumbersInRaffle')}</p>
+                        <p className="col-span-full text-center text-muted-foreground">{t('purchaseForm.grid.noNumbersInRaffle')}</p>
                     ) : (
                       allRaffleNumbersForGrid.map((num) => {
                         const isSelected = (field.value || []).includes(num.id);
                         const isAvailable = num.status === 'Available';
+                        const titleText = isAvailable 
+                                          ? t('purchaseForm.grid.numberTitle', { id: num.id }) 
+                                          : t('purchaseForm.grid.numberStatusTitle', { id: num.id, status: getTranslatedStatus(num.status) });
                         return (
                           <div
                             key={num.id}
@@ -268,7 +267,7 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
                             )}
                             aria-pressed={isSelected}
                             aria-disabled={!isAvailable}
-                            title={isAvailable ? `Number ${num.id}` : `Number ${num.id} (${num.status})`}
+                            title={titleText}
                           >
                             {num.id}
                           </div>
@@ -277,7 +276,7 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
                     )}
                     </div>
                   </ScrollArea>
-                  <FormMessage /> {/* Displays validation messages for the selectedNumbers array */}
+                  <FormMessage /> 
                 </FormItem>
               )}
             />
@@ -295,9 +294,9 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Cash">{t('purchaseForm.paymentMethods.cash')}</SelectItem>
-                      <SelectItem value="Transfer">{t('purchaseForm.paymentMethods.transfer')}</SelectItem>
-                      <SelectItem value="Pending">{t('purchaseForm.paymentMethods.pending')}</SelectItem>
+                      <SelectItem value="Cash">{t('paymentMethodLabels.Cash')}</SelectItem>
+                      <SelectItem value="Transfer">{t('paymentMethodLabels.Transfer')}</SelectItem>
+                      <SelectItem value="Pending">{t('paymentMethodLabels.Pending')}</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -332,5 +331,3 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
     </Card>
   );
 }
-
-    

@@ -148,12 +148,17 @@
         "nameMin": "O nome deve ter pelo menos 2 caracteres.",
         "phoneMin": "O número de telefone parece muito curto.",
         "selectedNumbersMin": "Por favor, selecione pelo menos um número.",
-        "selectedNumbersUnavailable": "Um ou mais números selecionados não estão disponíveis ou já foram ocupados.",
+        "selectedNumbersUnavailableGeneral": "Um ou mais números selecionados não estão disponíveis ou já foram ocupados.",
         "paymentMethodRequired": "O método de pagamento é obrigatório."
     },
     "raffleClosedTitle": "Rifa Encerrada",
     "raffleClosedDescription": "Esta rifa não está mais aberta para compras.",
-    "backToRaffleButton": "Voltar para a Rifa"
+    "backToRaffleButton": "Voltar para a Rifa",
+    "grid": {
+      "numberTitle": "Número {{id}}",
+      "numberStatusTitle": "Número {{id}} ({{status}})",
+      "noNumbersInRaffle": "Nenhum número configurado para esta rifa ainda."
+    }
   },
   "availableNumbersPage": {
     "backToRaffleDetails": "Voltar para Detalhes da Rifa",
@@ -204,6 +209,29 @@
     "available": "Disponíveis",
     "draw": "Sortear"
   },
+  "raffleGrid": {
+    "tooltip": {
+      "number": "Número: {{id}}",
+      "status": "Estado: {{status}}",
+      "buyer": "Comprador: {{name}}",
+      "phone": "Telefone: {{phone}}",
+      "payment": "Pagamento: {{method}}",
+      "price": "Preço: {{price}}"
+    }
+  },
+  "numberStatus": {
+    "Available": "Disponível",
+    "Purchased": "Comprado",
+    "PendingPayment": "Pagamento Pendente"
+  },
+  "paymentMethodLabels": {
+    "Cash": "Dinheiro",
+    "Transfer": "Transferência",
+    "Pending": "Pagamento Pendente"
+  },
+  "shared": {
+    "notApplicable": "N/D"
+  },
   "loading": "Carregando...",
   "actions": {
     "backToHome": "Voltar ao Início"
@@ -215,4 +243,3 @@
     "pt": "Português (Português)"
   }
 }
-    

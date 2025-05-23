@@ -52,7 +52,7 @@ export default function RafflePage() {
     );
   }
   
-  const dateLocale = getLocaleFromString(locale);
+  const dateLocaleForFormatting = getLocaleFromString(locale);
 
   const handleNumberClick = (numberId: number) => {
     router.push(`/raffles/${raffleId}/purchase?selectedNumber=${numberId}`);
@@ -83,7 +83,7 @@ export default function RafflePage() {
               <div>
                 <CardTitle className="text-3xl font-bold text-primary">{raffle.name}</CardTitle>
                 <CardDescription>
-                  {t('raffleDetailsPage.drawDateLabel', { date: format(new Date(raffle.drawDate), 'PPP', { locale: dateLocale }) })}
+                  {t('raffleDetailsPage.drawDateLabel', { date: format(new Date(raffle.drawDate), 'PPP', { locale: dateLocaleForFormatting }) })}
                   {' | '}
                   <span className="font-bold text-lg">
                     {formattedNumberValueWithSymbol}
@@ -135,7 +135,7 @@ export default function RafflePage() {
                   </TooltipContent>
                 )}
               </Tooltip>
-              <Button variant="outline" asChild>
+              <Button variant="outline" asChild disabled={raffle.status === 'Closed'}>
                 <Link href={`/raffles/${raffle.id}/purchase`}>
                   <Edit className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.purchaseNumbersButton')}
                 </Link>
@@ -167,6 +167,7 @@ export default function RafflePage() {
               numberValue={raffle.numberValue}
               onNumberClick={handleNumberClick}
               interactive={raffle.status === 'Open'}
+              t={t} // Pass the t function here
             />
           </CardContent>
         </Card>

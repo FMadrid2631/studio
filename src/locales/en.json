@@ -148,12 +148,17 @@
         "nameMin": "Name must be at least 2 characters.",
         "phoneMin": "Phone number seems too short.",
         "selectedNumbersMin": "Please select at least one number.",
-        "selectedNumbersUnavailable": "One or more selected numbers are not available or have been taken.",
+        "selectedNumbersUnavailableGeneral": "One or more selected numbers are not available or have been taken.",
         "paymentMethodRequired": "Payment method is required."
     },
     "raffleClosedTitle": "Raffle Closed",
     "raffleClosedDescription": "This raffle is no longer open for purchases.",
-    "backToRaffleButton": "Back to Raffle"
+    "backToRaffleButton": "Back to Raffle",
+    "grid": {
+      "numberTitle": "Number {{id}}",
+      "numberStatusTitle": "Number {{id}} ({{status}})",
+      "noNumbersInRaffle": "No numbers configured for this raffle yet."
+    }
   },
   "availableNumbersPage": {
     "backToRaffleDetails": "Back to Raffle Details",
@@ -204,6 +209,29 @@
     "available": "Available",
     "draw": "Draw"
   },
+  "raffleGrid": {
+    "tooltip": {
+      "number": "Number: {{id}}",
+      "status": "Status: {{status}}",
+      "buyer": "Buyer: {{name}}",
+      "phone": "Phone: {{phone}}",
+      "payment": "Payment: {{method}}",
+      "price": "Price: {{price}}"
+    }
+  },
+  "numberStatus": {
+    "Available": "Available",
+    "Purchased": "Purchased",
+    "PendingPayment": "Pending Payment"
+  },
+  "paymentMethodLabels": {
+    "Cash": "Cash",
+    "Transfer": "Transfer",
+    "Pending": "Pending Payment"
+  },
+  "shared": {
+    "notApplicable": "N/A"
+  },
   "loading": "Loading...",
   "actions": {
     "backToHome": "Back to Home"
@@ -215,4 +243,3 @@
     "pt": "Portuguese"
   }
 }
-    
