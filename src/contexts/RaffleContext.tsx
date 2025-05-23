@@ -34,19 +34,6 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [raffles, setRaffles] = useState<Raffle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    try {
-      const storedRaffles = localStorage.getItem(LOCAL_STORAGE_RAFFLES_KEY);
-      if (storedRaffles) {
-        setRaffles(JSON.parse(storedRaffles));
-      }
-    } catch (error) {
-      console.error("Failed to load raffles from localStorage:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
   const saveRaffles = useCallback((updatedRaffles: Raffle[]) => {
     try {
       localStorage.setItem(LOCAL_STORAGE_RAFFLES_KEY, JSON.stringify(updatedRaffles));
@@ -55,6 +42,46 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       console.error("Failed to save raffles to localStorage:", error);
     }
   }, []);
+
+  useEffect(() => {
+    let initialRaffles: Raffle[] = [];
+    try {
+      const storedRaffles = localStorage.getItem(LOCAL_STORAGE_RAFFLES_KEY);
+      if (storedRaffles) {
+        initialRaffles = JSON.parse(storedRaffles) as Raffle[];
+      }
+    } catch (error) {
+      console.error("Failed to load raffles from localStorage:", error);
+      // initialRaffles remains empty, or handle error appropriately
+    }
+
+    let madeChanges = false;
+    const checkedRaffles = initialRaffles.map(raffle => {
+      // Ensure prizes array exists and is not empty before checking
+      if (raffle.status === 'Open' && raffle.prizes && raffle.prizes.length > 0) {
+        const allPrizesAwarded = raffle.prizes.every(p => !!p.winningNumber);
+        if (allPrizesAwarded) {
+          madeChanges = true;
+          return { ...raffle, status: 'Closed' as 'Closed' }; // Explicitly type as 'Closed'
+        }
+      }
+      return raffle;
+    });
+
+    if (madeChanges) {
+      // saveRaffles calls setRaffles and updates localStorage
+      // No need to call setRaffles(checkedRaffles) separately if saveRaffles does it.
+      saveRaffles(checkedRaffles);
+    } else {
+      // Only set state if no changes were made by the sanity check,
+      // AND if saveRaffles wasn't called (which already calls setRaffles).
+      // If initialRaffles differs from the current state without `madeChanges`, this sets it.
+      // This path is primarily for the very first load or if no changes were needed.
+      setRaffles(initialRaffles);
+    }
+    setIsLoading(false);
+  }, [saveRaffles]); // saveRaffles is stable due to its empty dependency array in useCallback
+
 
   const addRaffle = (raffleData: Omit<Raffle, 'id' | 'createdAt' | 'numbers' | 'status' | 'prizes' | 'bankDetails'> & {
     numberOfPrizes: number;
@@ -73,10 +100,10 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
 
     const bankDetails: BankDetails | undefined = (
-        raffleData.bankName || 
-        raffleData.accountHolderName || 
-        raffleData.accountNumber || 
-        raffleData.accountType || 
+        raffleData.bankName ||
+        raffleData.accountHolderName ||
+        raffleData.accountNumber ||
+        raffleData.accountType ||
         raffleData.identificationNumber ||
         raffleData.transferInstructions
     ) ? {
@@ -131,16 +158,16 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const hasSoldNumbers = existingRaffle.numbers.some(n => n.status !== 'Available');
     if (hasSoldNumbers || existingRaffle.status === 'Closed') {
       console.error("Cannot edit raffle: sales started or raffle closed.");
-      return undefined; 
+      return undefined;
     }
-    
+
     const country = COUNTRIES.find(c => c.code === updatedData.countryCode) || existingRaffle.country;
 
     const bankDetails: BankDetails | undefined = (
-        updatedData.bankName || 
-        updatedData.accountHolderName || 
-        updatedData.accountNumber || 
-        updatedData.accountType || 
+        updatedData.bankName ||
+        updatedData.accountHolderName ||
+        updatedData.accountNumber ||
+        updatedData.accountType ||
         updatedData.identificationNumber ||
         updatedData.transferInstructions
     ) ? {
@@ -171,7 +198,7 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       // Numbers array is not changed here if totalNumbers is disabled.
       // If totalNumbers were changeable and no sales, numbers would be reset.
       // For now, assuming totalNumbers is locked if raffle is editable.
-      numbers: existingRaffle.numbers, 
+      numbers: existingRaffle.numbers,
       bankDetails: bankDetails,
     };
 
@@ -179,7 +206,7 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     saveRaffles(updatedRaffles);
     return editedRaffle;
   };
-  
+
   const purchaseNumbers = (raffleId: string, buyerName: string, buyerPhone: string, selectedNumbers: number[], paymentMethod: 'Cash' | 'Transfer' | 'Pending'): boolean => {
     const raffle = getRaffleById(raffleId);
     if (!raffle) return false;
@@ -225,13 +252,9 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const closeRaffle = (raffleId: string) => {
     const raffle = getRaffleById(raffleId);
     if (!raffle) return;
-    
-    const allPrizesAwarded = raffle.prizes.every(p => !!p.winningNumber);
-    if (allPrizesAwarded) {
-      updateRaffle({ ...raffle, status: 'Closed' });
-    } else {
-      console.warn("Attempted to close raffle before all prizes were awarded.");
-    }
+    // This function is now called only when all prizes ARE awarded (checked in RaffleDraw.tsx)
+    // or potentially by a future manual admin action.
+    updateRaffle({ ...raffle, status: 'Closed' });
   };
 
 
