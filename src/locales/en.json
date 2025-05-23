@@ -235,6 +235,7 @@
     "displayLabelWinnerForPrize": "Winner for: {{prizeDescription}}",
     "displayLabelDrawingForPrize": "Drawing for: {{prizeDescription}}",
     "displayLabelGeneral": "Winning Number",
+    "winnerPaymentMethodLabel": "Payment Method",
     "toast": {
         "infoTitle": "Info",
         "infoAllPrizesAwardedOrClosed": "All prizes have been awarded or the raffle is closed.",

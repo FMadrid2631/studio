@@ -23,7 +23,14 @@ interface RaffleContextType {
   updateRaffle: (updatedRaffle: Raffle) => void;
   editRaffle: (raffleId: string, updatedData: RaffleConfigurationFormInput) => Raffle | undefined;
   purchaseNumbers: (raffleId: string, buyerName: string, buyerPhone: string, selectedNumbers: number[], paymentMethod: 'Cash' | 'Transfer' | 'Pending') => boolean;
-  recordPrizeWinner: (raffleId: string, prizeOrder: number, winningNumber: number, winnerName: string, winnerPhone: string) => void;
+  recordPrizeWinner: (
+    raffleId: string, 
+    prizeOrder: number, 
+    winningNumber: number, 
+    winnerName: string, 
+    winnerPhone: string,
+    winnerPaymentMethod?: 'Cash' | 'Transfer' | 'Pending' // Added winnerPaymentMethod
+  ) => void;
   closeRaffle: (raffleId: string) => void;
 }
 
@@ -60,6 +67,24 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         if (allPrizesAwarded) {
           madeChanges = true;
           return { ...raffle, status: 'Closed' as 'Closed' };
+        }
+      }
+      // Ensure winnerPaymentMethod exists for prizes that have winners but might be from old data
+      if (raffle.prizes) {
+        const prizesUpdated = raffle.prizes.map(p => {
+          if (p.winningNumber && !p.winnerPaymentMethod) {
+            // Attempt to find the winning number details to populate payment method
+            // This is a fallback for old data. New data will set it directly.
+            const winningRaffleNumber = raffle.numbers.find(rn => rn.id === p.winningNumber && rn.status === 'Purchased');
+            if (winningRaffleNumber && winningRaffleNumber.paymentMethod) {
+              madeChanges = true;
+              return { ...p, winnerPaymentMethod: winningRaffleNumber.paymentMethod };
+            }
+          }
+          return p;
+        });
+        if (madeChanges) { // if any prize was updated
+          return { ...raffle, prizes: prizesUpdated };
         }
       }
       return raffle;
@@ -185,6 +210,7 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         winnerName: existingRaffle.prizes[index]?.winnerName,
         winnerPhone: existingRaffle.prizes[index]?.winnerPhone,
         drawDate: existingRaffle.prizes[index]?.drawDate,
+        winnerPaymentMethod: existingRaffle.prizes[index]?.winnerPaymentMethod, // Preserve existing payment method if any
       })),
       numbers: existingRaffle.numbers,
       bankDetails: bankDetails,
@@ -224,13 +250,20 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return success;
   };
 
-  const recordPrizeWinner = (raffleId: string, prizeOrder: number, winningNumber: number, winnerName: string, winnerPhone: string) => {
+  const recordPrizeWinner = (
+    raffleId: string, 
+    prizeOrder: number, 
+    winningNumber: number, 
+    winnerName: string, 
+    winnerPhone: string,
+    winnerPaymentMethod?: 'Cash' | 'Transfer' | 'Pending'
+  ) => {
     const raffle = getRaffleById(raffleId);
     if (!raffle) return;
 
     const updatedPrizes = raffle.prizes.map(prize => {
       if (prize.order === prizeOrder) {
-        return { ...prize, winningNumber, winnerName, winnerPhone, drawDate: new Date().toISOString() };
+        return { ...prize, winningNumber, winnerName, winnerPhone, drawDate: new Date().toISOString(), winnerPaymentMethod };
       }
       return prize;
     });

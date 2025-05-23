@@ -235,6 +235,7 @@
     "displayLabelWinnerForPrize": "Ganador para: {{prizeDescription}}",
     "displayLabelDrawingForPrize": "Sorteando para: {{prizeDescription}}",
     "displayLabelGeneral": "Número Ganador",
+    "winnerPaymentMethodLabel": "Método de Pago",
     "toast": {
         "infoTitle": "Información",
         "infoAllPrizesAwardedOrClosed": "Todos los premios han sido entregados o la rifa está cerrada.",

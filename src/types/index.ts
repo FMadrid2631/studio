@@ -24,6 +24,7 @@ export interface Prize {
   winnerName?: string;
   winnerPhone?: string;
   drawDate?: string; // ISO string of when the prize was drawn
+  winnerPaymentMethod?: 'Cash' | 'Transfer' | 'Pending'; // Payment method used for the winning number
 }
 
 export interface BankDetails {

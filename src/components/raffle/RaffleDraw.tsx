@@ -9,11 +9,10 @@ import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, CheckCircle, CalendarDays, Trophy } from 'lucide-react';
+import { Loader2, CheckCircle, CalendarDays, Trophy, CreditCard } from 'lucide-react';
 import { useTranslations } from '@/contexts/LocalizationContext';
 import { format } from 'date-fns';
 import { getLocaleFromString } from '@/lib/date-fns-locales';
-// import { Badge } from '@/components/ui/badge'; // No longer used here
 
 interface RaffleDrawProps {
   raffle: Raffle;
@@ -21,7 +20,6 @@ interface RaffleDrawProps {
 
 export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
   const { getRaffleById, recordPrizeWinner, closeRaffle, isLoading: isRaffleContextLoading } = useRaffles();
-  // Ensure we always work with the latest raffle state from context if available
   const raffle = getRaffleById(initialRaffle.id) || initialRaffle;
   const { t, locale } = useTranslations();
   const { toast } = useToast();
@@ -30,7 +28,6 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
   const [drawError, setDrawError] = useState<string | null>(null);
   const [lastDrawnWinners, setLastDrawnWinners] = useState<Prize[]>([]);
   
-  // Get prizes that are yet to be awarded, unsorted at this stage by useMemo
   const prizesToAward = useMemo(() => raffle.prizes.filter(p => !p.winningNumber), [raffle.prizes]);
   const allPrizesAwardedOrRaffleClosed = prizesToAward.length === 0 || raffle.status === 'Closed';
 
@@ -39,6 +36,11 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
   const [activePrizeForLabel, setActivePrizeForLabel] = useState<Prize | null>(null);
 
   const dateLocaleForFormatting = getLocaleFromString(locale);
+
+  const getTranslatedPaymentMethod = (method?: 'Cash' | 'Transfer' | 'Pending') => {
+    if (!method) return t('shared.notApplicable');
+    return t(`paymentMethodLabels.${method}`);
+  };
 
   useEffect(() => {
     let displayTimer: NodeJS.Timeout;
@@ -66,7 +68,6 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
     if (activePrizeForLabel) { 
       return t('drawPage.displayLabelWinnerForPrize', { prizeDescription: activePrizeForLabel.description });
     }
-    // Sort a copy of prizesToAward in descending order to find the next one
     const nextPrize = [...prizesToAward].sort((a, b) => b.order - a.order)[0];
     if (nextPrize) {
       return t('drawPage.displayLabelDrawingForPrize', { prizeDescription: nextPrize.description });
@@ -80,8 +81,9 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
       return;
     }
 
-    // Sort a copy of prizesToAward in descending order to find the current one to award
-    const currentPrizeToAward = [...prizesToAward].sort((a, b) => b.order - a.order)[0];
+    const currentPrizesToAwardSorted = [...prizesToAward].sort((a, b) => b.order - a.order);
+    const currentPrizeToAward = currentPrizesToAwardSorted[0];
+
     if (!currentPrizeToAward) {
         toast({ title: t('drawPage.toast.infoTitle'), description: t('drawPage.toast.infoNoMorePrizesThisRound'), variant: 'default' });
         setIsDrawing(false);
@@ -92,7 +94,7 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
     setDrawError(null);
 
     const purchasedNumbers = raffle.numbers.filter(
-      (n) => n.status === 'Purchased' && n.buyerName && n.buyerPhone
+      (n) => n.status === 'Purchased' && n.buyerName && n.buyerPhone && n.paymentMethod
     );
 
     const winningNumbersSoFar = raffle.prizes
@@ -117,10 +119,17 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
         const winningNumberId = result.drawnNumbers[0];
         const winnerDetails = purchasedNumbers.find(n => n.id === winningNumberId); 
 
-        if (winnerDetails && winnerDetails.buyerName && winnerDetails.buyerPhone) {
-          recordPrizeWinner(raffle.id, currentPrizeToAward.order, winningNumberId, winnerDetails.buyerName, winnerDetails.buyerPhone);
+        if (winnerDetails && winnerDetails.buyerName && winnerDetails.buyerPhone && winnerDetails.paymentMethod) {
+          recordPrizeWinner(raffle.id, currentPrizeToAward.order, winningNumberId, winnerDetails.buyerName, winnerDetails.buyerPhone, winnerDetails.paymentMethod);
           
-          const awardedPrizeDetails = { ...currentPrizeToAward, winningNumber: winningNumberId, winnerName: winnerDetails.buyerName, winnerPhone: winnerDetails.buyerPhone, drawDate: new Date().toISOString() };
+          const awardedPrizeDetails: Prize = { 
+            ...currentPrizeToAward, 
+            winningNumber: winningNumberId, 
+            winnerName: winnerDetails.buyerName, 
+            winnerPhone: winnerDetails.buyerPhone, 
+            drawDate: new Date().toISOString(),
+            winnerPaymentMethod: winnerDetails.paymentMethod 
+          };
           setLastDrawnWinners([awardedPrizeDetails]); 
           toast({ 
             title: t('drawPage.toast.winnerDrawnTitle'), 
@@ -140,7 +149,7 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
           }
         } else {
           setDrawError(t('drawPage.errorUnexpected')); 
-          console.error("Winner details not found for drawn number:", winningNumberId);
+          console.error("Winner details or payment method not found for drawn number:", winningNumberId);
         }
       } else {
         setDrawError(t('drawPage.errorDrawFailedNoNumberReturned'));
@@ -160,8 +169,8 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
      return <div className="flex justify-center items-center min-h-[20rem]"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
   }
 
-  // Sort a copy of prizesToAward in descending order for the button label
-  const nextPrizeToAwardForButton = [...prizesToAward].sort((a, b) => b.order - a.order)[0];
+  const nextPrizeToAwardForButtonSorted = [...prizesToAward].sort((a, b) => b.order - a.order);
+  const nextPrizeToAwardForButton = nextPrizeToAwardForButtonSorted[0];
   const buttonDrawLabel = nextPrizeToAwardForButton?.description || t('drawPage.buttonDrawNext');
   
   return (
@@ -219,10 +228,17 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
                 <CardHeader>
                   <CardTitle className="text-accent-foreground">{prize.description}</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-1">
                   <p><strong>{t('drawPage.winnerLabel')}:</strong> {prize.winnerName}</p>
                   <p><strong>{t('drawPage.phoneLabel')}:</strong> {prize.winnerPhone}</p>
                   <p><strong>{t('drawPage.winningNumberLabelTitle')}:</strong> <span className="text-primary font-bold text-lg">{String(prize.winningNumber).padStart(String(raffle.totalNumbers > 0 ? raffle.totalNumbers : 1).length, '0')}</span></p>
+                  {prize.winnerPaymentMethod && (
+                    <p className="flex items-center">
+                      <CreditCard className="mr-1.5 h-4 w-4 text-muted-foreground" />
+                      <strong>{t('drawPage.winnerPaymentMethodLabel')}:</strong>
+                      <span className="ml-1">{getTranslatedPaymentMethod(prize.winnerPaymentMethod)}</span>
+                    </p>
+                  )}
                    {prize.drawDate && (
                     <p className="text-sm text-muted-foreground mt-1 flex items-center">
                       <CalendarDays className="mr-1.5 h-4 w-4" />
@@ -244,7 +260,7 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
                     <p className="text-muted-foreground">{t('drawPage.noPrizesDefinedInRaffle')}</p>
                 ) : (
                     <ul className="space-y-3">
-                        {raffle.prizes.sort((a,b) => a.order - b.order).map(prize => ( // Display order remains ascending
+                        {raffle.prizes.sort((a,b) => a.order - b.order).map(prize => (
                             <li key={prize.id} className="p-3 border rounded-md bg-muted/20">
                                 <div className="flex justify-between items-start">
                                   <div>
@@ -260,6 +276,12 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
                                         winnerPhone: prize.winnerPhone
                                       })}
                                     </p>
+                                    {prize.winnerPaymentMethod && (
+                                      <p className="text-sm text-muted-foreground flex items-center">
+                                        <CreditCard className="mr-1.5 h-3.5 w-3.5" />
+                                        {t('drawPage.winnerPaymentMethodLabel')}: {getTranslatedPaymentMethod(prize.winnerPaymentMethod)}
+                                      </p>
+                                    )}
                                     {prize.drawDate && (
                                       <p className="text-xs text-muted-foreground flex items-center">
                                         <CalendarDays className="mr-1.5 h-3.5 w-3.5" />
@@ -278,14 +300,12 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
         </Card>
 
       </CardContent>
-      {/* Ensure we check against the explicitly sorted list for the hint */}
       { !allPrizesAwardedOrRaffleClosed && 
-        ([...prizesToAward].sort((a, b) => b.order - a.order).length > 1) && 
+        (nextPrizeToAwardForButtonSorted.length > 1) && 
         (
          <CardFooter className="flex-col items-center gap-2">
             <p className="text-sm text-muted-foreground">
-              {/* The count for 'morePrizesHint' should be based on how many are left *after* the one about to be drawn */}
-              {t('drawPage.morePrizesHint', { count: [...prizesToAward].sort((a, b) => b.order - a.order).length -1 })}
+              {t('drawPage.morePrizesHint', { count: nextPrizeToAwardForButtonSorted.length -1 })}
             </p>
          </CardFooter>
       )}
