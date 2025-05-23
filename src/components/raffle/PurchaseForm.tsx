@@ -60,12 +60,13 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
   useEffect(() => {
     const preSelectedNumber = searchParams.get('selectedNumber');
     if (preSelectedNumber && availableRaffleNumbers.includes(Number(preSelectedNumber))) {
+      // Ensure initial value is an array even if only one pre-selected
       form.setValue('selectedNumbers', [Number(preSelectedNumber)]);
     }
   }, [searchParams, form, availableRaffleNumbers]);
 
   useEffect(() => {
-    setTotalAmount(selectedNumbersWatch.length * raffle.numberValue);
+    setTotalAmount((selectedNumbersWatch || []).length * raffle.numberValue);
   }, [selectedNumbersWatch, raffle.numberValue]);
 
 
@@ -83,7 +84,9 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
         description: t('purchaseForm.toast.errorDescription'), 
         variant: 'destructive' 
       });
-      form.resetField("selectedNumbers");
+      // Consider only resetting selectedNumbers if some were taken, or provide more specific feedback
+      const stillAvailableForSelection = data.selectedNumbers.filter(numId => availableRaffleNumbers.includes(numId));
+      form.setValue('selectedNumbers', stillAvailableForSelection);
     }
   }
 
@@ -126,7 +129,7 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
             <FormField
               control={form.control}
               name="selectedNumbers"
-              render={() => (
+              render={({ field }) => (
                 <FormItem>
                   <div className="mb-2">
                     <FormLabel>{t('purchaseForm.labels.selectNumbers')}</FormLabel>
@@ -138,47 +141,41 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
                     <div className="grid grid-cols-5 gap-2">
                     {availableRaffleNumbers.length === 0 ? <p className="col-span-full text-center text-muted-foreground">{t('purchaseForm.allNumbersSoldOut')}</p> : 
                       availableRaffleNumbers.map((numberId) => (
-                        <FormField
+                        <FormItem // Using FormItem for structure and a11y association
                           key={numberId}
-                          control={form.control}
-                          name="selectedNumbers"
-                          render={({ field }) => {
-                            return (
-                              <FormItem
-                                key={numberId}
-                                className="flex flex-row items-center justify-center space-x-0 space-y-0"
-                              >
-                                <FormControl>
-                                  <Checkbox
-                                    className="sr-only"
-                                    checked={field.value?.includes(numberId)}
-                                    onCheckedChange={(checked) => {
-                                      return checked
-                                        ? field.onChange([...(field.value || []), numberId])
-                                        : field.onChange(
-                                            field.value?.filter(
-                                              (value) => value !== numberId
-                                            )
-                                          )
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormLabel 
-                                  className={`flex items-center justify-center w-full aspect-square rounded-md border cursor-pointer transition-colors
-                                    ${field.value?.includes(numberId) 
-                                      ? 'bg-primary text-primary-foreground border-primary' 
-                                      : 'bg-card hover:bg-accent/50'}`}
-                                >
-                                  {numberId}
-                                </FormLabel>
-                              </FormItem>
-                            )
-                          }}
-                        />
+                          className="flex flex-row items-center justify-center space-x-0 space-y-0"
+                        >
+                          <FormControl>
+                            <Checkbox
+                              className="sr-only" // Checkbox is visually hidden, label is the click target
+                              checked={(field.value || []).includes(numberId)}
+                              onCheckedChange={(checked) => {
+                                const currentSelected = field.value || [];
+                                let newSelected: number[];
+                                if (checked) {
+                                  newSelected = [...currentSelected, numberId];
+                                } else {
+                                  newSelected = currentSelected.filter(id => id !== numberId);
+                                }
+                                field.onChange(newSelected); // Update the 'selectedNumbers' array
+                              }}
+                              id={`number-checkbox-${numberId}`} // Unique ID for the checkbox
+                            />
+                          </FormControl>
+                          <FormLabel 
+                            htmlFor={`number-checkbox-${numberId}`} // Associate label with checkbox
+                            className={`flex items-center justify-center w-full aspect-square rounded-md border cursor-pointer transition-colors
+                              ${(field.value || []).includes(numberId) 
+                                ? 'bg-primary text-primary-foreground border-primary' 
+                                : 'bg-card hover:bg-accent/50'}`}
+                          >
+                            {numberId}
+                          </FormLabel>
+                        </FormItem>
                       ))}
                     </div>
                   </ScrollArea>
-                  <FormMessage />
+                  <FormMessage /> {/* For validation messages related to selectedNumbers array */}
                 </FormItem>
               )}
             />
@@ -206,7 +203,7 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
               )}
             />
 
-            {selectedNumbersWatch.length > 0 && (
+            {(selectedNumbersWatch || []).length > 0 && (
               <div className="p-4 bg-accent/30 rounded-md text-center">
                 <p className="text-lg font-semibold">{t('purchaseForm.totalAmount')}: 
                   <Badge variant="secondary" className="ml-2 text-lg bg-primary text-primary-foreground">
@@ -214,7 +211,7 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
                   </Badge>
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  {t('purchaseForm.totalAmountDetails', {count: selectedNumbersWatch.length, value: raffle.numberValue, currencySymbol: raffle.country.currencySymbol})}
+                  {t('purchaseForm.totalAmountDetails', {count: (selectedNumbersWatch || []).length, value: raffle.numberValue, currencySymbol: raffle.country.currencySymbol})}
                 </p>
               </div>
             )}
