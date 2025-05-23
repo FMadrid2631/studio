@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { RaffleNumber } from '@/types';
@@ -28,7 +29,7 @@ export function RaffleGrid({ numbers, currencySymbol, numberValue, onNumberClick
 
   return (
     <TooltipProvider>
-      <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-15 gap-2">
+      <div className="grid grid-cols-10 gap-2"> {/* Changed to always use 10 columns */}
         {numbers.map((num) => (
           <Tooltip key={num.id}>
             <TooltipTrigger asChild>
@@ -64,3 +65,4 @@ export function RaffleGrid({ numbers, currencySymbol, numberValue, onNumberClick
     </TooltipProvider>
   );
 }
+
