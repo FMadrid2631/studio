@@ -63,6 +63,13 @@ export default function RafflePage() {
   const hasSoldNumbers = raffle.numbers.some(n => n.status !== 'Available');
   const canEditConfiguration = !hasSoldNumbers && raffle.status !== 'Closed';
 
+  // Determine if numberValue has decimals to format it appropriately
+  const hasDecimals = raffle.numberValue % 1 !== 0;
+  const formattedNumberValue = raffle.numberValue.toLocaleString(locale, {
+    minimumFractionDigits: hasDecimals ? 2 : 0,
+    maximumFractionDigits: 2
+  });
+
   return (
     <TooltipProvider>
       <div className="space-y-6">
@@ -76,7 +83,14 @@ export default function RafflePage() {
               <div>
                 <CardTitle className="text-3xl font-bold text-primary">{raffle.name}</CardTitle>
                 <CardDescription>
-                  {t('raffleDetailsPage.drawDateLabel', { date: format(new Date(raffle.drawDate), 'PPP', { locale: dateLocale }) })} | {t('raffleDetailsPage.pricePerNumberLabel', { value: raffle.numberValue, currencySymbol: raffle.country.currencySymbol })}
+                  {t('raffleDetailsPage.drawDateLabel', { date: format(new Date(raffle.drawDate), 'PPP', { locale: dateLocale }) })}
+                  {' | '}
+                  <span className="font-bold text-lg">
+                    {raffle.country.currencySymbol}
+                    {formattedNumberValue}
+                  </span>
+                  {' '}
+                  {t('raffleDetailsPage.pricePerNumberSuffix')}
                 </CardDescription>
               </div>
               <Badge variant={raffle.status === 'Open' ? 'default' : 'secondary'} className={`text-lg px-4 py-2 ${raffle.status === 'Open' ? 'bg-green-500 text-white' : 'bg-gray-500 text-white'}`}>
@@ -180,4 +194,3 @@ export default function RafflePage() {
     </TooltipProvider>
   );
 }
-

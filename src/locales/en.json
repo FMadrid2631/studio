@@ -33,7 +33,7 @@
     "backToAllRaffles": "Back to All Raffles",
     "raffleDetailsTitle": "Raffle Details",
     "drawDateLabel": "Draw Date: {{date}}",
-    "pricePerNumberLabel": "{{value}} {{currencySymbol}} per number",
+    "pricePerNumberSuffix": "per number",
     "totalNumbersLabel": "Total Numbers",
     "numbersSoldLabel": "Numbers Sold",
     "prizesLabel": "Prizes",

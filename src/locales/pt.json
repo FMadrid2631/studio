@@ -33,7 +33,7 @@
     "backToAllRaffles": "Voltar para Todas as Rifas",
     "raffleDetailsTitle": "Detalhes da Rifa",
     "drawDateLabel": "Data do Sorteio: {{date}}",
-    "pricePerNumberLabel": "{{value}} {{currencySymbol}} por número",
+    "pricePerNumberSuffix": "por número",
     "totalNumbersLabel": "Números Totais",
     "numbersSoldLabel": "Números Vendidos",
     "prizesLabel": "Prêmios",
