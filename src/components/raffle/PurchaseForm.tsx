@@ -12,7 +12,7 @@ import type { PurchaseFormInput, Raffle } from '@/types';
 import { useRaffles } from '@/contexts/RaffleContext';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react'; // Added useMemo
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Checkbox } from '../ui/checkbox';
 import { ScrollArea } from '../ui/scroll-area';
@@ -42,7 +42,10 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
   const [totalAmount, setTotalAmount] = useState(0);
   const { t } = useTranslations();
 
-  const availableRaffleNumbers = raffle.numbers.filter(n => n.status === 'Available').map(n => n.id);
+  const availableRaffleNumbers = useMemo(() => {
+    return raffle.numbers.filter(n => n.status === 'Available').map(n => n.id);
+  }, [raffle.numbers]);
+
   const purchaseFormSchema = createPurchaseFormSchema(availableRaffleNumbers, t);
   
   const form = useForm<PurchaseFormInput>({
@@ -58,12 +61,21 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
   const selectedNumbersWatch = form.watch('selectedNumbers');
 
   useEffect(() => {
-    const preSelectedNumber = searchParams.get('selectedNumber');
-    if (preSelectedNumber && availableRaffleNumbers.includes(Number(preSelectedNumber))) {
-      // Ensure initial value is an array even if only one pre-selected
-      form.setValue('selectedNumbers', [Number(preSelectedNumber)]);
+    const preSelectedNumberStr = searchParams.get('selectedNumber');
+    if (preSelectedNumberStr) {
+      const preSelectedNumberVal = Number(preSelectedNumberStr);
+      // Ensure the number is actually available before attempting to select it
+      if (availableRaffleNumbers.includes(preSelectedNumberVal)) {
+        const currentSelections = form.getValues('selectedNumbers') || [];
+        // Only add if not already present, to prevent loops and respect user's deselection
+        if (!currentSelections.includes(preSelectedNumberVal)) {
+          form.setValue('selectedNumbers', [...currentSelections, preSelectedNumberVal], { shouldDirty: true });
+        }
+      }
     }
-  }, [searchParams, form, availableRaffleNumbers]);
+    // This effect should run when the ability to pre-select changes (e.g. new raffle, new query param)
+  }, [searchParams, availableRaffleNumbers, form, raffle.id]);
+
 
   useEffect(() => {
     setTotalAmount((selectedNumbersWatch || []).length * raffle.numberValue);
@@ -71,6 +83,22 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
 
 
   function onSubmit(data: PurchaseFormInput) {
+    // Re-fetch current available numbers at the time of submission for final validation
+    const currentAvailableAtSubmit = raffle.numbers.filter(n => n.status === 'Available').map(n => n.id);
+    const allSelectedAreStillAvailable = data.selectedNumbers.every(num => currentAvailableAtSubmit.includes(num));
+
+    if (!allSelectedAreStillAvailable) {
+        toast({
+            title: t('purchaseForm.toast.errorTitle'),
+            description: t('purchaseForm.validation.selectedNumbersUnavailable'), // Or a more specific "some numbers were taken while you were selecting"
+            variant: 'destructive'
+        });
+        // Update form with only the numbers that are still valid from their selection
+        const stillValidSelections = data.selectedNumbers.filter(numId => currentAvailableAtSubmit.includes(numId));
+        form.setValue('selectedNumbers', stillValidSelections);
+        return;
+    }
+
     const success = purchaseNumbers(raffle.id, data.buyerName, data.buyerPhone, data.selectedNumbers, data.paymentMethod);
     if (success) {
       toast({ 
@@ -84,9 +112,10 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
         description: t('purchaseForm.toast.errorDescription'), 
         variant: 'destructive' 
       });
-      // Consider only resetting selectedNumbers if some were taken, or provide more specific feedback
-      const stillAvailableForSelection = data.selectedNumbers.filter(numId => availableRaffleNumbers.includes(numId));
-      form.setValue('selectedNumbers', stillAvailableForSelection);
+      // Refresh available numbers and update form selection if some were taken
+      const stillAvailableForSelection = raffle.numbers.filter(n => n.status === 'Available').map(n => n.id);
+      const stillValidUserSelection = data.selectedNumbers.filter(numId => stillAvailableForSelection.includes(numId));
+      form.setValue('selectedNumbers', stillValidUserSelection);
     }
   }
 
@@ -216,7 +245,7 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
               </div>
             )}
 
-            <Button type="submit" className="w-full" size="lg" disabled={availableRaffleNumbers.length === 0}>
+            <Button type="submit" className="w-full" size="lg" disabled={availableRaffleNumbers.length === 0 || (selectedNumbersWatch || []).length === 0}>
               {t('purchaseForm.purchaseButton')}
             </Button>
           </form>
