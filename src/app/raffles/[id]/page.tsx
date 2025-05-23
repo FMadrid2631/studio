@@ -6,17 +6,17 @@ import { useRaffles } from '@/contexts/RaffleContext';
 import { RaffleGrid } from '@/components/raffle/RaffleGrid';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, Edit, Settings } from 'lucide-react'; // Removed Download, Loader2, Trophy
+import { ArrowLeft, Edit, Settings, Download, Loader2, Trophy } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { useTranslations } from '@/contexts/LocalizationContext';
 import { format } from 'date-fns';
 import { getLocaleFromString } from '@/lib/date-fns-locales';
-import { useEffect, useRef } from 'react'; // Removed useState
+import { useEffect, useRef, useState } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-// Removed: import { toPng } from 'html-to-image';
-// Removed: import { useToast } from '@/hooks/use-toast';
+import { toPng } from 'html-to-image';
+import { useToast } from '@/hooks/use-toast';
 
 export default function RafflePage() {
   const params = useParams();
@@ -24,11 +24,11 @@ export default function RafflePage() {
   const { getRaffleById, isLoading } = useRaffles();
   const router = useRouter();
   const { t, locale, changeLocaleForRaffle } = useTranslations();
-  // Removed: const { toast } = useToast();
+  const { toast } = useToast();
 
   const raffle = getRaffleById(raffleId);
-  const gridRef = useRef<HTMLDivElement>(null); // This ref is for RaffleGrid, potentially for future use, but export moved
-  // Removed: const [isExporting, setIsExporting] = useState(false);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     if (raffle) {
@@ -58,23 +58,57 @@ export default function RafflePage() {
   
   const dateLocaleForFormatting = getLocaleFromString(locale);
 
+  const formatPrice = (value: number, currencySymbol: string, currencyCode: string) => {
+    if (currencyCode === 'CLP') {
+      return `${currencySymbol}${value.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+    }
+    return `${currencySymbol}${value.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
   const handleNumberClick = (numberId: number) => {
     router.push(`/raffles/${raffleId}/purchase?selectedNumber=${numberId}`);
   };
 
-  // Removed handleExportImage function
+  const handleExportImage = async () => {
+    if (!gridRef.current) {
+      toast({
+        title: t('raffleDetailsPage.exportErrorTitle'),
+        description: t('raffleDetailsPage.exportErrorDescription'),
+        variant: 'destructive',
+      });
+      return;
+    }
+    setIsExporting(true);
+    try {
+      const dataUrl = await toPng(gridRef.current, { backgroundColor: '#ffffff' });
+      const link = document.createElement('a');
+      const sanitizedRaffleName = raffle.name.replace(/[^\w\s-]/gi, '').replace(/\s+/g, '_').toLowerCase();
+      link.download = `rifa-${sanitizedRaffleName}-numeros.png`;
+      link.href = dataUrl;
+      link.click();
+      toast({
+        title: t('raffleDetailsPage.exportSuccessTitle'),
+        description: t('raffleDetailsPage.exportSuccessDescription'),
+      });
+    } catch (err) {
+      console.error('Oops, something went wrong!', err);
+      toast({
+        title: t('raffleDetailsPage.exportErrorTitle'),
+        description: t('raffleDetailsPage.exportErrorDescription'),
+        variant: 'destructive',
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
 
   const purchasedCount = raffle.numbers.filter(n => n.status === 'Purchased' || n.status === 'PendingPayment').length;
   const progress = raffle.totalNumbers > 0 ? (purchasedCount / raffle.totalNumbers) * 100 : 0;
   const hasSoldNumbers = raffle.numbers.some(n => n.status !== 'Available');
   const canEditConfiguration = !hasSoldNumbers && raffle.status !== 'Closed';
 
-  let formattedNumberValueWithSymbol;
-  if (raffle.country.currencyCode === 'CLP') {
-    formattedNumberValueWithSymbol = `${raffle.country.currencySymbol}${raffle.numberValue.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
-  } else {
-    formattedNumberValueWithSymbol = `${raffle.country.currencySymbol}${raffle.numberValue.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  }
+  let formattedNumberValueWithSymbol = formatPrice(raffle.numberValue, raffle.country.currencySymbol, raffle.country.currencyCode);
 
   return (
     <TooltipProvider>
@@ -118,7 +152,7 @@ export default function RafflePage() {
                 <div className="bg-primary h-2.5 rounded-full" style={{ width: `${progress}%` }}></div>
               </div>
             </div>
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"> {/* Adjusted grid for 3 items */}
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="w-full"> 
@@ -128,7 +162,7 @@ export default function RafflePage() {
                           <Settings className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.configureButton')}
                         </Link>
                       ) : (
-                        <span>
+                        <span> {/* Span wrapper for disabled button tooltip */}
                           <Settings className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.configureButton')}
                         </span>
                       )}
@@ -146,11 +180,10 @@ export default function RafflePage() {
                   <Edit className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.purchaseNumbersButton')}
                 </Link>
               </Button>
-              {/* Export button removed from here */}
+              {/* Button was moved to AvailableNumbersPage */}
               <Button variant="default" asChild disabled={raffle.status === 'Closed'} className="w-full">
                 <Link href={`/raffles/${raffle.id}/draw`}>
-                   {/* Assuming Trophy icon is wanted here, if not it was removed in error by previous step from imports */}
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 h-4 w-4 lucide lucide-trophy"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                  <Trophy className="mr-2 h-4 w-4" />
                   {t('raffleDetailsPage.conductDrawButton')}
                 </Link>
               </Button>
@@ -182,10 +215,19 @@ export default function RafflePage() {
             <ul className="space-y-2">
               {raffle.prizes.sort((a,b) => a.order - b.order).map(prize => (
                 <li key={prize.id} className="p-3 bg-muted/50 rounded-md">
-                  <strong className="text-primary">{t('raffleDetailsPage.prizeItem', { order: prize.order })}:</strong> {prize.description}
-                  {prize.winningNumber && prize.winnerName && (
-                    <span className="ml-2 text-sm text-green-600 font-semibold">({t('raffleDetailsPage.prizeWonBy', { number: prize.winningNumber, name: prize.winnerName})})</span>
-                  )}
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <strong className="text-primary">{t('raffleDetailsPage.prizeItem', { order: prize.order })}:</strong> {prize.description}
+                      {prize.winningNumber && prize.winnerName && (
+                        <span className="ml-2 text-sm text-green-600 font-semibold">({t('raffleDetailsPage.prizeWonBy', { number: prize.winningNumber, name: prize.winnerName})})</span>
+                      )}
+                    </div>
+                    {prize.referenceValue && prize.referenceValue > 0 && (
+                      <Badge variant="secondary" className="whitespace-nowrap text-xs">
+                        {t('raffleDetailsPage.prizeRefValue', { value: formatPrice(prize.referenceValue, raffle.country.currencySymbol, raffle.country.currencyCode) })}
+                      </Badge>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>

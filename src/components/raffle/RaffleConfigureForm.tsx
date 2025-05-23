@@ -41,15 +41,15 @@ const createRaffleFormSchema = (t: Function) => z.object({
   prizes: z.array(
     z.object({
       description: z.string().min(1, { message: t('configureForm.validation.prizeDescriptionEmpty') }),
+      referenceValue: z.coerce.number().min(0, { message: t('configureForm.validation.referenceValueMin') }).optional(),
     })
   ).min(1, { message: t('configureForm.validation.atLeastOnePrize') }),
   drawDate: z.date({ required_error: t('configureForm.validation.drawDateRequired') }),
-  // Bank Details - all optional in Zod schema
   bankName: z.string().optional().or(z.literal('')),
   accountHolderName: z.string().optional().or(z.literal('')),
   accountNumber: z.string().optional().or(z.literal('')),
-  accountType: z.string().optional().or(z.literal('')), // E.g., "Savings", "Checking"
-  identificationNumber: z.string().optional().or(z.literal('')), // For CUIT, RUT, CPF
+  accountType: z.string().optional().or(z.literal('')), 
+  identificationNumber: z.string().optional().or(z.literal('')), 
   transferInstructions: z.string().optional().or(z.literal('')),
 });
 
@@ -76,7 +76,7 @@ export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps)
       totalNumbers: editingRaffle.totalNumbers,
       numberValue: editingRaffle.numberValue,
       numberOfPrizes: editingRaffle.prizes.length,
-      prizes: editingRaffle.prizes.map(p => ({ description: p.description })),
+      prizes: editingRaffle.prizes.map(p => ({ description: p.description, referenceValue: p.referenceValue || 0 })),
       drawDate: new Date(editingRaffle.drawDate),
       bankName: editingRaffle.bankDetails?.bankName || '',
       accountHolderName: editingRaffle.bankDetails?.accountHolderName || '',
@@ -90,7 +90,7 @@ export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps)
       totalNumbers: 100,
       numberValue: 1,
       numberOfPrizes: 1,
-      prizes: [{ description: '' }],
+      prizes: [{ description: '', referenceValue: 0 }],
       drawDate: undefined,
       bankName: '',
       accountHolderName: '',
@@ -129,7 +129,7 @@ export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps)
         totalNumbers: editingRaffle.totalNumbers,
         numberValue: editingRaffle.numberValue,
         numberOfPrizes: editingRaffle.prizes.length,
-        prizes: editingRaffle.prizes.map(p => ({ description: p.description })),
+        prizes: editingRaffle.prizes.map(p => ({ description: p.description, referenceValue: p.referenceValue || 0 })),
         drawDate: new Date(editingRaffle.drawDate),
         bankName: editingRaffle.bankDetails?.bankName || '',
         accountHolderName: editingRaffle.bankDetails?.accountHolderName || '',
@@ -154,7 +154,7 @@ export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps)
 
         if (targetPrizesCount > currentPrizesCount) {
             for (let i = currentPrizesCount; i < targetPrizesCount; i++) {
-                append({ description: '' });
+                append({ description: '', referenceValue: 0 });
             }
         } else if (targetPrizesCount < currentPrizesCount) {
              if (isEditMode && !userChangedNumberOfPrizes && initialDataLoaded) {
@@ -172,9 +172,16 @@ export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps)
 
 
   function onSubmit(data: RaffleConfigurationFormInput) {
+    const payload = {
+        ...data,
+        prizes: data.prizes.map(p => ({
+            description: p.description,
+            referenceValue: p.referenceValue === undefined || p.referenceValue === null || isNaN(p.referenceValue) ? 0 : Number(p.referenceValue)
+        }))
+    };
     
     if (isEditMode && editingRaffle) {
-      const updatedRaffle = editRaffle(editingRaffle.id, data);
+      const updatedRaffle = editRaffle(editingRaffle.id, payload);
       if (updatedRaffle) {
         toast({ title: t('configureForm.toast.updateSuccessTitle'), description: t('configureForm.toast.updateSuccessDescription', {raffleName: updatedRaffle.name }) });
         router.push(`/raffles/${updatedRaffle.id}`);
@@ -182,27 +189,25 @@ export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps)
          toast({ title: t('configureForm.toast.errorTitle'), description: t('configureForm.toast.errorUpdate'), variant: 'destructive' });
       }
     } else {
-       const country = COUNTRIES.find(c => c.code === data.countryCode);
+       const country = COUNTRIES.find(c => c.code === payload.countryCode);
        if (!country) {
          toast({ title: t('configureForm.toast.errorTitle'), description: t('configureForm.toast.errorCountry'), variant: 'destructive' });
          return;
        }
       const newRaffle = addRaffle({
-        name: data.name,
-        countryCode: data.countryCode, // Pass countryCode
-        country: country, // This will be ignored by addRaffle if countryCode is used, but keep for type consistency
-        totalNumbers: data.totalNumbers,
-        numberValue: data.numberValue,
-        drawDate: data.drawDate,
-        prizeDescriptions: data.prizes.map(p => p.description),
-        bankName: data.bankName,
-        accountHolderName: data.accountHolderName,
-        accountNumber: data.accountNumber,
-        accountType: data.accountType,
-        identificationNumber: data.identificationNumber,
-        transferInstructions: data.transferInstructions,
-        // numberOfPrizes is derived from prizeDescriptions.length in addRaffle
-        numberOfPrizes: data.prizes.length 
+        name: payload.name,
+        countryCode: payload.countryCode, 
+        country: country, 
+        totalNumbers: payload.totalNumbers,
+        numberValue: payload.numberValue,
+        drawDate: payload.drawDate,
+        prizes: payload.prizes, // Pass the array of prize objects
+        bankName: payload.bankName,
+        accountHolderName: payload.accountHolderName,
+        accountNumber: payload.accountNumber,
+        accountType: payload.accountType,
+        identificationNumber: payload.identificationNumber,
+        transferInstructions: payload.transferInstructions,
       });
       toast({ title: t('configureForm.toast.successTitle'), description: t('configureForm.toast.successDescription', {raffleName: newRaffle.name }) });
       router.push(`/raffles/${newRaffle.id}`);
@@ -349,32 +354,63 @@ export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps)
             />
 
             {fields.map((item, index) => (
-              <FormField
-                key={item.id}
-                control={form.control}
-                name={`prizes.${index}.description`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('configureForm.labels.prizeDescription', { index: index + 1 })}</FormLabel>
-                    <div className="flex items-center gap-2">
-                      <FormControl>
-                        <Input placeholder={t('configureForm.placeholders.prizeDescription')} {...field} />
-                      </FormControl>
-                      {fields.length > 1 && (
-                        <Button type="button" variant="destructive" size="icon" onClick={() => {
-                          remove(index);
-                          const newNumberOfPrizes = Math.max(1, fields.length - 1);
-                          form.setValue('numberOfPrizes', newNumberOfPrizes, { shouldValidate: true });
-                        }}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      )}
+              <div key={item.id} className="space-y-2 p-4 border rounded-md bg-muted/30">
+                <div className="flex flex-col sm:flex-row items-start gap-4">
+                  <FormField
+                    control={form.control}
+                    name={`prizes.${index}.description`}
+                    render={({ field }) => (
+                      <FormItem className="flex-grow">
+                        <FormLabel>{t('configureForm.labels.prizeDescription', { index: index + 1 })}</FormLabel>
+                        <FormControl>
+                          <Input placeholder={t('configureForm.placeholders.prizeDescription')} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`prizes.${index}.referenceValue`}
+                    render={({ field }) => (
+                      <FormItem className="w-full sm:w-48">
+                        <FormLabel>{t('configureForm.labels.prizeReferenceValue', { currencySymbol: currencySymbolForLabel })}</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="any"
+                            placeholder="0"
+                            {...field}
+                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} // Ensure value is number or 0
+                            value={field.value || ''} // Display empty string if 0 or undefined for placeholder
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {fields.length > 1 && (
+                    <div className="pt-0 sm:pt-8"> {/* Align button with inputs */}
+                      <Button type="button" variant="destructive" size="icon" onClick={() => {
+                        remove(index);
+                        const newNumberOfPrizes = Math.max(1, fields.length - 1);
+                        form.setValue('numberOfPrizes', newNumberOfPrizes, { shouldValidate: true });
+                      }}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  )}
+                </div>
+                 {fields.length === 1 && fields.length < (form.getValues('numberOfPrizes') || 1) && (
+                    <div className="pt-0 sm:pt-8 sm:ml-auto hidden"> {/* Keep structure for single item but hide button */}
+                         <Button type="button" variant="destructive" size="icon" disabled>
+                             <Trash2 className="h-4 w-4" />
+                         </Button>
+                     </div>
+                 )}
+              </div>
             ))}
+
 
             <Separator className="my-6" />
             <h3 className="text-xl font-semibold text-muted-foreground">{t('configureForm.bankDetails.title')}</h3>

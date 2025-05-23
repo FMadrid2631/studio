@@ -44,6 +44,7 @@
     "prizesListTitle": "Prêmios",
     "prizeItem": "Prêmio {{order}}",
     "prizeWonBy": "Ganhado por #{{number}} - {{name}}",
+    "prizeRefValue": "Valor Ref.: {{value}}",
     "raffleNotFoundTitle": "Rifa Não Encontrada",
     "raffleNotFoundDescription": "A rifa que você está procurando não existe ou pode ter sido removida.",
     "backToHomeButton": "Voltar ao Início",
@@ -69,6 +70,7 @@
       "drawDate": "Data do Sorteio",
       "numberOfPrizes": "Quantidade de Prêmios",
       "prizeDescription": "Descrição do Prêmio {{index}} (Do Maior para o Menor)",
+      "prizeReferenceValue": "Valor de Referência ({{currencySymbol}})",
       "bankName": "Nome do Banco",
       "accountHolderName": "Nome do Titular da Conta",
       "accountNumber": "Número da Conta",
@@ -108,6 +110,7 @@
         "numberOfPrizesMin": "Mínimo de 1 prêmio.",
         "numberOfPrizesMax": "Máximo de 20 prêmios.",
         "prizeDescriptionEmpty": "A descrição do prêmio não pode estar vazia.",
+        "referenceValueMin": "O valor de referência deve ser 0 ou maior.",
         "atLeastOnePrize": "É necessário pelo menos um prêmio.",
         "drawDateRequired": "A data do sorteio é obrigatória."
     },

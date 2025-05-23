@@ -19,6 +19,7 @@ export interface Prize {
   id: string; // uuid for React key
   description: string;
   order: number; // To maintain major to minor order
+  referenceValue?: number; // Reference value of the prize
   winningNumber?: number; // Assigned after draw
   winnerName?: string;
   winnerPhone?: string;
@@ -53,8 +54,8 @@ export type RaffleConfigurationFormInput = {
   countryCode: string;
   totalNumbers: number;
   numberValue: number;
-  numberOfPrizes: number;
-  prizes: { description: string }[];
+  numberOfPrizes: number; // Used by the form to control field array
+  prizes: { description: string; referenceValue?: number }[];
   drawDate: Date; // General draw date for the raffle event
   // Bank Details - all optional
   bankName?: string;

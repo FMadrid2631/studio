@@ -44,6 +44,7 @@
     "prizesListTitle": "Prizes",
     "prizeItem": "Prize {{order}}",
     "prizeWonBy": "Won by #{{number}} - {{name}}",
+    "prizeRefValue": "Ref. Value: {{value}}",
     "raffleNotFoundTitle": "Raffle Not Found",
     "raffleNotFoundDescription": "The raffle you are looking for does not exist or may have been removed.",
     "backToHomeButton": "Back to Home",
@@ -69,6 +70,7 @@
       "drawDate": "Draw Date",
       "numberOfPrizes": "Number of Prizes",
       "prizeDescription": "Prize {{index}} Description (Major to Minor)",
+      "prizeReferenceValue": "Reference Value ({{currencySymbol}})",
       "bankName": "Bank Name",
       "accountHolderName": "Account Holder Name",
       "accountNumber": "Account Number",
@@ -108,6 +110,7 @@
         "numberOfPrizesMin": "Minimum 1 prize.",
         "numberOfPrizesMax": "Maximum 20 prizes.",
         "prizeDescriptionEmpty": "Prize description cannot be empty.",
+        "referenceValueMin": "Reference value must be 0 or greater.",
         "atLeastOnePrize": "At least one prize is required.",
         "drawDateRequired": "Draw date is required."
     },

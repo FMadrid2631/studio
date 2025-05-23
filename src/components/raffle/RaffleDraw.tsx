@@ -9,11 +9,11 @@ import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, CheckCircle, CalendarDays } from 'lucide-react';
-import { Trophy } from 'lucide-react';
+import { Loader2, CheckCircle, CalendarDays, Trophy } from 'lucide-react';
 import { useTranslations } from '@/contexts/LocalizationContext';
 import { format } from 'date-fns';
 import { getLocaleFromString } from '@/lib/date-fns-locales';
+import { Badge } from '@/components/ui/badge';
 
 
 interface RaffleDrawProps {
@@ -39,6 +39,13 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
 
   const dateLocaleForFormatting = getLocaleFromString(locale);
 
+  const formatPrice = (value: number, currencySymbol: string, currencyCode: string) => {
+    if (currencyCode === 'CLP') {
+      return `${currencySymbol}${value.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+    }
+    return `${currencySymbol}${value.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
   useEffect(() => {
     let displayTimer: NodeJS.Timeout;
 
@@ -52,7 +59,7 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
       displayTimer = setTimeout(() => {
         setAnimatedDisplayNumber(initialDisplay);
         setActivePrizeForLabel(null);
-      }, 10000); // 10 seconds
+      }, 10000); 
     } else if (lastDrawnWinners.length === 0) { 
       setAnimatedDisplayNumber(initialDisplay);
       setActivePrizeForLabel(null);
@@ -124,10 +131,9 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
             description: t('drawPage.toast.winnerDrawnDescription', { winningNumber: String(winningNumberId).padStart(String(raffle.totalNumbers > 0 ? raffle.totalNumbers : 1).length, '0'), prizeDescription: currentPrizeToAward.description, winnerName: winnerDetails.buyerName })
           });
 
-          // Check if all prizes are awarded AFTER recording the winner
-          const updatedRaffleState = getRaffleById(raffle.id); // Get the freshest state
+          const updatedRaffleState = getRaffleById(raffle.id); 
           if (updatedRaffleState && updatedRaffleState.prizes.every(p => !!p.winningNumber)) {
-            if (updatedRaffleState.status !== 'Closed') { // Only close if not already closed
+            if (updatedRaffleState.status !== 'Closed') { 
               closeRaffle(raffle.id);
               toast({ 
                 title: t('drawPage.toast.raffleCompleteTitle'), 
@@ -220,6 +226,11 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
                   <p><strong>{t('drawPage.winnerLabel')}:</strong> {prize.winnerName}</p>
                   <p><strong>{t('drawPage.phoneLabel')}:</strong> {prize.winnerPhone}</p>
                   <p><strong>{t('drawPage.winningNumberLabelTitle')}:</strong> <span className="text-primary font-bold text-lg">{String(prize.winningNumber).padStart(String(raffle.totalNumbers > 0 ? raffle.totalNumbers : 1).length, '0')}</span></p>
+                   {prize.referenceValue && prize.referenceValue > 0 && (
+                    <p className="text-sm text-muted-foreground">
+                      {t('raffleDetailsPage.prizeRefValue', { value: formatPrice(prize.referenceValue, raffle.country.currencySymbol, raffle.country.currencyCode) })}
+                    </p>
+                  )}
                    {prize.drawDate && (
                     <p className="text-sm text-muted-foreground mt-1 flex items-center">
                       <CalendarDays className="mr-1.5 h-4 w-4" />
@@ -243,7 +254,16 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
                     <ul className="space-y-3">
                         {raffle.prizes.sort((a,b) => a.order - b.order).map(prize => (
                             <li key={prize.id} className="p-3 border rounded-md bg-muted/20">
-                                <p className="font-semibold">{t('raffleDetailsPage.prizeItem', { order: prize.order })}: {prize.description}</p>
+                                <div className="flex justify-between items-start">
+                                  <div>
+                                    <p className="font-semibold">{t('raffleDetailsPage.prizeItem', { order: prize.order })}: {prize.description}</p>
+                                     {prize.referenceValue && prize.referenceValue > 0 && (
+                                        <p className="text-xs text-muted-foreground">
+                                        {t('raffleDetailsPage.prizeRefValue', { value: formatPrice(prize.referenceValue, raffle.country.currencySymbol, raffle.country.currencyCode) })}
+                                        </p>
+                                    )}
+                                  </div>
+                                </div>
                                 {prize.winnerName && prize.winningNumber && prize.winnerPhone ? (
                                   <div className="mt-1 space-y-0.5">
                                     <p className="text-sm text-green-600">

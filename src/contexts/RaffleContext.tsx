@@ -10,9 +10,8 @@ import { COUNTRIES } from '@/lib/countries'; // Import COUNTRIES
 interface RaffleContextType {
   raffles: Raffle[];
   isLoading: boolean;
-  addRaffle: (raffle: Omit<Raffle, 'id' | 'createdAt' | 'numbers' | 'status' | 'prizes' | 'bankDetails'> & {
-    numberOfPrizes: number;
-    prizeDescriptions: string[];
+  addRaffle: (raffleData: Omit<Raffle, 'id' | 'createdAt' | 'numbers' | 'status' | 'prizes' | 'bankDetails'> & {
+    prizes: { description: string; referenceValue?: number }[]; // Changed from numberOfPrizes and prizeDescriptions
     bankName?: string;
     accountHolderName?: string;
     accountNumber?: string;
@@ -52,40 +51,31 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       }
     } catch (error) {
       console.error("Failed to load raffles from localStorage:", error);
-      // initialRaffles remains empty, or handle error appropriately
     }
 
     let madeChanges = false;
     const checkedRaffles = initialRaffles.map(raffle => {
-      // Ensure prizes array exists and is not empty before checking
       if (raffle.status === 'Open' && raffle.prizes && raffle.prizes.length > 0) {
         const allPrizesAwarded = raffle.prizes.every(p => !!p.winningNumber);
         if (allPrizesAwarded) {
           madeChanges = true;
-          return { ...raffle, status: 'Closed' as 'Closed' }; // Explicitly type as 'Closed'
+          return { ...raffle, status: 'Closed' as 'Closed' };
         }
       }
       return raffle;
     });
 
     if (madeChanges) {
-      // saveRaffles calls setRaffles and updates localStorage
-      // No need to call setRaffles(checkedRaffles) separately if saveRaffles does it.
       saveRaffles(checkedRaffles);
     } else {
-      // Only set state if no changes were made by the sanity check,
-      // AND if saveRaffles wasn't called (which already calls setRaffles).
-      // If initialRaffles differs from the current state without `madeChanges`, this sets it.
-      // This path is primarily for the very first load or if no changes were needed.
       setRaffles(initialRaffles);
     }
     setIsLoading(false);
-  }, [saveRaffles]); // saveRaffles is stable due to its empty dependency array in useCallback
+  }, [saveRaffles]);
 
 
   const addRaffle = (raffleData: Omit<Raffle, 'id' | 'createdAt' | 'numbers' | 'status' | 'prizes' | 'bankDetails'> & {
-    numberOfPrizes: number;
-    prizeDescriptions: string[];
+    prizes: { description: string; referenceValue?: number }[];
     bankName?: string;
     accountHolderName?: string;
     accountNumber?: string;
@@ -95,7 +85,6 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
    }): Raffle => {
     const country = COUNTRIES.find(c => c.code === raffleData.countryCode);
     if (!country) {
-      // This should ideally be caught by form validation, but as a safeguard:
       throw new Error("Invalid country code provided for new raffle.");
     }
 
@@ -118,10 +107,10 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     const newRaffle: Raffle = {
       name: raffleData.name,
-      country: country, // Use the resolved country object
+      country: country,
       totalNumbers: raffleData.totalNumbers,
       numberValue: raffleData.numberValue,
-      drawDate: raffleData.drawDate.toISOString(), // Ensure drawDate is string
+      drawDate: raffleData.drawDate.toISOString(),
       id: crypto.randomUUID(),
       createdAt: new Date().toISOString(),
       status: 'Open',
@@ -129,11 +118,12 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         id: i + 1,
         status: 'Available',
       })),
-      prizes: raffleData.prizeDescriptions.map((desc, index) => ({
+      prizes: raffleData.prizes.map((p, index) => ({
         id: crypto.randomUUID(),
-        description: desc,
+        description: p.description,
         order: index + 1,
-        // drawDate will be undefined initially
+        referenceValue: p.referenceValue === undefined ? 0 : p.referenceValue,
+        drawDate: undefined, // Explicitly set drawDate as undefined initially
       })),
       bankDetails: bankDetails,
     };
@@ -183,21 +173,19 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       ...existingRaffle,
       name: updatedData.name,
       country: country,
-      totalNumbers: updatedData.totalNumbers, // This field is disabled in edit mode if sales started
+      totalNumbers: updatedData.totalNumbers,
       numberValue: updatedData.numberValue,
       drawDate: updatedData.drawDate.toISOString(),
       prizes: updatedData.prizes.map((p, index) => ({
         id: existingRaffle.prizes[index]?.id || crypto.randomUUID(),
         description: p.description,
         order: index + 1,
-        winningNumber: existingRaffle.prizes[index]?.winningNumber, // Preserve existing winner info
+        referenceValue: p.referenceValue === undefined ? 0 : p.referenceValue,
+        winningNumber: existingRaffle.prizes[index]?.winningNumber,
         winnerName: existingRaffle.prizes[index]?.winnerName,
         winnerPhone: existingRaffle.prizes[index]?.winnerPhone,
-        drawDate: existingRaffle.prizes[index]?.drawDate, // Preserve existing draw date
+        drawDate: existingRaffle.prizes[index]?.drawDate,
       })),
-      // Numbers array is not changed here if totalNumbers is disabled.
-      // If totalNumbers were changeable and no sales, numbers would be reset.
-      // For now, assuming totalNumbers is locked if raffle is editable.
       numbers: existingRaffle.numbers,
       bankDetails: bankDetails,
     };
@@ -252,8 +240,6 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const closeRaffle = (raffleId: string) => {
     const raffle = getRaffleById(raffleId);
     if (!raffle) return;
-    // This function is now called only when all prizes ARE awarded (checked in RaffleDraw.tsx)
-    // or potentially by a future manual admin action.
     updateRaffle({ ...raffle, status: 'Closed' });
   };
 
