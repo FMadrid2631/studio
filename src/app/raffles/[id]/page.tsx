@@ -155,11 +155,7 @@ export default function RafflePage() {
         </Card>
         
         <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl">{t('raffleDetailsPage.raffleGridTitle')}</CardTitle>
-            <CardDescription>{t('raffleDetailsPage.raffleGridDescription')}</CardDescription>
-          </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6"> {/* Added pt-6 to give some space if header is removed */}
             <RaffleGrid 
               numbers={raffle.numbers} 
               currencySymbol={raffle.country.currencySymbol}
