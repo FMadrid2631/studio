@@ -6,12 +6,12 @@ import { useRaffles } from '@/contexts/RaffleContext';
 import { AvailableNumbersList } from '@/components/raffle/AvailableNumbersList';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, Download, Loader2 } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
 import { useTranslations } from '@/contexts/LocalizationContext';
-import { useEffect, useRef, useState } from 'react';
-import { toPng } from 'html-to-image';
-import { useToast } from '@/hooks/use-toast';
+import { useEffect, useRef } from 'react';
+// Removed: Download, Loader2, toPng, useToast, useState
+
 import { ScrollArea } from '@/components/ui/scroll-area'; // Import ScrollArea for page display
 
 export default function AvailableNumbersPage() {
@@ -19,12 +19,12 @@ export default function AvailableNumbersPage() {
   const raffleId = params.id as string;
   const { getRaffleById, isLoading } = useRaffles();
   const router = useRouter();
-  const { t, locale, changeLocaleForRaffle } = useTranslations();
-  const { toast } = useToast();
+  const { t, changeLocaleForRaffle } = useTranslations();
+  // const { toast } = useToast(); // Removed as no longer used
 
   const raffle = getRaffleById(raffleId);
-  const exportTargetRef = useRef<HTMLDivElement>(null); // Ref for the AvailableNumbersList Card element
-  const [isExporting, setIsExporting] = useState(false);
+  const exportTargetRef = useRef<HTMLDivElement>(null); // This ref is passed to AvailableNumbersList but not used for export here anymore
+  // const [isExporting, setIsExporting] = useState(false); // Removed
 
   useEffect(() => {
     if (raffle) {
@@ -50,50 +50,7 @@ export default function AvailableNumbersPage() {
     );
   }
 
-  const handleExportImage = async () => {
-    const elementToCapture = exportTargetRef.current;
-    if (!elementToCapture) {
-      console.error('Element to capture ref is not available');
-      toast({
-        title: t('raffleDetailsPage.exportErrorTitle'),
-        description: t('raffleDetailsPage.exportErrorDescription'),
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setIsExporting(true);
-    try {
-      // Use offsetWidth for width and scrollHeight for the full content height of the Card
-      const dataUrl = await toPng(elementToCapture, {
-        quality: 0.95,
-        backgroundColor: 'white',
-        width: elementToCapture.offsetWidth,
-        height: elementToCapture.scrollHeight,
-        // pixelRatio: window.devicePixelRatio || 1, // Consider device pixel ratio for quality
-      });
-      const link = document.createElement('a');
-      const sanitizedRaffleName = raffle.name.replace(/[^\w\s-]/gi, '').replace(/\s+/g, '_').toLowerCase();
-      link.download = `rifa-${sanitizedRaffleName}-numeros-disponibles.png`;
-      link.href = dataUrl;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      toast({
-        title: t('raffleDetailsPage.exportSuccessTitle'),
-        description: t('raffleDetailsPage.exportAvailableSuccessDescription'),
-      });
-    } catch (error) {
-      console.error('Error exporting image:', error);
-      toast({
-        title: t('raffleDetailsPage.exportErrorTitle'),
-        description: t('raffleDetailsPage.exportErrorDescription'),
-        variant: 'destructive',
-      });
-    } finally {
-      setIsExporting(false);
-    }
-  };
+  // const handleExportImage = async () => { ... } // Removed export logic
 
   return (
     <div className="space-y-6">
@@ -101,14 +58,7 @@ export default function AvailableNumbersPage() {
         <Button variant="outline" onClick={() => router.push(`/raffles/${raffleId}`)}>
           <ArrowLeft className="mr-2 h-4 w-4" /> {t('availableNumbersPage.backToRaffleDetails')}
         </Button>
-        <Button
-            variant="default"
-            onClick={handleExportImage}
-            disabled={isExporting || raffle.numbers.filter(n=>n.status === 'Available').length === 0 }
-          >
-            {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
-            {t('raffleDetailsPage.exportImageButton')}
-          </Button>
+        {/* Export button removed from here */}
       </div>
 
       <h1 className="text-3xl font-bold text-center">{t('availableNumbersPage.title', { raffleName: raffle.name })}</h1>
@@ -116,7 +66,7 @@ export default function AvailableNumbersPage() {
       {/* ScrollArea for display purposes on the page */}
       <ScrollArea className="h-96 border rounded-md"> {/* Adjust height as needed, e.g., h-96 or h-[calc(100vh-20rem)] */}
         <AvailableNumbersList
-          ref={exportTargetRef} // Ref points to the Card inside AvailableNumbersList
+          ref={exportTargetRef} 
           numbers={raffle.numbers}
           currencySymbol={raffle.country.currencySymbol}
           currencyCode={raffle.country.currencyCode}
