@@ -18,6 +18,9 @@ import { ScrollArea } from '../ui/scroll-area';
 import { Badge } from '../ui/badge';
 import { useTranslations } from '@/contexts/LocalizationContext';
 import { cn } from '@/lib/utils';
+import { AlertCircle, Banknote, Info } from 'lucide-react';
+import { Alert, AlertTitle } from '../ui/alert';
+
 
 interface PurchaseFormProps {
   raffle: Raffle;
@@ -66,8 +69,9 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
     },
   });
 
-  const { watch, setValue, getValues } = form;
+  const { watch, setValue, getValues, control } = form;
   const selectedNumbersWatch = watch('selectedNumbers');
+  const paymentMethodWatch = watch('paymentMethod');
 
   useEffect(() => {
     const currentRaffleId = raffle.id;
@@ -79,7 +83,8 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
         processedParamValueRef.current = preSelectedNumberStr;
     }
     
-    const availableIds = raffle.numbers.filter(n => n.status === 'Available').map(n => n.id);
+    const availableRaffleNumbers = raffle.numbers.filter(n => n.status === 'Available');
+    const availableIds = availableRaffleNumbers.map(n => n.id);
 
     if (preSelectedNumberStr && !paramProcessedForCurrentState.current && availableIds.length > 0) {
         const preSelectedNumberVal = Number(preSelectedNumberStr);
@@ -94,10 +99,11 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
         }
         paramProcessedForCurrentState.current = true; 
     } else if (!preSelectedNumberStr && processedParamValueRef.current !== null) {
+        // Reset if the param is removed, allowing new param processing if it reappears
         paramProcessedForCurrentState.current = false;
-        processedParamValueRef.current = null;
+        processedParamValueRef.current = null; // Clear the stored param value
     }
-  }, [searchParams, raffle.id, raffle.numbers, setValue, getValues]);
+  }, [searchParams, raffle.id, raffle.numbers, setValue, getValues, paramProcessedForCurrentState, processedRaffleIdRef, processedParamValueRef]);
 
 
   useEffect(() => {
@@ -139,6 +145,7 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
         newSearchParams.delete('selectedNumber');
         router.replace(`${pathname}?${newSearchParams.toString()}`, { scroll: false });
       } else {
+         // Only push if not already on the details page, or handle as needed
         router.push(`/raffles/${raffle.id}`); 
       }
        form.reset(); 
@@ -149,10 +156,12 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
         description: t('purchaseForm.toast.errorDescription'),
         variant: 'destructive'
       });
+      // Refresh the available numbers in the grid if the purchase fails
       const refreshedRaffleState = getRaffleById(raffle.id);
       const stillAvailableForSelectionAfterFailedSubmit = refreshedRaffleState
         ? refreshedRaffleState.numbers.filter(n => n.status === 'Available').map(n => n.id)
-        : currentAvailableAtSubmit; 
+        : currentAvailableAtSubmit; // Fallback to previous list if refresh fails for some reason
+      
       const stillValidUserSelection = data.selectedNumbers.filter(numId => stillAvailableForSelectionAfterFailedSubmit.includes(numId));
       setValue('selectedNumbers', stillValidUserSelection);
     }
@@ -191,6 +200,11 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
   const allRaffleNumbersForGrid = raffle.numbers; 
   const getTranslatedStatus = (status: RaffleNumberType['status']) => t(`numberStatus.${status}`);
 
+  const hasBankDetails = raffle.bankDetails && 
+                         (raffle.bankDetails.bankName || 
+                          raffle.bankDetails.accountHolderName || 
+                          raffle.bankDetails.accountNumber);
+
   return (
     <Card className="max-w-lg mx-auto shadow-lg">
       <CardHeader>
@@ -228,7 +242,7 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
             />
 
             <FormField
-              control={form.control}
+              control={control}
               name="selectedNumbers" 
               render={({ field }) => ( 
                 <FormItem>
@@ -241,14 +255,14 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
                   <ScrollArea className="h-60 border rounded-md p-2">
                     <div className="grid grid-cols-10 gap-1.5"> 
                     {allRaffleNumbersForGrid.length === 0 ? (
-                        <p className="col-span-full text-center text-muted-foreground">{t('purchaseForm.grid.noNumbersInRaffle')}</p>
+                        <p className="col-span-full text-center text-muted-foreground">{t('purchaseForm.noNumbersInRaffle')}</p>
                     ) : (
                       allRaffleNumbersForGrid.map((num) => {
                         const isSelected = (field.value || []).includes(num.id);
                         const isAvailable = num.status === 'Available';
                         const titleText = isAvailable 
-                                          ? t('purchaseForm.grid.numberTitle', { id: num.id }) 
-                                          : t('purchaseForm.grid.numberStatusTitle', { id: num.id, status: getTranslatedStatus(num.status) });
+                                          ? t('raffleGrid.tooltip.number', { id: num.id }) + ` (${t('numberStatus.Available')})`
+                                          : t('raffleGrid.tooltip.number', { id: num.id }) + ` (${getTranslatedStatus(num.status)})`;
                         return (
                           <div
                             key={num.id}
@@ -263,7 +277,7 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
                             className={cn(
                               'aspect-square flex items-center justify-center text-xs sm:text-sm font-medium rounded-md transition-colors',
                               getNumberStatusClass(num.status, isSelected),
-                              isAvailable ? 'cursor-pointer' : 'cursor-not-allowed'
+                              isAvailable ? 'cursor-pointer' : '' // Removed cursor-not-allowed as it's handled by opacity and click handler
                             )}
                             aria-pressed={isSelected}
                             aria-disabled={!isAvailable}
@@ -303,6 +317,39 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
                 </FormItem>
               )}
             />
+
+            {paymentMethodWatch === 'Transfer' && (
+              hasBankDetails ? (
+                <Card className="bg-accent/20 border-accent">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Banknote className="h-5 w-5 text-primary" />
+                      {t('purchaseForm.bankTransferDetails.title')}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-1 text-sm">
+                    {raffle.bankDetails?.bankName && <p><strong>{t('configureForm.labels.bankName')}:</strong> {raffle.bankDetails.bankName}</p>}
+                    {raffle.bankDetails?.accountHolderName && <p><strong>{t('configureForm.labels.accountHolderName')}:</strong> {raffle.bankDetails.accountHolderName}</p>}
+                    {raffle.bankDetails?.accountNumber && <p><strong>{t('configureForm.labels.accountNumber')}:</strong> {raffle.bankDetails.accountNumber}</p>}
+                    {raffle.bankDetails?.accountType && <p><strong>{t('configureForm.labels.accountType')}:</strong> {raffle.bankDetails.accountType}</p>}
+                    {raffle.bankDetails?.identificationNumber && <p><strong>{t('configureForm.labels.identificationNumber')}:</strong> {raffle.bankDetails.identificationNumber}</p>}
+                    {raffle.bankDetails?.transferInstructions && (
+                      <div className="mt-2 pt-2 border-t border-accent/50">
+                        <p className="flex items-center gap-1 font-semibold"><Info className="h-4 w-4"/>{t('configureForm.labels.transferInstructions')}:</p>
+                        <p className="whitespace-pre-wrap text-xs text-muted-foreground">{raffle.bankDetails.transferInstructions}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ) : (
+                <Alert variant="default" className="border-amber-500 bg-amber-50 text-amber-700">
+                  <AlertCircle className="h-4 w-4 !text-amber-600" />
+                  <AlertTitle>{t('purchaseForm.bankTransferDetails.notConfiguredTitle')}</AlertTitle>
+                  <FormDescription>{t('purchaseForm.bankTransferDetails.notConfiguredDescription')}</FormDescription>
+                </Alert>
+              )
+            )}
+
 
             {(selectedNumbersWatch || []).length > 0 && (
               <div className="p-4 bg-accent/30 rounded-md text-center">

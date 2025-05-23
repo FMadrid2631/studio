@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -16,11 +17,12 @@ import type { RaffleConfigurationFormInput, Raffle } from '@/types';
 import { useRaffles } from '@/contexts/RaffleContext';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { CalendarIcon, Trash2 } from 'lucide-react';
+import { CalendarIcon, Trash2, Info } from 'lucide-react';
 import { format } from 'date-fns';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { useTranslations } from '@/contexts/LocalizationContext';
 import { getLocaleFromString } from '@/lib/date-fns-locales';
+import { Separator } from '../ui/separator';
 
 function usePrevious<T>(value: T): T | undefined {
   const ref = useRef<T>();
@@ -42,6 +44,13 @@ const createRaffleFormSchema = (t: Function) => z.object({
     })
   ).min(1, { message: t('configureForm.validation.atLeastOnePrize') }),
   drawDate: z.date({ required_error: t('configureForm.validation.drawDateRequired') }),
+  // Bank Details - all optional in Zod schema
+  bankName: z.string().optional().or(z.literal('')),
+  accountHolderName: z.string().optional().or(z.literal('')),
+  accountNumber: z.string().optional().or(z.literal('')),
+  accountType: z.string().optional().or(z.literal('')), // E.g., "Savings", "Checking"
+  identificationNumber: z.string().optional().or(z.literal('')), // For CUIT, RUT, CPF
+  transferInstructions: z.string().optional().or(z.literal('')),
 });
 
 interface RaffleConfigureFormProps {
@@ -69,6 +78,12 @@ export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps)
       numberOfPrizes: editingRaffle.prizes.length,
       prizes: editingRaffle.prizes.map(p => ({ description: p.description })),
       drawDate: new Date(editingRaffle.drawDate),
+      bankName: editingRaffle.bankDetails?.bankName || '',
+      accountHolderName: editingRaffle.bankDetails?.accountHolderName || '',
+      accountNumber: editingRaffle.bankDetails?.accountNumber || '',
+      accountType: editingRaffle.bankDetails?.accountType || '',
+      identificationNumber: editingRaffle.bankDetails?.identificationNumber || '',
+      transferInstructions: editingRaffle.bankDetails?.transferInstructions || '',
     } : {
       name: '',
       countryCode: '',
@@ -77,6 +92,12 @@ export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps)
       numberOfPrizes: 1,
       prizes: [{ description: '' }],
       drawDate: undefined,
+      bankName: '',
+      accountHolderName: '',
+      accountNumber: '',
+      accountType: '',
+      identificationNumber: '',
+      transferInstructions: '',
     },
   });
 
@@ -95,7 +116,7 @@ export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps)
     if (targetCountryCode) {
       changeLocaleForRaffle(targetCountryCode);
     } else {
-      changeLocaleForRaffle(undefined); // Fallback to default/localStorage if no country context
+      changeLocaleForRaffle(undefined); 
     }
   }, [editingRaffle, watchedCountryCode, changeLocaleForRaffle]);
 
@@ -110,6 +131,12 @@ export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps)
         numberOfPrizes: editingRaffle.prizes.length,
         prizes: editingRaffle.prizes.map(p => ({ description: p.description })),
         drawDate: new Date(editingRaffle.drawDate),
+        bankName: editingRaffle.bankDetails?.bankName || '',
+        accountHolderName: editingRaffle.bankDetails?.accountHolderName || '',
+        accountNumber: editingRaffle.bankDetails?.accountNumber || '',
+        accountType: editingRaffle.bankDetails?.accountType || '',
+        identificationNumber: editingRaffle.bankDetails?.identificationNumber || '',
+        transferInstructions: editingRaffle.bankDetails?.transferInstructions || '',
       });
       setInitialDataLoaded(true);
     }
@@ -145,15 +172,9 @@ export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps)
 
 
   function onSubmit(data: RaffleConfigurationFormInput) {
-    const country = COUNTRIES.find(c => c.code === data.countryCode);
-    if (!country && !isEditMode) {
-      toast({ title: t('configureForm.toast.errorTitle'), description: t('configureForm.toast.errorCountry'), variant: 'destructive' });
-      return;
-    }
-
+    
     if (isEditMode && editingRaffle) {
-      const finalData = { ...data, country: country || editingRaffle.country }; 
-      const updatedRaffle = editRaffle(editingRaffle.id, finalData);
+      const updatedRaffle = editRaffle(editingRaffle.id, data);
       if (updatedRaffle) {
         toast({ title: t('configureForm.toast.updateSuccessTitle'), description: t('configureForm.toast.updateSuccessDescription', {raffleName: updatedRaffle.name }) });
         router.push(`/raffles/${updatedRaffle.id}`);
@@ -161,10 +182,27 @@ export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps)
          toast({ title: t('configureForm.toast.errorTitle'), description: t('configureForm.toast.errorUpdate'), variant: 'destructive' });
       }
     } else {
+       const country = COUNTRIES.find(c => c.code === data.countryCode);
+       if (!country) {
+         toast({ title: t('configureForm.toast.errorTitle'), description: t('configureForm.toast.errorCountry'), variant: 'destructive' });
+         return;
+       }
       const newRaffle = addRaffle({
-        ...data,
-        country: country!, 
-        prizeDescriptions: data.prizes.map(p => p.description)
+        name: data.name,
+        countryCode: data.countryCode, // Pass countryCode
+        country: country, // This will be ignored by addRaffle if countryCode is used, but keep for type consistency
+        totalNumbers: data.totalNumbers,
+        numberValue: data.numberValue,
+        drawDate: data.drawDate,
+        prizeDescriptions: data.prizes.map(p => p.description),
+        bankName: data.bankName,
+        accountHolderName: data.accountHolderName,
+        accountNumber: data.accountNumber,
+        accountType: data.accountType,
+        identificationNumber: data.identificationNumber,
+        transferInstructions: data.transferInstructions,
+        // numberOfPrizes is derived from prizeDescriptions.length in addRaffle
+        numberOfPrizes: data.prizes.length 
       });
       toast({ title: t('configureForm.toast.successTitle'), description: t('configureForm.toast.successDescription', {raffleName: newRaffle.name }) });
       router.push(`/raffles/${newRaffle.id}`);
@@ -207,8 +245,6 @@ export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps)
                     <Select 
                       onValueChange={(value) => {
                         field.onChange(value);
-                        // Explicitly trigger revalidation or update for currency symbol if needed,
-                        // though watching countryCode should handle it.
                       }} 
                       defaultValue={field.value} 
                       disabled={isEditMode}
@@ -339,6 +375,100 @@ export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps)
                 )}
               />
             ))}
+
+            <Separator className="my-6" />
+            <h3 className="text-xl font-semibold text-muted-foreground">{t('configureForm.bankDetails.title')}</h3>
+            <FormDescription className="flex items-center gap-1">
+              <Info className="h-4 w-4 text-muted-foreground" />
+              {t('configureForm.bankDetails.description')}
+            </FormDescription>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="bankName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('configureForm.labels.bankName')}</FormLabel>
+                    <FormControl>
+                      <Input placeholder={t('configureForm.placeholders.bankName')} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="accountHolderName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('configureForm.labels.accountHolderName')}</FormLabel>
+                    <FormControl>
+                      <Input placeholder={t('configureForm.placeholders.accountHolderName')} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="accountNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('configureForm.labels.accountNumber')}</FormLabel>
+                    <FormControl>
+                      <Input placeholder={t('configureForm.placeholders.accountNumber')} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="accountType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('configureForm.labels.accountType')}</FormLabel>
+                    <FormControl>
+                      <Input placeholder={t('configureForm.placeholders.accountType')} {...field} />
+                    </FormControl>
+                     <FormDescription>{t('configureForm.placeholders.accountTypeHint')}</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            
+            <FormField
+              control={form.control}
+              name="identificationNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('configureForm.labels.identificationNumber')}</FormLabel>
+                  <FormControl>
+                    <Input placeholder={t('configureForm.placeholders.identificationNumber')} {...field} />
+                  </FormControl>
+                  <FormDescription>{t('configureForm.placeholders.identificationNumberHint')}</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="transferInstructions"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('configureForm.labels.transferInstructions')}</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder={t('configureForm.placeholders.transferInstructions')} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             
             <Button type="submit" className="w-full" size="lg">
               {isEditMode ? t('configureForm.buttons.updateRaffle') : t('configureForm.buttons.createRaffle')}

@@ -1,17 +1,24 @@
 
 'use client';
 
-import type { Raffle, Prize, RaffleNumber, RaffleConfigurationFormInput } from '@/types';
+import type { Raffle, Prize, RaffleNumber, RaffleConfigurationFormInput, BankDetails } from '@/types';
 import type React from 'react';
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { LOCAL_STORAGE_RAFFLES_KEY } from '@/lib/constants';
+import { COUNTRIES } from '@/lib/countries'; // Import COUNTRIES
 
 interface RaffleContextType {
   raffles: Raffle[];
   isLoading: boolean;
-  addRaffle: (raffle: Omit<Raffle, 'id' | 'createdAt' | 'numbers' | 'status' | 'prizes'> & {
+  addRaffle: (raffle: Omit<Raffle, 'id' | 'createdAt' | 'numbers' | 'status' | 'prizes' | 'bankDetails'> & {
     numberOfPrizes: number;
     prizeDescriptions: string[];
+    bankName?: string;
+    accountHolderName?: string;
+    accountNumber?: string;
+    accountType?: string;
+    identificationNumber?: string;
+    transferInstructions?: string;
    }) => Raffle;
   getRaffleById: (id: string) => Raffle | undefined;
   updateRaffle: (updatedRaffle: Raffle) => void;
@@ -49,12 +56,45 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }, []);
 
-  const addRaffle = (raffleData: Omit<Raffle, 'id' | 'createdAt' | 'numbers' | 'status' | 'prizes'> & {
+  const addRaffle = (raffleData: Omit<Raffle, 'id' | 'createdAt' | 'numbers' | 'status' | 'prizes' | 'bankDetails'> & {
     numberOfPrizes: number;
     prizeDescriptions: string[];
+    bankName?: string;
+    accountHolderName?: string;
+    accountNumber?: string;
+    accountType?: string;
+    identificationNumber?: string;
+    transferInstructions?: string;
    }): Raffle => {
+    const country = COUNTRIES.find(c => c.code === raffleData.countryCode);
+    if (!country) {
+      // This should ideally be caught by form validation, but as a safeguard:
+      throw new Error("Invalid country code provided for new raffle.");
+    }
+
+    const bankDetails: BankDetails | undefined = (
+        raffleData.bankName || 
+        raffleData.accountHolderName || 
+        raffleData.accountNumber || 
+        raffleData.accountType || 
+        raffleData.identificationNumber ||
+        raffleData.transferInstructions
+    ) ? {
+        bankName: raffleData.bankName,
+        accountHolderName: raffleData.accountHolderName,
+        accountNumber: raffleData.accountNumber,
+        accountType: raffleData.accountType,
+        identificationNumber: raffleData.identificationNumber,
+        transferInstructions: raffleData.transferInstructions,
+    } : undefined;
+
+
     const newRaffle: Raffle = {
-      ...raffleData,
+      name: raffleData.name,
+      country: country, // Use the resolved country object
+      totalNumbers: raffleData.totalNumbers,
+      numberValue: raffleData.numberValue,
+      drawDate: raffleData.drawDate.toISOString(), // Ensure drawDate is string
       id: crypto.randomUUID(),
       createdAt: new Date().toISOString(),
       status: 'Open',
@@ -67,6 +107,7 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         description: desc,
         order: index + 1,
       })),
+      bankDetails: bankDetails,
     };
     const updatedRaffles = [...raffles, newRaffle];
     saveRaffles(updatedRaffles);
@@ -86,40 +127,47 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const existingRaffle = getRaffleById(raffleId);
     if (!existingRaffle) return undefined;
 
-    // Crucial check: ensure no numbers are sold and raffle is not closed
     const hasSoldNumbers = existingRaffle.numbers.some(n => n.status !== 'Available');
     if (hasSoldNumbers || existingRaffle.status === 'Closed') {
       console.error("Cannot edit raffle: sales started or raffle closed.");
       return undefined; 
     }
     
-    const country = updatedData.countryCode ? existingRaffle.country : existingRaffle.country; // Assuming country cannot be changed, or would need to fetch from COUNTRIES
-                                                                                              // For now, keep existing country if not part of form or handle properly
-                                                                                              // Since countryCode is in form, we need to find it.
-    const newCountry = existingRaffle.country; // Fallback to existing, should be updated if countryCode is part of updatedData and logic is added
-                                                // This needs a proper lookup from updatedData.countryCode via COUNTRIES list.
-                                                // For simplicity now, if form includes country, it should be used.
-                                                // Let's assume updatedData provides all necessary fields as per RaffleConfigurationFormInput.
+    const country = COUNTRIES.find(c => c.code === updatedData.countryCode) || existingRaffle.country;
 
-    const finalCountry = existingRaffle.country; // This needs to be properly resolved from updatedData.countryCode
+    const bankDetails: BankDetails | undefined = (
+        updatedData.bankName || 
+        updatedData.accountHolderName || 
+        updatedData.accountNumber || 
+        updatedData.accountType || 
+        updatedData.identificationNumber ||
+        updatedData.transferInstructions
+    ) ? {
+        bankName: updatedData.bankName,
+        accountHolderName: updatedData.accountHolderName,
+        accountNumber: updatedData.accountNumber,
+        accountType: updatedData.accountType,
+        identificationNumber: updatedData.identificationNumber,
+        transferInstructions: updatedData.transferInstructions,
+    } : undefined;
 
     const editedRaffle: Raffle = {
-      ...existingRaffle, // Retain id, createdAt
+      ...existingRaffle,
       name: updatedData.name,
-      country: finalCountry, // This needs to be resolved from updatedData.countryCode
+      country: country,
       totalNumbers: updatedData.totalNumbers,
       numberValue: updatedData.numberValue,
       drawDate: updatedData.drawDate.toISOString(),
-      status: existingRaffle.status, // Status doesn't change on edit, unless specifically handled
-      numbers: Array.from({ length: updatedData.totalNumbers }, (_, i) => ({
-        id: i + 1,
-        status: 'Available', // All numbers reset to available as per original logic for new raffle
-      })),
       prizes: updatedData.prizes.map((p, index) => ({
-        id: existingRaffle.prizes[index]?.id || crypto.randomUUID(), // Try to reuse existing prize IDs
+        id: existingRaffle.prizes[index]?.id || crypto.randomUUID(),
         description: p.description,
         order: index + 1,
       })),
+      numbers: Array.from({ length: updatedData.totalNumbers }, (_, i) => ({ // Reset numbers if totalNumbers changes
+        id: i + 1,
+        status: 'Available',
+      })),
+      bankDetails: bankDetails,
     };
 
     const updatedRaffles = raffles.map(r => (r.id === raffleId ? editedRaffle : r));
@@ -172,7 +220,13 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const closeRaffle = (raffleId: string) => {
     const raffle = getRaffleById(raffleId);
     if (!raffle) return;
-    updateRaffle({ ...raffle, status: 'Closed' });
+    // Ensure all prizes are awarded before closing
+    const allPrizesAwarded = raffle.prizes.every(p => !!p.winningNumber);
+    if (allPrizesAwarded) {
+      updateRaffle({ ...raffle, status: 'Closed' });
+    } else {
+      console.warn("Attempted to close raffle before all prizes were awarded.");
+    }
   };
 
 
@@ -190,4 +244,3 @@ export const useRaffles = (): RaffleContextType => {
   }
   return context;
 };
-

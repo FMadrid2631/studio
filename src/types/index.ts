@@ -24,6 +24,15 @@ export interface Prize {
   winnerPhone?: string;
 }
 
+export interface BankDetails {
+  bankName?: string;
+  accountHolderName?: string;
+  accountNumber?: string;
+  accountType?: string; // e.g., Savings, Checking
+  identificationNumber?: string; // e.g., CUIT, RUT, CPF for account holder
+  transferInstructions?: string; // Optional additional instructions
+}
+
 export interface Raffle {
   id: string; // uuid
   name: string; // Name or description of the raffle
@@ -35,6 +44,7 @@ export interface Raffle {
   status: 'Open' | 'Closed';
   numbers: RaffleNumber[]; // Array from 1 to totalNumbers
   createdAt: string; // ISO string
+  bankDetails?: BankDetails;
 }
 
 export type RaffleConfigurationFormInput = {
@@ -45,6 +55,13 @@ export type RaffleConfigurationFormInput = {
   numberOfPrizes: number;
   prizes: { description: string }[];
   drawDate: Date;
+  // Bank Details - all optional
+  bankName?: string;
+  accountHolderName?: string;
+  accountNumber?: string;
+  accountType?: string;
+  identificationNumber?: string;
+  transferInstructions?: string;
 };
 
 // Used when submitting an update to an existing raffle where some fields might be locked.

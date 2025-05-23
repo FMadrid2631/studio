@@ -68,7 +68,13 @@
       "totalNumbers": "Total de Números en la Rifa",
       "drawDate": "Fecha del Sorteo",
       "numberOfPrizes": "Cantidad de Premios",
-      "prizeDescription": "Descripción del Premio {{index}} (De Mayor a Menor)"
+      "prizeDescription": "Descripción del Premio {{index}} (De Mayor a Menor)",
+      "bankName": "Nombre del Banco",
+      "accountHolderName": "Nombre del Titular de la Cuenta",
+      "accountNumber": "Número de Cuenta",
+      "accountType": "Tipo de Cuenta",
+      "identificationNumber": "Nº de Identificación del Titular",
+      "transferInstructions": "Instrucciones de Transferencia (Opcional)"
     },
     "placeholders": {
       "raffleName": "Ej: Rifa Benéfica de Navidad",
@@ -77,7 +83,15 @@
       "totalNumbers": "Ej: 500",
       "pickDate": "Elige una fecha",
       "numberOfPrizes": "Ej: 3",
-      "prizeDescription": "Ej: Gran Premio: Un auto nuevo"
+      "prizeDescription": "Ej: Gran Premio: Un auto nuevo",
+      "bankName": "Ej: Banco Nacional",
+      "accountHolderName": "Ej: Juan M. Pérez",
+      "accountNumber": "Ej: 1234567890",
+      "accountType": "Ej: Ahorros, Corriente",
+      "accountTypeHint": "Ej: Cuenta de Ahorros, Cuenta Corriente.",
+      "identificationNumber": "Ej: CUIT, RUT, DNI",
+      "identificationNumberHint": "Ej: RUT, CUIT, CPF, DNI del titular de la cuenta.",
+      "transferInstructions": "Ej: Incluir nombre de la rifa en la referencia."
     },
     "buttons": {
       "createRaffle": "Crear Rifa",
@@ -106,7 +120,11 @@
       "errorCountry": "País seleccionado inválido.",
       "errorUpdate": "Error al actualizar la rifa. Podría estar bloqueada o ocurrió un problema."
     },
-    "fieldsDisabledEdit": "Este campo no se puede cambiar después de la creación si las ventas han comenzado."
+    "fieldsDisabledEdit": "Este campo no se puede cambiar después de la creación si las ventas han comenzado.",
+    "bankDetails": {
+      "title": "Datos para Transferencia Bancaria",
+      "description": "Completa estos datos si deseas aceptar transferencias bancarias. Se mostrarán a los compradores si eligen 'Transferencia' como método de pago."
+    }
   },
   "editRafflePage": {
     "title": "Editar Configuración de Rifa",
@@ -160,6 +178,11 @@
     "grid": {
       "numberTitle": "Número {{id}} (Estado: {{status}})",
       "noNumbersInRaffle": "Aún no se han configurado números para esta rifa."
+    },
+    "bankTransferDetails": {
+      "title": "Información para Transferencia Bancaria",
+      "notConfiguredTitle": "Datos de Transferencia No Disponibles",
+      "notConfiguredDescription": "El organizador no ha proporcionado datos bancarios para transferencias para esta rifa. Por favor, elige otro método de pago o contacta al organizador."
     }
   },
   "availableNumbersPage": {
@@ -215,7 +238,7 @@
   },
   "raffleGrid": {
     "tooltip": {
-      "number": "Número: {{id}}",
+      "number": "Número {{id}}",
       "status": "Estado: {{status}}",
       "buyer": "Comprador: {{name}}",
       "phone": "Teléfono: {{phone}}",

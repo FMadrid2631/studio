@@ -68,7 +68,13 @@
       "totalNumbers": "Total Numbers in Raffle",
       "drawDate": "Draw Date",
       "numberOfPrizes": "Number of Prizes",
-      "prizeDescription": "Prize {{index}} Description (Major to Minor)"
+      "prizeDescription": "Prize {{index}} Description (Major to Minor)",
+      "bankName": "Bank Name",
+      "accountHolderName": "Account Holder Name",
+      "accountNumber": "Account Number",
+      "accountType": "Account Type",
+      "identificationNumber": "Holder's ID Number",
+      "transferInstructions": "Transfer Instructions (Optional)"
     },
     "placeholders": {
       "raffleName": "E.g., Christmas Charity Raffle",
@@ -77,7 +83,15 @@
       "totalNumbers": "E.g., 500",
       "pickDate": "Pick a date",
       "numberOfPrizes": "E.g., 3",
-      "prizeDescription": "E.g., Grand Prize: A new car"
+      "prizeDescription": "E.g., Grand Prize: A new car",
+      "bankName": "E.g., National Bank",
+      "accountHolderName": "E.g., John M. Doe",
+      "accountNumber": "E.g., 1234567890",
+      "accountType": "E.g., Savings, Checking",
+      "accountTypeHint": "E.g., Savings Account, Checking Account.",
+      "identificationNumber": "E.g., National ID, SSN, EIN",
+      "identificationNumberHint": "E.g., RUT, CUIT, CPF, National ID of the account holder.",
+      "transferInstructions": "E.g., Include raffle name in transfer reference."
     },
     "buttons": {
       "createRaffle": "Create Raffle",
@@ -106,7 +120,11 @@
       "errorCountry": "Invalid country selected.",
       "errorUpdate": "Failed to update raffle. It might be locked or an issue occurred."
     },
-    "fieldsDisabledEdit": "This field cannot be changed after creation if sales have started."
+    "fieldsDisabledEdit": "This field cannot be changed after creation if sales have started.",
+    "bankDetails": {
+      "title": "Bank Transfer Details",
+      "description": "Fill in these details if you want to accept bank transfers. These will be shown to buyers if they choose 'Transfer' as payment method."
+    }
   },
   "editRafflePage": {
     "title": "Edit Raffle Configuration",
@@ -160,6 +178,11 @@
     "grid": {
       "numberTitle": "Number {{id}} (Status: {{status}})",
       "noNumbersInRaffle": "No numbers configured for this raffle yet."
+    },
+    "bankTransferDetails": {
+      "title": "Bank Transfer Information",
+      "notConfiguredTitle": "Transfer Details Not Available",
+      "notConfiguredDescription": "The organizer has not provided bank details for transfers for this raffle. Please choose another payment method or contact the organizer."
     }
   },
   "availableNumbersPage": {
@@ -215,7 +238,7 @@
   },
   "raffleGrid": {
     "tooltip": {
-      "number": "Number: {{id}}",
+      "number": "Number {{id}}",
       "status": "Status: {{status}}",
       "buyer": "Buyer: {{name}}",
       "phone": "Phone: {{phone}}",
