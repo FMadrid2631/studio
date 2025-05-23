@@ -91,7 +91,7 @@
       "accountTypeHint": "Ej: Cuenta de Ahorros, Cuenta Corriente.",
       "identificationNumber": "Ej: CUIT, RUT, DNI",
       "identificationNumberHint": "Ej: RUT, CUIT, CPF, DNI del titular de la cuenta.",
-      "transferInstructions": "Ej: Incluir nombre de la rifa en la referencia."
+      "transferInstructions": "Ej: Incluir nombre de la rifa en la referencia. También puedes pedir a los compradores que incluyan sus números seleccionados."
     },
     "buttons": {
       "createRaffle": "Crear Rifa",
@@ -182,7 +182,9 @@
     "bankTransferDetails": {
       "title": "Información para Transferencia Bancaria",
       "notConfiguredTitle": "Datos de Transferencia No Disponibles",
-      "notConfiguredDescription": "El organizador no ha proporcionado datos bancarios para transferencias para esta rifa. Por favor, elige otro método de pago o contacta al organizador."
+      "notConfiguredDescription": "El organizador no ha proporcionado datos bancarios para transferencias para esta rifa. Por favor, elige otro método de pago o contacta al organizador.",
+      "selectedNumbersInstructionSuffix": "Adicionalmente, por favor incluya su nombre y los números seleccionados ({{selectedNumbersList}}) en la referencia del pago.",
+      "selectedNumbersInstructionStandalone": "Al realizar la transferencia, por favor incluya su nombre y sus números seleccionados ({{selectedNumbersList}}) en la referencia del pago."
     }
   },
   "availableNumbersPage": {

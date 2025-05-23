@@ -91,7 +91,7 @@
       "accountTypeHint": "E.g., Savings Account, Checking Account.",
       "identificationNumber": "E.g., National ID, SSN, EIN",
       "identificationNumberHint": "E.g., RUT, CUIT, CPF, National ID of the account holder.",
-      "transferInstructions": "E.g., Include raffle name in transfer reference."
+      "transferInstructions": "E.g., Include raffle name in transfer reference. You can also ask buyers to include their selected numbers."
     },
     "buttons": {
       "createRaffle": "Create Raffle",
@@ -182,7 +182,9 @@
     "bankTransferDetails": {
       "title": "Bank Transfer Information",
       "notConfiguredTitle": "Transfer Details Not Available",
-      "notConfiguredDescription": "The organizer has not provided bank details for transfers for this raffle. Please choose another payment method or contact the organizer."
+      "notConfiguredDescription": "The organizer has not provided bank details for transfers for this raffle. Please choose another payment method or contact the organizer.",
+      "selectedNumbersInstructionSuffix": "Additionally, please include your name and selected numbers ({{selectedNumbersList}}) in the payment reference.",
+      "selectedNumbersInstructionStandalone": "When making the transfer, please include your name and your selected numbers ({{selectedNumbersList}}) in the payment reference."
     }
   },
   "availableNumbersPage": {

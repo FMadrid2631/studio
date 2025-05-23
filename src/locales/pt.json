@@ -91,7 +91,7 @@
       "accountTypeHint": "Ex: Conta Poupança, Conta Corrente.",
       "identificationNumber": "Ex: CPF, CNPJ",
       "identificationNumberHint": "Ex: CPF, CNPJ do titular da conta.",
-      "transferInstructions": "Ex: Incluir nome da rifa na referência da transferência."
+      "transferInstructions": "Ex: Incluir nome da rifa na referência da transferência. Você também pode pedir aos compradores para incluírem seus números selecionados."
     },
     "buttons": {
       "createRaffle": "Criar Rifa",
@@ -182,7 +182,9 @@
     "bankTransferDetails": {
       "title": "Informações para Transferência Bancária",
       "notConfiguredTitle": "Detalhes da Transferência Não Disponíveis",
-      "notConfiguredDescription": "O organizador não forneceu detalhes bancários para transferências para esta rifa. Por favor, escolha outro método de pagamento ou entre em contato com o organizador."
+      "notConfiguredDescription": "O organizador não forneceu detalhes bancários para transferências para esta rifa. Por favor, escolha outro método de pagamento ou entre em contato com o organizador.",
+      "selectedNumbersInstructionSuffix": "Adicionalmente, por favor inclua seu nome e os números selecionados ({{selectedNumbersList}}) na referência do pagamento.",
+      "selectedNumbersInstructionStandalone": "Ao fazer a transferência, por favor inclua seu nome e seus números selecionados ({{selectedNumbersList}}) na referência do pagamento."
     }
   },
   "availableNumbersPage": {

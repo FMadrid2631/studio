@@ -19,7 +19,7 @@ import { Badge } from '../ui/badge';
 import { useTranslations } from '@/contexts/LocalizationContext';
 import { cn } from '@/lib/utils';
 import { AlertCircle, Banknote, Info } from 'lucide-react';
-import { Alert, AlertTitle } from '../ui/alert';
+import { Alert, AlertTitle, AlertDescription as ShadAlertDescription } from '../ui/alert';
 
 
 interface PurchaseFormProps {
@@ -205,6 +205,20 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
                           raffle.bankDetails.accountHolderName || 
                           raffle.bankDetails.accountNumber);
 
+  let displayedTransferInstructions = raffle.bankDetails?.transferInstructions || '';
+  if (paymentMethodWatch === 'Transfer' && selectedNumbersWatch && selectedNumbersWatch.length > 0) {
+    const numbersString = selectedNumbersWatch.join(', ');
+    const reminderTextKey = displayedTransferInstructions 
+      ? 'purchaseForm.bankTransferDetails.selectedNumbersInstructionSuffix' 
+      : 'purchaseForm.bankTransferDetails.selectedNumbersInstructionStandalone';
+    const reminderText = t(reminderTextKey, { selectedNumbersList: numbersString });
+    
+    displayedTransferInstructions = displayedTransferInstructions 
+      ? `${displayedTransferInstructions}. ${reminderText}` 
+      : reminderText;
+  }
+
+
   return (
     <Card className="max-w-lg mx-auto shadow-lg">
       <CardHeader>
@@ -277,7 +291,7 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
                             className={cn(
                               'aspect-square flex items-center justify-center text-xs sm:text-sm font-medium rounded-md transition-colors',
                               getNumberStatusClass(num.status, isSelected),
-                              isAvailable ? 'cursor-pointer' : '' // Removed cursor-not-allowed as it's handled by opacity and click handler
+                              isAvailable ? 'cursor-pointer' : ''
                             )}
                             aria-pressed={isSelected}
                             aria-disabled={!isAvailable}
@@ -333,10 +347,10 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
                     {raffle.bankDetails?.accountNumber && <p><strong>{t('configureForm.labels.accountNumber')}:</strong> {raffle.bankDetails.accountNumber}</p>}
                     {raffle.bankDetails?.accountType && <p><strong>{t('configureForm.labels.accountType')}:</strong> {raffle.bankDetails.accountType}</p>}
                     {raffle.bankDetails?.identificationNumber && <p><strong>{t('configureForm.labels.identificationNumber')}:</strong> {raffle.bankDetails.identificationNumber}</p>}
-                    {raffle.bankDetails?.transferInstructions && (
+                    {displayedTransferInstructions && (
                       <div className="mt-2 pt-2 border-t border-accent/50">
                         <p className="flex items-center gap-1 font-semibold"><Info className="h-4 w-4"/>{t('configureForm.labels.transferInstructions')}:</p>
-                        <p className="whitespace-pre-wrap text-xs text-muted-foreground">{raffle.bankDetails.transferInstructions}</p>
+                        <p className="whitespace-pre-wrap text-xs text-muted-foreground">{displayedTransferInstructions}</p>
                       </div>
                     )}
                   </CardContent>
@@ -345,7 +359,7 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
                 <Alert variant="default" className="border-amber-500 bg-amber-50 text-amber-700">
                   <AlertCircle className="h-4 w-4 !text-amber-600" />
                   <AlertTitle>{t('purchaseForm.bankTransferDetails.notConfiguredTitle')}</AlertTitle>
-                  <FormDescription>{t('purchaseForm.bankTransferDetails.notConfiguredDescription')}</FormDescription>
+                  <ShadAlertDescription>{t('purchaseForm.bankTransferDetails.notConfiguredDescription')}</ShadAlertDescription>
                 </Alert>
               )
             )}
