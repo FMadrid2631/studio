@@ -88,11 +88,17 @@ export default function HomePage() {
                     <Eye className="mr-2 h-4 w-4" /> {t('homePage.viewGridButton')}
                   </Link>
                 </Button>
-                <Button variant="outline" asChild className="w-full">
-                  <Link href={`/raffles/${raffle.id}/purchase`}>
+                {raffle.status === 'Closed' ? (
+                  <Button variant="outline" className="w-full" disabled>
                     <Edit className="mr-2 h-4 w-4" /> {t('homePage.purchaseButton')}
-                  </Link>
-                </Button>
+                  </Button>
+                ) : (
+                  <Button variant="outline" asChild className="w-full">
+                    <Link href={`/raffles/${raffle.id}/purchase`}>
+                      <Edit className="mr-2 h-4 w-4" /> {t('homePage.purchaseButton')}
+                    </Link>
+                  </Button>
+                )}
                 <Button variant="outline" asChild className="w-full">
                   <Link href={`/raffles/${raffle.id}/available`}>
                     <ListChecks className="mr-2 h-4 w-4" /> {t('homePage.availableButton')}
