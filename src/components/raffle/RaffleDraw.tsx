@@ -39,12 +39,12 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
 
   const dateLocaleForFormatting = getLocaleFromString(locale);
 
-  const formatPrice = (value: number, currencySymbol: string, currencyCode: string) => {
-    if (currencyCode === 'CLP') {
-      return `${currencySymbol}${value.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
-    }
-    return `${currencySymbol}${value.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
+  // const formatPrice = (value: number, currencySymbol: string, currencyCode: string) => { // This function is not used here anymore
+  //   if (currencyCode === 'CLP') {
+  //     return `${currencySymbol}${value.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  //   }
+  //   return `${currencySymbol}${value.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  // };
 
   useEffect(() => {
     let displayTimer: NodeJS.Timeout;
@@ -226,11 +226,7 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
                   <p><strong>{t('drawPage.winnerLabel')}:</strong> {prize.winnerName}</p>
                   <p><strong>{t('drawPage.phoneLabel')}:</strong> {prize.winnerPhone}</p>
                   <p><strong>{t('drawPage.winningNumberLabelTitle')}:</strong> <span className="text-primary font-bold text-lg">{String(prize.winningNumber).padStart(String(raffle.totalNumbers > 0 ? raffle.totalNumbers : 1).length, '0')}</span></p>
-                   {prize.referenceValue && prize.referenceValue > 0 && (
-                    <p className="text-sm text-muted-foreground">
-                      {t('raffleDetailsPage.prizeRefValue', { value: formatPrice(prize.referenceValue, raffle.country.currencySymbol, raffle.country.currencyCode) })}
-                    </p>
-                  )}
+                   {/* Reference value display removed from here */}
                    {prize.drawDate && (
                     <p className="text-sm text-muted-foreground mt-1 flex items-center">
                       <CalendarDays className="mr-1.5 h-4 w-4" />
@@ -257,11 +253,7 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
                                 <div className="flex justify-between items-start">
                                   <div>
                                     <p className="font-semibold">{t('raffleDetailsPage.prizeItem', { order: prize.order })}: {prize.description}</p>
-                                     {prize.referenceValue && prize.referenceValue > 0 && (
-                                        <p className="text-xs text-muted-foreground">
-                                        {t('raffleDetailsPage.prizeRefValue', { value: formatPrice(prize.referenceValue, raffle.country.currencySymbol, raffle.country.currencyCode) })}
-                                        </p>
-                                    )}
+                                     {/* Reference value display removed from here */}
                                   </div>
                                 </div>
                                 {prize.winnerName && prize.winningNumber && prize.winnerPhone ? (

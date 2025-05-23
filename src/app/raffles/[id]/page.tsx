@@ -180,7 +180,10 @@ export default function RafflePage() {
                   <Edit className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.purchaseNumbersButton')}
                 </Link>
               </Button>
-              {/* Button was moved to AvailableNumbersPage */}
+              <Button variant="outline" onClick={handleExportImage} disabled={isExporting} className="w-full">
+                 {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+                 {t('raffleDetailsPage.exportImageButton')}
+               </Button>
               <Button variant="default" asChild disabled={raffle.status === 'Closed'} className="w-full">
                 <Link href={`/raffles/${raffle.id}/draw`}>
                   <Trophy className="mr-2 h-4 w-4" />
@@ -222,11 +225,7 @@ export default function RafflePage() {
                         <span className="ml-2 text-sm text-green-600 font-semibold">({t('raffleDetailsPage.prizeWonBy', { number: prize.winningNumber, name: prize.winnerName})})</span>
                       )}
                     </div>
-                    {prize.referenceValue && prize.referenceValue > 0 && (
-                      <Badge variant="secondary" className="whitespace-nowrap text-xs">
-                        {t('raffleDetailsPage.prizeRefValue', { value: formatPrice(prize.referenceValue, raffle.country.currencySymbol, raffle.country.currencyCode) })}
-                      </Badge>
-                    )}
+                    {/* Reference value display removed from here */}
                   </div>
                 </li>
               ))}
