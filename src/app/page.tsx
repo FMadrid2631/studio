@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlusCircle, Eye, Edit, ListChecks, Trophy, DollarSign, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import Image from 'next/image';
+// Image component is removed as it's no longer used in this file
 import { useTranslations } from '@/contexts/LocalizationContext';
 import { format } from 'date-fns';
 import { getLocaleFromString } from '@/lib/date-fns-locales';
@@ -105,7 +105,7 @@ export default function HomePage() {
             <CardDescription>{t('homePage.noRafflesDescription')}</CardDescription>
           </CardHeader>
           <CardContent>
-            <Image src="https://placehold.co/300x200.png" alt="No raffles placeholder" width={300} height={200} className="mx-auto rounded-md shadow-md" data-ai-hint="empty state illustration" />
+            {/* Image placeholder removed as per request */}
           </CardContent>
         </Card>
       ) : (
