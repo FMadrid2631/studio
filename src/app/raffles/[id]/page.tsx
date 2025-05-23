@@ -6,7 +6,7 @@ import { useRaffles } from '@/contexts/RaffleContext';
 import { RaffleGrid } from '@/components/raffle/RaffleGrid';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, Edit, Settings, Trophy, ListChecks, DollarSign, Download } from 'lucide-react';
+import { ArrowLeft, Edit, Settings, Trophy, DollarSign, MessageSquare, Facebook, Instagram, Twitter, Copy, Share2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -27,7 +27,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import type { RaffleNumber as RaffleNumberType, Prize } from '@/types';
-
+import { useToast } from '@/hooks/use-toast'; // Import useToast
 
 export default function RafflePage() {
   const params = useParams();
@@ -35,7 +35,8 @@ export default function RafflePage() {
   const { getRaffleById, isLoading } = useRaffles();
   const router = useRouter();
   const { t, locale, changeLocaleForRaffle } = useTranslations();
-  
+  const { toast } = useToast(); // Initialize useToast
+
   const raffle = getRaffleById(raffleId);
 
   const [isProfitDialogOpen, setIsProfitDialogOpen] = useState(false);
@@ -43,17 +44,23 @@ export default function RafflePage() {
     totalSales: number;
     totalPrizeValue: number;
     netProfit: number;
-    totalPendingSales: number; // Added for pending payments
+    totalPendingSales: number;
   } | null>(null);
-  
+
+  const [shareUrl, setShareUrl] = useState('');
+
   useEffect(() => {
     if (raffle) {
       changeLocaleForRaffle(raffle.country.code);
+      // Ensure this runs client-side
+      if (typeof window !== 'undefined') {
+        setShareUrl(window.location.href);
+      }
     }
   }, [raffle, changeLocaleForRaffle]);
 
 
-  if (isLoading && !raffle) { 
+  if (isLoading && !raffle) {
     return <div className="flex justify-center items-center min-h-[calc(100vh-10rem)]"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>;
   }
 
@@ -71,7 +78,7 @@ export default function RafflePage() {
       </div>
     );
   }
-  
+
   const dateLocaleForFormatting = getLocaleFromString(locale);
 
   const formatPrice = (value: number, currencySymbol: string, currencyCode: string) => {
@@ -88,7 +95,7 @@ export default function RafflePage() {
   const purchasedCount = raffle.numbers.filter(n => n.status === 'Purchased' || n.status === 'PendingPayment').length;
   const progress = raffle.totalNumbers > 0 ? (purchasedCount / raffle.totalNumbers) * 100 : 0;
   const hasSoldNumbers = raffle.numbers.some(n => n.status !== 'Available');
-  const canEditConfiguration = !hasSoldNumbers && raffle.status !== 'Open';
+  const canEditConfiguration = !hasSoldNumbers && raffle.status !== 'Closed';
 
   let formattedNumberValueWithSymbol = formatPrice(raffle.numberValue, raffle.country.currencySymbol, raffle.country.currencyCode);
 
@@ -109,10 +116,10 @@ export default function RafflePage() {
     const netProfit = totalSales - totalPrizeValue;
 
     const totalPendingSales = raffle.numbers.reduce((sum, num) => {
-        if (num.status === 'PendingPayment') {
-            return sum + raffle.numberValue;
-        }
-        return sum;
+      if (num.status === 'PendingPayment') {
+        return sum + raffle.numberValue;
+      }
+      return sum;
     }, 0);
 
     setProfitDetails({
@@ -123,6 +130,46 @@ export default function RafflePage() {
     });
     setIsProfitDialogOpen(true);
   };
+
+  const handleSocialShare = (platform: 'whatsapp' | 'facebook' | 'x' | 'instagram') => {
+    if (!raffle || raffle.status === 'Closed' || !shareUrl) return;
+
+    const raffleName = raffle.name;
+    const encodedUrl = encodeURIComponent(shareUrl);
+    const text = t('raffleDetailsPage.shareMessageText', { raffleName: raffleName, url: shareUrl });
+    const encodedText = encodeURIComponent(text);
+
+    let platformUrl = '';
+
+    switch (platform) {
+      case 'whatsapp':
+        platformUrl = `https://wa.me/?text=${encodedText}`;
+        break;
+      case 'facebook':
+        platformUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+        break;
+      case 'x':
+        platformUrl = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodeURIComponent(t('raffleDetailsPage.shareMessageTextShort', {raffleName: raffleName}))}`;
+        break;
+      case 'instagram':
+        navigator.clipboard.writeText(shareUrl).then(() => {
+          toast({
+            title: t('raffleDetailsPage.shareLinkCopiedTitle'),
+            description: t('raffleDetailsPage.shareLinkCopiedDescription', {url: shareUrl}),
+          });
+        }).catch(err => {
+          console.error('Failed to copy link: ', err);
+          toast({
+            title: t('purchaseForm.toast.copiedErrorTitle'),
+            description: t('purchaseForm.toast.copiedErrorDescription'),
+            variant: 'destructive',
+          });
+        });
+        return; // For Instagram, we just copy and don't open a new window
+    }
+    window.open(platformUrl, '_blank', 'noopener,noreferrer');
+  };
+
 
   return (
     <TooltipProvider>
@@ -139,7 +186,7 @@ export default function RafflePage() {
                 <CardDescription>
                   {t('raffleDetailsPage.drawDateLabel', { date: format(new Date(raffle.drawDate), 'PPP', { locale: dateLocaleForFormatting }) })}
                   {' | '}
-                  <span className="font-bold text-lg">
+                  <span className="font-bold text-lg text-foreground">
                     {formattedNumberValueWithSymbol}
                   </span>
                   {' '}
@@ -166,17 +213,17 @@ export default function RafflePage() {
                 <div className="bg-primary h-2.5 rounded-full" style={{ width: `${progress}%` }}></div>
               </div>
             </div>
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+            <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="w-full"> 
+                  <div className="w-full">
                     <Button variant="outline" asChild={canEditConfiguration} disabled={!canEditConfiguration} className="w-full">
                       {canEditConfiguration ? (
                         <Link href={`/raffles/${raffle.id}/edit`}>
                           <Settings className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.configureButton')}
                         </Link>
                       ) : (
-                        <span> 
+                        <span>
                           <Settings className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.configureButton')}
                         </span>
                       )}
@@ -194,16 +241,17 @@ export default function RafflePage() {
                   <Edit className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.purchaseNumbersButton')}
                 </Link>
               </Button>
-               <Button variant="outline" asChild className="w-full">
+              <Button variant="outline" asChild className="w-full">
                 <Link href={`/raffles/${raffle.id}/available`}>
-                  <ListChecks className="mr-2 h-4 w-4" /> {t('homePage.availableButton')}
+                  <Share2 className="mr-2 h-4 w-4" /> {/* Replaced ListChecks with Share2 for a general available/details button */}
+                  {t('homePage.availableButton')}
                 </Link>
               </Button>
               <Button variant="default" onClick={calculateAndShowProfit} className="w-full">
                 <DollarSign className="mr-2 h-4 w-4" />
                 {t('raffleDetailsPage.viewProfitButton')}
               </Button>
-              <Button variant="default" asChild disabled={raffle.status === 'Closed'} className="w-full">
+              <Button variant="default" asChild disabled={raffle.status === 'Closed'} className="w-full col-span-full sm:col-span-1">
                 <Link href={`/raffles/${raffle.id}/draw`}>
                   <Trophy className="mr-2 h-4 w-4" />
                   {t('raffleDetailsPage.conductDrawButton')}
@@ -212,11 +260,11 @@ export default function RafflePage() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="pt-6">
-            <RaffleGrid 
-              numbers={raffle.numbers} 
+            <RaffleGrid
+              numbers={raffle.numbers}
               currencySymbol={raffle.country.currencySymbol}
               currencyCode={raffle.country.currencyCode}
               numberValue={raffle.numberValue}
@@ -255,13 +303,13 @@ export default function RafflePage() {
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
-              {raffle.prizes.sort((a,b) => a.order - b.order).map(prize => (
+              {raffle.prizes.sort((a, b) => a.order - b.order).map(prize => (
                 <li key={prize.id} className="p-3 bg-muted/50 rounded-md">
                   <div className="flex justify-between items-start">
                     <div>
                       <strong className="text-primary">{t('raffleDetailsPage.prizeItem', { order: prize.order })}:</strong> {prize.description}
                       {prize.winningNumber && prize.winnerName && (
-                        <span className="ml-2 text-sm text-green-600 font-semibold">({t('raffleDetailsPage.prizeWonBy', { number: prize.winningNumber, name: prize.winnerName})})</span>
+                        <span className="ml-2 text-sm text-green-600 font-semibold">({t('raffleDetailsPage.prizeWonBy', { number: prize.winningNumber, name: prize.winnerName })})</span>
                       )}
                     </div>
                   </div>
@@ -271,34 +319,106 @@ export default function RafflePage() {
           </CardContent>
         </Card>
 
+        {/* Share Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl flex items-center">
+              <Share2 className="mr-2 h-5 w-5 text-primary" />
+              {t('raffleDetailsPage.shareSectionTitle')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleSocialShare('whatsapp')}
+                  disabled={raffle.status === 'Closed' || !shareUrl}
+                  aria-label={t('raffleDetailsPage.shareOnWhatsApp')}
+                >
+                  <MessageSquare className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('raffleDetailsPage.shareOnWhatsApp')}</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleSocialShare('facebook')}
+                  disabled={raffle.status === 'Closed' || !shareUrl}
+                  aria-label={t('raffleDetailsPage.shareOnFacebook')}
+                >
+                  <Facebook className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('raffleDetailsPage.shareOnFacebook')}</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleSocialShare('x')}
+                  disabled={raffle.status === 'Closed' || !shareUrl}
+                  aria-label={t('raffleDetailsPage.shareOnX')}
+                >
+                  <Twitter className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('raffleDetailsPage.shareOnX')}</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleSocialShare('instagram')}
+                  disabled={raffle.status === 'Closed' || !shareUrl}
+                  aria-label={t('raffleDetailsPage.shareOnInstagram')}
+                >
+                  <Instagram className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('raffleDetailsPage.shareOnInstagramTooltip')}</TooltipContent>
+            </Tooltip>
+          </CardContent>
+        </Card>
+
+
         {profitDetails && (
           <AlertDialog open={isProfitDialogOpen} onOpenChange={setIsProfitDialogOpen}>
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>{t('raffleDetailsPage.profitDialogTitle')}</AlertDialogTitle>
                 <AlertDialogDescription asChild>
-                    <div className="space-y-2 mt-4 text-sm">
-                        <div className="flex justify-between">
-                        <span>{t('raffleDetailsPage.profitDialog.totalSales')}:</span>
-                        <span className="font-semibold">{formatPrice(profitDetails.totalSales, raffle.country.currencySymbol, raffle.country.currencyCode)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                        <span>{t('raffleDetailsPage.profitDialog.totalPrizeValue')}:</span>
-                        <span className="font-semibold">{formatPrice(profitDetails.totalPrizeValue, raffle.country.currencySymbol, raffle.country.currencyCode)}</span>
-                        </div>
-                        <hr className="my-2 border-border" />
-                        <div className="flex justify-between text-base">
-                        <span className="font-bold">{t('raffleDetailsPage.profitDialog.netProfit')}:</span>
-                        <span className="font-bold text-primary">{formatPrice(profitDetails.netProfit, raffle.country.currencySymbol, raffle.country.currencyCode)}</span>
-                        </div>
-                        {profitDetails.totalPendingSales > 0 && (
-                        <p className="text-xs text-muted-foreground mt-4 pt-2 border-t border-border/50">
-                            {t('raffleDetailsPage.profitDialog.notePendingSales', { 
-                            amount: formatPrice(profitDetails.totalPendingSales, raffle.country.currencySymbol, raffle.country.currencyCode) 
-                            })}
-                        </p>
-                        )}
+                  <div className="space-y-2 mt-4 text-sm">
+                    <div className="flex justify-between">
+                      <span>{t('raffleDetailsPage.profitDialog.totalSales')}:</span>
+                      <span className="font-semibold">{formatPrice(profitDetails.totalSales, raffle.country.currencySymbol, raffle.country.currencyCode)}</span>
                     </div>
+                    <div className="flex justify-between">
+                      <span>{t('raffleDetailsPage.profitDialog.totalPrizeValue')}:</span>
+                      <span className="font-semibold">{formatPrice(profitDetails.totalPrizeValue, raffle.country.currencySymbol, raffle.country.currencyCode)}</span>
+                    </div>
+                    <hr className="my-2 border-border" />
+                    <div className="flex justify-between text-base">
+                      <span className="font-bold">{t('raffleDetailsPage.profitDialog.netProfit')}:</span>
+                      <span className="font-bold text-primary">{formatPrice(profitDetails.netProfit, raffle.country.currencySymbol, raffle.country.currencyCode)}</span>
+                    </div>
+                    {profitDetails.totalPendingSales > 0 && (
+                      <p className="text-xs text-muted-foreground mt-4 pt-2 border-t border-border/50">
+                        {t('raffleDetailsPage.profitDialog.notePendingSales', {
+                          amount: formatPrice(profitDetails.totalPendingSales, raffle.country.currencySymbol, raffle.country.currencyCode)
+                        })}
+                      </p>
+                    )}
+                  </div>
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -312,4 +432,6 @@ export default function RafflePage() {
     </TooltipProvider>
   );
 }
+    
+
     

@@ -64,7 +64,16 @@
       "closeButton": "Close",
       "notePendingSales": "Note: There are {{amount}} in pending payments not included in the profit calculation."
     },
-    "exportImageButton": "Export Image"
+    "shareSectionTitle": "Share this Raffle",
+    "shareOnWhatsApp": "Share on WhatsApp",
+    "shareOnFacebook": "Share on Facebook",
+    "shareOnX": "Share on X",
+    "shareOnInstagram": "Share on Instagram",
+    "shareOnInstagramTooltip": "Copy link for Instagram",
+    "shareMessageText": "Check out this raffle: {{raffleName}}! {{url}}",
+    "shareMessageTextShort": "Check out this raffle: {{raffleName}}!",
+    "shareLinkCopiedTitle": "Link Copied!",
+    "shareLinkCopiedDescription": "Raffle link ({{url}}) copied to clipboard. Share it on Instagram!"
   },
   "configurePage": {
     "title": "Create New Raffle"
@@ -305,4 +314,6 @@
     "pt": "Portuguese"
   }
 }
+    
+
     

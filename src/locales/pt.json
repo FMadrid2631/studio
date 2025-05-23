@@ -64,7 +64,16 @@
       "closeButton": "Fechar",
       "notePendingSales": "Nota: Existem {{amount}} em pagamentos pendentes não incluídos no cálculo do lucro."
     },
-    "exportImageButton": "Exportar Imagem"
+    "shareSectionTitle": "Compartilhar esta Rifa",
+    "shareOnWhatsApp": "Compartilhar no WhatsApp",
+    "shareOnFacebook": "Compartilhar no Facebook",
+    "shareOnX": "Compartilhar no X",
+    "shareOnInstagram": "Compartilhar no Instagram",
+    "shareOnInstagramTooltip": "Copiar link para Instagram",
+    "shareMessageText": "Confira esta rifa: {{raffleName}}! {{url}}",
+    "shareMessageTextShort": "Confira esta rifa: {{raffleName}}!",
+    "shareLinkCopiedTitle": "Link Copiado!",
+    "shareLinkCopiedDescription": "Link da rifa ({{url}}) copiado para a área de transferência. Compartilhe no Instagram!"
   },
   "configurePage": {
     "title": "Criar Nova Rifa"
@@ -305,4 +314,6 @@
     "pt": "Português (Português)"
   }
 }
+    
+
     
