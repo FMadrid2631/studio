@@ -10,9 +10,9 @@ import { ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
 import { useTranslations } from '@/contexts/LocalizationContext';
 import { useEffect, useRef } from 'react';
-// Removed: Download, Loader2, toPng, useToast, useState
+// Removed: Download, Loader2, toPng, useToast, useState, exportTargetRef logic
 
-import { ScrollArea } from '@/components/ui/scroll-area'; // Import ScrollArea for page display
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default function AvailableNumbersPage() {
   const params = useParams();
@@ -20,11 +20,10 @@ export default function AvailableNumbersPage() {
   const { getRaffleById, isLoading } = useRaffles();
   const router = useRouter();
   const { t, changeLocaleForRaffle } = useTranslations();
-  // const { toast } = useToast(); // Removed as no longer used
 
   const raffle = getRaffleById(raffleId);
-  const exportTargetRef = useRef<HTMLDivElement>(null); // This ref is passed to AvailableNumbersList but not used for export here anymore
-  // const [isExporting, setIsExporting] = useState(false); // Removed
+  // exportTargetRef is no longer needed here as export functionality is removed.
+  // const exportTargetRef = useRef<HTMLDivElement>(null); 
 
   useEffect(() => {
     if (raffle) {
@@ -50,23 +49,20 @@ export default function AvailableNumbersPage() {
     );
   }
 
-  // const handleExportImage = async () => { ... } // Removed export logic
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-6">
         <Button variant="outline" onClick={() => router.push(`/raffles/${raffleId}`)}>
           <ArrowLeft className="mr-2 h-4 w-4" /> {t('availableNumbersPage.backToRaffleDetails')}
         </Button>
-        {/* Export button removed from here */}
+        {/* Export button and related logic completely removed */}
       </div>
 
       <h1 className="text-3xl font-bold text-center">{t('availableNumbersPage.title', { raffleName: raffle.name })}</h1>
       
-      {/* ScrollArea for display purposes on the page */}
-      <ScrollArea className="h-96 border rounded-md"> {/* Adjust height as needed, e.g., h-96 or h-[calc(100vh-20rem)] */}
+      <ScrollArea className="h-96 border rounded-md">
         <AvailableNumbersList
-          ref={exportTargetRef} 
+          // ref={exportTargetRef} // Ref no longer passed
           numbers={raffle.numbers}
           currencySymbol={raffle.country.currencySymbol}
           currencyCode={raffle.country.currencyCode}
