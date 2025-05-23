@@ -6,16 +6,19 @@ import { useRaffles } from '@/contexts/RaffleContext';
 import { RaffleGrid } from '@/components/raffle/RaffleGrid';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, Edit, Settings, Trophy, ListChecks } from 'lucide-react'; // Added ListChecks
+import { ArrowLeft, Edit, Settings, Trophy, ListChecks, Download } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { useTranslations } from '@/contexts/LocalizationContext';
 import { format } from 'date-fns';
 import { getLocaleFromString } from '@/lib/date-fns-locales';
-import { useEffect, useRef } from 'react'; // Removed useState for isExporting
+import { useEffect, useRef, useState } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-// Removed: toPng, useToast, Loader2, Download from imports as export logic is removed from this page
+import { toPng } from 'html-to-image';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
+
 
 export default function RafflePage() {
   const params = useParams();
@@ -23,11 +26,11 @@ export default function RafflePage() {
   const { getRaffleById, isLoading } = useRaffles();
   const router = useRouter();
   const { t, locale, changeLocaleForRaffle } = useTranslations();
-  // const { toast } = useToast(); // Removed as toast is not used here anymore
+  const { toast } = useToast();
 
   const raffle = getRaffleById(raffleId);
-  const gridRef = useRef<HTMLDivElement>(null); // Kept for potential future use, but not for current export
-  // const [isExporting, setIsExporting] = useState(false); // Removed
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     if (raffle) {
@@ -68,7 +71,46 @@ export default function RafflePage() {
     router.push(`/raffles/${raffleId}/purchase?selectedNumber=${numberId}`);
   };
 
-  // handleExportImage function removed from here
+  const handleExportImage = async () => {
+    if (!gridRef.current) {
+      toast({
+        title: t('raffleDetailsPage.exportErrorTitle'),
+        description: t('raffleDetailsPage.exportErrorDescription'),
+        variant: 'destructive',
+      });
+      return;
+    }
+    setIsExporting(true);
+    try {
+      // Ensure the grid has loaded and has dimensions
+      await new Promise(resolve => setTimeout(resolve, 100)); // Short delay to help with rendering
+
+      const dataUrl = await toPng(gridRef.current, { 
+        backgroundColor: '#ffffff', // Set background to white for better contrast
+        // Consider explicitly setting width/height if scrollHeight/Width are problematic
+        // width: gridRef.current.scrollWidth,
+        // height: gridRef.current.scrollHeight,
+      });
+      const link = document.createElement('a');
+      link.download = `rifa-${raffle.name.replace(/\s+/g, '_').toLowerCase()}-numeros.png`;
+      link.href = dataUrl;
+      link.click();
+      toast({
+        title: t('raffleDetailsPage.exportSuccessTitle'),
+        description: t('raffleDetailsPage.exportSuccessDescription'),
+      });
+    } catch (error) {
+      console.error('Error exporting image:', error);
+      toast({
+        title: t('raffleDetailsPage.exportErrorTitle'),
+        description: t('raffleDetailsPage.exportErrorDescription'),
+        variant: 'destructive',
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
 
   const purchasedCount = raffle.numbers.filter(n => n.status === 'Purchased' || n.status === 'PendingPayment').length;
   const progress = raffle.totalNumbers > 0 ? (purchasedCount / raffle.totalNumbers) * 100 : 0;
@@ -119,7 +161,7 @@ export default function RafflePage() {
                 <div className="bg-primary h-2.5 rounded-full" style={{ width: `${progress}%` }}></div>
               </div>
             </div>
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3"> {/* Adjusted grid to 4 columns */}
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="w-full"> 
@@ -147,10 +189,9 @@ export default function RafflePage() {
                   <Edit className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.purchaseNumbersButton')}
                 </Link>
               </Button>
-              {/* Replaced Export Image button with View Available Numbers button */}
               <Button variant="outline" asChild className="w-full">
                 <Link href={`/raffles/${raffle.id}/available`}>
-                  <ListChecks className="mr-2 h-4 w-4" /> {t('homePage.availableButton')} {/* Reusing translation key */}
+                  <ListChecks className="mr-2 h-4 w-4" /> {t('homePage.availableButton')}
                 </Link>
               </Button>
               <Button variant="default" asChild disabled={raffle.status === 'Closed'} className="w-full">
@@ -164,6 +205,9 @@ export default function RafflePage() {
         </Card>
         
         <Card>
+          <CardHeader>
+             {/* Removed title "Raffle Grid" and export button from here */}
+          </CardHeader>
           <CardContent className="pt-6">
             <div ref={gridRef}>
               <RaffleGrid 
@@ -194,6 +238,7 @@ export default function RafflePage() {
                         <span className="ml-2 text-sm text-green-600 font-semibold">({t('raffleDetailsPage.prizeWonBy', { number: prize.winningNumber, name: prize.winnerName})})</span>
                       )}
                     </div>
+                    {/* Removed prize.referenceValue display from here */}
                   </div>
                 </li>
               ))}
