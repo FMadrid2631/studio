@@ -158,12 +158,20 @@
     "totalAmount": "Monto Total",
     "totalAmountDetails": "({{count}} número(s) x {{price}})",
     "purchaseButton": "Comprar",
+    "buttons": {
+      "copyDetails": "Copiar Datos",
+      "copied": "¡Copiado!"
+    },
     "toast": {
         "successTitle": "¡Éxito!",
         "successDescription": "{{count}} número(s) comprados para {{buyerName}}.",
         "errorTitle": "Error",
         "errorDescription": "Error al comprar números. Algunos podrían haber sido tomados.",
-        "errorRaffleState": "No se pudo recuperar el estado actual de la rifa. Por favor, inténtalo de nuevo."
+        "errorRaffleState": "No se pudo recuperar el estado actual de la rifa. Por favor, inténtalo de nuevo.",
+        "copiedSuccessTitle": "¡Copiado!",
+        "copiedSuccessDescription": "Datos bancarios copiados al portapapeles.",
+        "copiedErrorTitle": "Error al Copiar",
+        "copiedErrorDescription": "No se pudieron copiar los datos al portapapeles."
     },
     "validation": {
         "nameMin": "El nombre debe tener al menos 2 caracteres.",
@@ -181,6 +189,7 @@
     },
     "bankTransferDetails": {
       "title": "Información para Transferencia Bancaria",
+      "copyTitle": "Datos para Transferencia Bancaria de la Rifa: {{raffleName}}",
       "notConfiguredTitle": "Datos de Transferencia No Disponibles",
       "notConfiguredDescription": "El organizador no ha proporcionado datos bancarios para transferencias para esta rifa. Por favor, elige otro método de pago o contacta al organizador.",
       "selectedNumbersInstructionSuffix": "No olvide incluir su nombre completo y los números seleccionados ({{selectedNumbersList}}) en la referencia del pago.",
@@ -259,7 +268,8 @@
     "Pending": "Pago Pendiente"
   },
   "shared": {
-    "notApplicable": "N/A"
+    "notApplicable": "N/A",
+    "notAvailable": "No disponible"
   },
   "loading": "Cargando...",
   "actions": {

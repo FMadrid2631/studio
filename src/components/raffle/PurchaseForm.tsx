@@ -13,12 +13,12 @@ import { useRaffles } from '@/contexts/RaffleContext';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useEffect, useState, useMemo, useRef } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
 import { ScrollArea } from '../ui/scroll-area';
 import { Badge } from '../ui/badge';
 import { useTranslations } from '@/contexts/LocalizationContext';
 import { cn } from '@/lib/utils';
-import { AlertCircle, Banknote, Info } from 'lucide-react';
+import { AlertCircle, Banknote, Info, Copy, CheckCircle } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription as ShadAlertDescription } from '../ui/alert';
 
 
@@ -48,6 +48,7 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
   const searchParams = useSearchParams();
   const [totalAmount, setTotalAmount] = useState(0);
   const { t, locale } = useTranslations();
+  const [isCopied, setIsCopied] = useState(false);
 
   const raffle = useMemo(() => getRaffleById(initialRaffle.id) || initialRaffle, [getRaffleById, initialRaffle]);
 
@@ -99,9 +100,8 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
         }
         paramProcessedForCurrentState.current = true; 
     } else if (!preSelectedNumberStr && processedParamValueRef.current !== null) {
-        // Reset if the param is removed, allowing new param processing if it reappears
         paramProcessedForCurrentState.current = false;
-        processedParamValueRef.current = null; // Clear the stored param value
+        processedParamValueRef.current = null; 
     }
   }, [searchParams, raffle.id, raffle.numbers, setValue, getValues, paramProcessedForCurrentState, processedRaffleIdRef, processedParamValueRef]);
 
@@ -145,7 +145,6 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
         newSearchParams.delete('selectedNumber');
         router.replace(`${pathname}?${newSearchParams.toString()}`, { scroll: false });
       } else {
-         // Only push if not already on the details page, or handle as needed
         router.push(`/raffles/${raffle.id}`); 
       }
        form.reset(); 
@@ -156,11 +155,10 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
         description: t('purchaseForm.toast.errorDescription'),
         variant: 'destructive'
       });
-      // Refresh the available numbers in the grid if the purchase fails
       const refreshedRaffleState = getRaffleById(raffle.id);
       const stillAvailableForSelectionAfterFailedSubmit = refreshedRaffleState
         ? refreshedRaffleState.numbers.filter(n => n.status === 'Available').map(n => n.id)
-        : currentAvailableAtSubmit; // Fallback to previous list if refresh fails for some reason
+        : currentAvailableAtSubmit; 
       
       const stillValidUserSelection = data.selectedNumbers.filter(numId => stillAvailableForSelectionAfterFailedSubmit.includes(numId));
       setValue('selectedNumbers', stillValidUserSelection);
@@ -217,6 +215,41 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
       ? `${displayedTransferInstructions}. ${reminderText}` 
       : reminderText;
   }
+
+  const handleCopyDetails = async () => {
+    if (!raffle.bankDetails) return;
+
+    const notAvailableText = t('shared.notAvailable');
+    const detailsToCopy = `
+${t('purchaseForm.bankTransferDetails.copyTitle', { raffleName: raffle.name })}
+
+${t('configureForm.labels.bankName')}: ${raffle.bankDetails.bankName || notAvailableText}
+${t('configureForm.labels.accountHolderName')}: ${raffle.bankDetails.accountHolderName || notAvailableText}
+${t('configureForm.labels.accountNumber')}: ${raffle.bankDetails.accountNumber || notAvailableText}
+${t('configureForm.labels.accountType')}: ${raffle.bankDetails.accountType || notAvailableText}
+${t('configureForm.labels.identificationNumber')}: ${raffle.bankDetails.identificationNumber || notAvailableText}
+
+${t('configureForm.labels.transferInstructions')}:
+${displayedTransferInstructions}
+    `.trim();
+
+    try {
+      await navigator.clipboard.writeText(detailsToCopy);
+      toast({
+        title: t('purchaseForm.toast.copiedSuccessTitle'),
+        description: t('purchaseForm.toast.copiedSuccessDescription'),
+      });
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000); // Reset icon after 2 seconds
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+      toast({
+        title: t('purchaseForm.toast.copiedErrorTitle'),
+        description: t('purchaseForm.toast.copiedErrorDescription'),
+        variant: 'destructive',
+      });
+    }
+  };
 
 
   return (
@@ -275,7 +308,7 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
                         const isSelected = (field.value || []).includes(num.id);
                         const isAvailable = num.status === 'Available';
                         const titleText = isAvailable 
-                                          ? t('raffleGrid.tooltip.number', { id: num.id }) + ` (${t('numberStatus.Available')})`
+                                          ? t('raffleGrid.tooltip.number', { id: num.id }) + ` (${getTranslatedStatus('Available')})`
                                           : t('raffleGrid.tooltip.number', { id: num.id }) + ` (${getTranslatedStatus(num.status)})`;
                         return (
                           <div
@@ -354,6 +387,18 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
                       </div>
                     )}
                   </CardContent>
+                  <CardFooter>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCopyDetails}
+                      className="w-full"
+                    >
+                      {isCopied ? <CheckCircle className="mr-2 h-4 w-4 text-green-500" /> : <Copy className="mr-2 h-4 w-4" />}
+                      {isCopied ? t('purchaseForm.buttons.copied') : t('purchaseForm.buttons.copyDetails')}
+                    </Button>
+                  </CardFooter>
                 </Card>
               ) : (
                 <Alert variant="default" className="border-amber-500 bg-amber-50 text-amber-700">
@@ -392,3 +437,4 @@ export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
     </Card>
   );
 }
+

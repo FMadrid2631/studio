@@ -158,12 +158,20 @@
     "totalAmount": "Total Amount",
     "totalAmountDetails": "({{count}} number(s) x {{price}})",
     "purchaseButton": "Purchase",
+    "buttons": {
+      "copyDetails": "Copy Details",
+      "copied": "Copied!"
+    },
     "toast": {
         "successTitle": "Success!",
         "successDescription": "{{count}} number(s) purchased for {{buyerName}}.",
         "errorTitle": "Error",
         "errorDescription": "Failed to purchase numbers. Some might have been taken.",
-        "errorRaffleState": "Could not retrieve current raffle state. Please try again."
+        "errorRaffleState": "Could not retrieve current raffle state. Please try again.",
+        "copiedSuccessTitle": "Copied!",
+        "copiedSuccessDescription": "Bank details copied to clipboard.",
+        "copiedErrorTitle": "Copy Failed",
+        "copiedErrorDescription": "Could not copy details to clipboard."
     },
     "validation": {
         "nameMin": "Name must be at least 2 characters.",
@@ -181,6 +189,7 @@
     },
     "bankTransferDetails": {
       "title": "Bank Transfer Information",
+      "copyTitle": "Bank Transfer Details for Raffle: {{raffleName}}",
       "notConfiguredTitle": "Transfer Details Not Available",
       "notConfiguredDescription": "The organizer has not provided bank details for transfers for this raffle. Please choose another payment method or contact the organizer.",
       "selectedNumbersInstructionSuffix": "Don't forget to include your full name and the selected numbers ({{selectedNumbersList}}) in the payment reference.",
@@ -259,7 +268,8 @@
     "Pending": "Pending Payment"
   },
   "shared": {
-    "notApplicable": "N/A"
+    "notApplicable": "N/A",
+    "notAvailable": "Not available"
   },
   "loading": "Loading...",
   "actions": {
