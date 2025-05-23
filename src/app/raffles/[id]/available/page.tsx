@@ -6,19 +6,25 @@ import { useRaffles } from '@/contexts/RaffleContext';
 import { AvailableNumbersList } from '@/components/raffle/AvailableNumbersList';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Download, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useTranslations } from '@/contexts/LocalizationContext';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { toPng } from 'html-to-image';
+import { useToast } from '@/hooks/use-toast';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'; // Added Card components
 
 export default function AvailableNumbersPage() {
   const params = useParams();
   const raffleId = params.id as string;
   const { getRaffleById, isLoading } = useRaffles();
   const router = useRouter();
-  const { t, changeLocaleForRaffle } = useTranslations();
+  const { t, locale, changeLocaleForRaffle } = useTranslations(); // Added locale
+  const { toast } = useToast();
 
   const raffle = getRaffleById(raffleId);
+  const listRef = useRef<HTMLDivElement>(null);
+  const [isExporting, setIsExporting] = useState(false);
   
   useEffect(() => {
     if (raffle) {
@@ -46,18 +52,63 @@ export default function AvailableNumbersPage() {
     );
   }
 
+  const handleExportImage = async () => {
+    if (!listRef.current || !raffle) return;
+    setIsExporting(true);
+    try {
+      const dataUrl = await toPng(listRef.current, { 
+        quality: 0.95, 
+        backgroundColor: 'white', // Ensure background is white for clarity
+      });
+      const link = document.createElement('a');
+      const sanitizedRaffleName = raffle.name.replace(/[^\w\s-]/gi, '').replace(/\s+/g, '_').toLowerCase();
+      link.download = `rifa-${sanitizedRaffleName}-numeros-disponibles.png`;
+      link.href = dataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast({
+        title: t('raffleDetailsPage.exportSuccessTitle'),
+        description: t('raffleDetailsPage.exportAvailableSuccessDescription'), // New key for specific message
+      });
+    } catch (error) {
+      console.error('Error exporting image:', error);
+      toast({
+        title: t('raffleDetailsPage.exportErrorTitle'),
+        description: t('raffleDetailsPage.exportErrorDescription'),
+        variant: 'destructive',
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <Button variant="outline" onClick={() => router.push(`/raffles/${raffleId}`)} className="mb-6">
-        <ArrowLeft className="mr-2 h-4 w-4" /> {t('availableNumbersPage.backToRaffleDetails')}
-      </Button>
+      <div className="flex justify-between items-center mb-6">
+        <Button variant="outline" onClick={() => router.push(`/raffles/${raffleId}`)}>
+          <ArrowLeft className="mr-2 h-4 w-4" /> {t('availableNumbersPage.backToRaffleDetails')}
+        </Button>
+        <Button 
+            variant="default" 
+            onClick={handleExportImage} 
+            disabled={isExporting || raffle.numbers.filter(n=>n.status === 'Available').length === 0 }
+          >
+            {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+            {t('raffleDetailsPage.exportImageButton')}
+          </Button>
+      </div>
+      
       <h1 className="text-3xl font-bold text-center">{t('availableNumbersPage.title', { raffleName: raffle.name })}</h1>
-      <AvailableNumbersList 
-        numbers={raffle.numbers} 
-        currencySymbol={raffle.country.currencySymbol}
-        currencyCode={raffle.country.currencyCode} // Pass currencyCode
-        numberValue={raffle.numberValue}
-      />
+      
+      <div ref={listRef}>
+        <AvailableNumbersList 
+          numbers={raffle.numbers} 
+          currencySymbol={raffle.country.currencySymbol}
+          currencyCode={raffle.country.currencyCode}
+          numberValue={raffle.numberValue}
+        />
+      </div>
     </div>
   );
 }

@@ -52,8 +52,9 @@
     "exportImageButton": "Exportar Imagem",
     "exportSuccessTitle": "Imagem Exportada",
     "exportSuccessDescription": "A imagem da grade da rifa foi baixada.",
+    "exportAvailableSuccessDescription": "A lista de números disponíveis foi baixada como imagem.",
     "exportErrorTitle": "Erro ao Exportar",
-    "exportErrorDescription": "Não foi possível exportar a imagem da grade da rifa."
+    "exportErrorDescription": "Não foi possível exportar a imagem."
   },
   "configurePage": {
     "title": "Criar Nova Rifa"

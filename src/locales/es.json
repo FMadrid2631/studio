@@ -52,8 +52,9 @@
     "exportImageButton": "Exportar Imagen",
     "exportSuccessTitle": "Imagen Exportada",
     "exportSuccessDescription": "La imagen de la cuadrícula de la rifa ha sido descargada.",
+    "exportAvailableSuccessDescription": "La lista de números disponibles ha sido descargada como imagen.",
     "exportErrorTitle": "Error de Exportación",
-    "exportErrorDescription": "No se pudo exportar la imagen de la cuadrícula de la rifa."
+    "exportErrorDescription": "No se pudo exportar la imagen."
   },
   "configurePage": {
     "title": "Crear Nueva Rifa"

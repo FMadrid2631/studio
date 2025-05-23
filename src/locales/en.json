@@ -52,8 +52,9 @@
     "exportImageButton": "Export Image",
     "exportSuccessTitle": "Image Exported",
     "exportSuccessDescription": "The raffle grid image has been downloaded.",
+    "exportAvailableSuccessDescription": "The list of available numbers has been downloaded as an image.",
     "exportErrorTitle": "Export Error",
-    "exportErrorDescription": "Could not export the raffle grid image."
+    "exportErrorDescription": "Could not export the image."
   },
   "configurePage": {
     "title": "Create New Raffle"
@@ -158,7 +159,7 @@
     "raffleClosedDescription": "This raffle is no longer open for purchases.",
     "backToRaffleButton": "Back to Raffle",
     "grid": {
-      "numberTitle": "Number {{id}} (Status: {{status}})",
+      "numberTitle": "Number {{id}} (Available)",
       "numberStatusTitle": "Number {{id}} (Status: {{status}})",
       "noNumbersInRaffle": "No numbers configured for this raffle yet."
     }

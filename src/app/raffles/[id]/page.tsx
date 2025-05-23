@@ -6,17 +6,17 @@ import { useRaffles } from '@/contexts/RaffleContext';
 import { RaffleGrid } from '@/components/raffle/RaffleGrid';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, Edit, Download, Trophy, Settings, Loader2 } from 'lucide-react'; // ListChecks removed
+import { ArrowLeft, Edit, Settings } from 'lucide-react'; // Removed Download, Loader2, Trophy
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { useTranslations } from '@/contexts/LocalizationContext';
 import { format } from 'date-fns';
 import { getLocaleFromString } from '@/lib/date-fns-locales';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react'; // Removed useState
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { toPng } from 'html-to-image';
-import { useToast } from '@/hooks/use-toast';
+// Removed: import { toPng } from 'html-to-image';
+// Removed: import { useToast } from '@/hooks/use-toast';
 
 export default function RafflePage() {
   const params = useParams();
@@ -24,11 +24,11 @@ export default function RafflePage() {
   const { getRaffleById, isLoading } = useRaffles();
   const router = useRouter();
   const { t, locale, changeLocaleForRaffle } = useTranslations();
-  const { toast } = useToast();
+  // Removed: const { toast } = useToast();
 
   const raffle = getRaffleById(raffleId);
-  const gridRef = useRef<HTMLDivElement>(null);
-  const [isExporting, setIsExporting] = useState(false);
+  const gridRef = useRef<HTMLDivElement>(null); // This ref is for RaffleGrid, potentially for future use, but export moved
+  // Removed: const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     if (raffle) {
@@ -62,37 +62,7 @@ export default function RafflePage() {
     router.push(`/raffles/${raffleId}/purchase?selectedNumber=${numberId}`);
   };
 
-  const handleExportImage = async () => {
-    if (!gridRef.current || !raffle) return;
-    setIsExporting(true);
-    try {
-      const dataUrl = await toPng(gridRef.current, { 
-        quality: 0.95, 
-        backgroundColor: 'white',
-      });
-      const link = document.createElement('a');
-      const sanitizedRaffleName = raffle.name.replace(/[^\w\s-]/gi, '').replace(/\s+/g, '_').toLowerCase();
-      link.download = `rifa-${sanitizedRaffleName}-numeros.png`;
-      link.href = dataUrl;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      toast({
-        title: t('raffleDetailsPage.exportSuccessTitle'),
-        description: t('raffleDetailsPage.exportSuccessDescription'),
-      });
-    } catch (error) {
-      console.error('Error exporting image:', error);
-      toast({
-        title: t('raffleDetailsPage.exportErrorTitle'),
-        description: t('raffleDetailsPage.exportErrorDescription'),
-        variant: 'destructive',
-      });
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
+  // Removed handleExportImage function
 
   const purchasedCount = raffle.numbers.filter(n => n.status === 'Purchased' || n.status === 'PendingPayment').length;
   const progress = raffle.totalNumbers > 0 ? (purchasedCount / raffle.totalNumbers) * 100 : 0;
@@ -148,7 +118,7 @@ export default function RafflePage() {
                 <div className="bg-primary h-2.5 rounded-full" style={{ width: `${progress}%` }}></div>
               </div>
             </div>
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"> {/* Adjusted grid for 3 items */}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="w-full"> 
@@ -171,23 +141,17 @@ export default function RafflePage() {
                   </TooltipContent>
                 )}
               </Tooltip>
-              <Button variant="outline" asChild disabled={raffle.status === 'Closed'}>
+              <Button variant="outline" asChild disabled={raffle.status === 'Closed'} className="w-full">
                 <Link href={`/raffles/${raffle.id}/purchase`}>
                   <Edit className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.purchaseNumbersButton')}
                 </Link>
               </Button>
-              <Button 
-                variant="outline" 
-                onClick={handleExportImage} 
-                disabled={isExporting}
-                className="w-full"
-              >
-                {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
-                {t('raffleDetailsPage.exportImageButton')}
-              </Button>
-              <Button variant="default" asChild disabled={raffle.status === 'Closed'}>
+              {/* Export button removed from here */}
+              <Button variant="default" asChild disabled={raffle.status === 'Closed'} className="w-full">
                 <Link href={`/raffles/${raffle.id}/draw`}>
-                  <Trophy className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.conductDrawButton')}
+                   {/* Assuming Trophy icon is wanted here, if not it was removed in error by previous step from imports */}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 h-4 w-4 lucide lucide-trophy"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                  {t('raffleDetailsPage.conductDrawButton')}
                 </Link>
               </Button>
             </div>
@@ -231,5 +195,3 @@ export default function RafflePage() {
     </TooltipProvider>
   );
 }
-
-    
