@@ -106,7 +106,7 @@ export default function AvailableNumbersPage() {
 
       <h1 className="text-3xl font-bold text-center">{t('availableNumbersPage.title', { raffleName: raffle.name })}</h1>
       
-      <ScrollArea className="h-auto max-h-[calc(100vh-25rem)] border rounded-md p-1">
+      <ScrollArea className="h-auto max-h-[70vh] border rounded-md p-1"> {/* Adjusted max-height */}
         <div ref={exportTargetRef}>
           <AvailableNumbersList
             numbers={raffle.numbers}
