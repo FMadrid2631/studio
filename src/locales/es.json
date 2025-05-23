@@ -15,7 +15,7 @@
     "createNewRaffleButton": "Crear Nueva Rifa",
     "noRafflesTitle": "Aún No Hay Rifas",
     "noRafflesDescription": "¡Comienza creando tu primera rifa!",
-    "viewGridButton": "Ver Cuadrícula",
+    "viewGridButton": "Ver",
     "purchaseButton": "Comprar",
     "availableButton": "Disponibles",
     "drawButton": "Sortear",
@@ -136,7 +136,7 @@
     "cannotEditDescriptionClosed": "Esta rifa no se puede editar porque está cerrada."
   },
   "purchaseForm": {
-    "title": "Comprar Números",
+    "title": "Comprar números",
     "description": "Selecciona tus números y completa tus datos.",
     "labels": {
       "fullName": "Nombre Completo",
