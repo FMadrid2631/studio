@@ -12,7 +12,7 @@ import { useTranslations } from '@/contexts/LocalizationContext';
 import { useEffect, useRef, useState } from 'react';
 import { toPng } from 'html-to-image';
 import { useToast } from '@/hooks/use-toast';
-import type { ScrollArea } from '@/components/ui/scroll-area'; // Importar el tipo de ScrollArea
+import { ScrollArea } from '@/components/ui/scroll-area'; // Import ScrollArea for page display
 
 export default function AvailableNumbersPage() {
   const params = useParams();
@@ -23,7 +23,7 @@ export default function AvailableNumbersPage() {
   const { toast } = useToast();
 
   const raffle = getRaffleById(raffleId);
-  const scrollAreaRef = useRef<React.ElementRef<typeof ScrollArea>>(null); // Ref para el componente ScrollArea
+  const exportTargetRef = useRef<HTMLDivElement>(null); // Ref for the AvailableNumbersList Card element
   const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
@@ -51,38 +51,26 @@ export default function AvailableNumbersPage() {
   }
 
   const handleExportImage = async () => {
-    if (!scrollAreaRef.current) {
-      console.error('ScrollArea ref is not available');
+    const elementToCapture = exportTargetRef.current;
+    if (!elementToCapture) {
+      console.error('Element to capture ref is not available');
       toast({
         title: t('raffleDetailsPage.exportErrorTitle'),
-        description: t('raffleDetailsPage.exportErrorDescription'), // Consider a more specific error
+        description: t('raffleDetailsPage.exportErrorDescription'),
         variant: 'destructive',
       });
       return;
     }
 
-    // Intentar encontrar el viewport dentro del ScrollArea
-    const viewport = scrollAreaRef.current.querySelector<HTMLDivElement>('[data-radix-scroll-area-viewport]');
-
-    if (!viewport) {
-        console.error('ScrollArea viewport element not found');
-        toast({
-            title: t('raffleDetailsPage.exportErrorTitle'),
-            description: "Could not find the scrollable content area to export.",
-            variant: 'destructive',
-        });
-        return;
-    }
-
-
     setIsExporting(true);
     try {
-      const dataUrl = await toPng(viewport, { // Capturar el viewport
+      // Use offsetWidth for width and scrollHeight for the full content height of the Card
+      const dataUrl = await toPng(elementToCapture, {
         quality: 0.95,
         backgroundColor: 'white',
-        width: viewport.scrollWidth,     // Usar scrollWidth del viewport
-        height: viewport.scrollHeight,  // Usar scrollHeight del viewport
-        // pixelRatio: 1, // Puede ayudar con la calidad en algunos casos
+        width: elementToCapture.offsetWidth,
+        height: elementToCapture.scrollHeight,
+        // pixelRatio: window.devicePixelRatio || 1, // Consider device pixel ratio for quality
       });
       const link = document.createElement('a');
       const sanitizedRaffleName = raffle.name.replace(/[^\w\s-]/gi, '').replace(/\s+/g, '_').toLowerCase();
@@ -124,17 +112,17 @@ export default function AvailableNumbersPage() {
       </div>
 
       <h1 className="text-3xl font-bold text-center">{t('availableNumbersPage.title', { raffleName: raffle.name })}</h1>
-
-      {/* El div que envolvía a AvailableNumbersList ya no necesita el ref, se pasa directamente a AvailableNumbersList */}
-      <div>
+      
+      {/* ScrollArea for display purposes on the page */}
+      <ScrollArea className="h-96 border rounded-md"> {/* Adjust height as needed, e.g., h-96 or h-[calc(100vh-20rem)] */}
         <AvailableNumbersList
-          ref={scrollAreaRef} // Pasar el ref al componente AvailableNumbersList
+          ref={exportTargetRef} // Ref points to the Card inside AvailableNumbersList
           numbers={raffle.numbers}
           currencySymbol={raffle.country.currencySymbol}
           currencyCode={raffle.country.currencyCode}
           numberValue={raffle.numberValue}
         />
-      </div>
+      </ScrollArea>
     </div>
   );
 }
