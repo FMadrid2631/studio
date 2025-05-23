@@ -6,7 +6,7 @@ import { useParams, usePathname, useRouter } from 'next/navigation';
 import { useRaffles } from '@/contexts/RaffleContext';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { LayoutGrid, ListChecks, Edit3, Trophy, ArrowLeft } from 'lucide-react';
+import { LayoutGrid, Edit3, Trophy, ArrowLeft } from 'lucide-react'; // Removed ListChecks
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from 'next/image';
 import { useTranslations } from '@/contexts/LocalizationContext';
@@ -58,20 +58,21 @@ export default function RaffleDetailLayout({
   const navLinks = [
     { nameKey: "raffleTabs.grid", href: basePath, icon: LayoutGrid },
     { nameKey: "raffleTabs.purchase", href: `${basePath}/purchase`, icon: Edit3, disabled: raffle.status === 'Closed' },
-    { nameKey: "raffleTabs.available", href: `${basePath}/available`, icon: ListChecks },
+    // { nameKey: "raffleTabs.available", href: `${basePath}/available`, icon: ListChecks }, // This line is removed
     { nameKey: "raffleTabs.draw", href: `${basePath}/draw`, icon: Trophy, disabled: raffle.status === 'Closed' },
   ];
 
   let currentTabValue = basePath;
   if (pathname.startsWith(`${basePath}/purchase`)) currentTabValue = `${basePath}/purchase`;
-  else if (pathname.startsWith(`${basePath}/available`)) currentTabValue = `${basePath}/available`;
+  // No longer checking for /available path for currentTabValue
   else if (pathname.startsWith(`${basePath}/draw`)) currentTabValue = `${basePath}/draw`;
 
 
   return (
     <div className="space-y-6">
       <Tabs value={currentTabValue} onValueChange={(value) => router.push(value)} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto md:h-10 mb-6">
+        {/* Adjusted grid columns for fewer tabs */}
+        <TabsList className="grid w-full grid-cols-1 md:grid-cols-3 h-auto md:h-10 mb-6">
           {navLinks.map((link) => (
             <TabsTrigger key={link.href} value={link.href} disabled={link.disabled} className="flex-col md:flex-row h-auto py-2 md:py-1.5">
               <link.icon className="h-4 w-4 mb-1 md:mb-0 md:mr-2" />
