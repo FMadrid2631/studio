@@ -68,9 +68,10 @@ export default function RafflePage() {
     try {
       const dataUrl = await toPng(gridRef.current, { 
         quality: 0.95, 
-        backgroundColor: 'white'
+        backgroundColor: 'white' // Explicitly set background to white for the image
       });
       const link = document.createElement('a');
+      // Sanitize raffle name for filename
       const sanitizedRaffleName = raffle.name.replace(/[^\w\s-]/gi, '').replace(/\s+/g, '_').toLowerCase();
       link.download = `rifa-${sanitizedRaffleName}-numeros.png`;
       link.href = dataUrl;
@@ -192,11 +193,16 @@ export default function RafflePage() {
         
         <Card>
           <CardContent className="pt-6">
-            <Button onClick={handleExportImage} disabled={isExporting} variant="outline" className="mb-4 w-full md:w-auto">
+            <Button 
+              onClick={handleExportImage} 
+              disabled={isExporting} 
+              variant="default"
+              className="mb-4 w-full md:w-auto"
+            >
               {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
-              {t('raffleDetailsPage.exportImageButton')}
+              EXPORT: {t('raffleDetailsPage.exportImageButton')}
             </Button>
-            <div ref={gridRef}>
+            <div ref={gridRef}> {/* This div is passed to html-to-image */}
               <RaffleGrid 
                 numbers={raffle.numbers} 
                 currencySymbol={raffle.country.currencySymbol}
@@ -204,7 +210,7 @@ export default function RafflePage() {
                 numberValue={raffle.numberValue}
                 onNumberClick={handleNumberClick}
                 interactive={raffle.status === 'Open'}
-                t={t}
+                t={t} // Pass translation function
               />
             </div>
           </CardContent>
