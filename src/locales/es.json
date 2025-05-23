@@ -55,18 +55,14 @@
       "purchasedCash": "Pagado (Efectivo)",
       "purchasedTransfer": "Pagado (Transferencia)"
     },
-    "exportImageButton": "Exportar Imagen",
-    "exportSuccessTitle": "¡Exportado!",
-    "exportSuccessDescription": "Imagen de la cuadrícula de la rifa exportada exitosamente.",
-    "exportErrorTitle": "Error de Exportación",
-    "exportErrorDescription": "No se pudo exportar la imagen de la cuadrícula de la rifa.",
     "viewProfitButton": "Ver Ganancia",
     "profitDialogTitle": "Ganancia de la Rifa",
     "profitDialog": {
       "totalSales": "Ventas Totales (Números Pagados)",
       "totalPrizeValue": "Valor Referencial Total de Premios",
       "netProfit": "Ganancia Neta",
-      "closeButton": "Cerrar"
+      "closeButton": "Cerrar",
+      "notePendingSales": "Nota: Hay {{amount}} en pagos pendientes no incluidos en el cálculo de ganancia."
     }
   },
   "configurePage": {

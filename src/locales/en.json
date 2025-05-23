@@ -55,18 +55,14 @@
       "purchasedCash": "Paid (Cash)",
       "purchasedTransfer": "Paid (Transfer)"
     },
-    "exportImageButton": "Export Image",
-    "exportSuccessTitle": "Exported!",
-    "exportSuccessDescription": "Raffle grid image exported successfully.",
-    "exportErrorTitle": "Export Error",
-    "exportErrorDescription": "Could not export raffle grid image.",
     "viewProfitButton": "View Profit",
     "profitDialogTitle": "Raffle Profit",
     "profitDialog": {
       "totalSales": "Total Sales (Paid Numbers)",
       "totalPrizeValue": "Total Prize Reference Value",
       "netProfit": "Net Profit",
-      "closeButton": "Close"
+      "closeButton": "Close",
+      "notePendingSales": "Note: There are {{amount}} in pending payments not included in the profit calculation."
     }
   },
   "configurePage": {

@@ -6,14 +6,14 @@ import { useRaffles } from '@/contexts/RaffleContext';
 import { RaffleGrid } from '@/components/raffle/RaffleGrid';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, Edit, Settings, Trophy, ListChecks, DollarSign } from 'lucide-react';
+import { ArrowLeft, Edit, Settings, Trophy, ListChecks, DollarSign, Download } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { useTranslations } from '@/contexts/LocalizationContext';
 import { format } from 'date-fns';
 import { getLocaleFromString } from '@/lib/date-fns-locales';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   AlertDialog,
@@ -43,6 +43,7 @@ export default function RafflePage() {
     totalSales: number;
     totalPrizeValue: number;
     netProfit: number;
+    totalPendingSales: number; // Added for pending payments
   } | null>(null);
   
   useEffect(() => {
@@ -107,10 +108,18 @@ export default function RafflePage() {
 
     const netProfit = totalSales - totalPrizeValue;
 
+    const totalPendingSales = raffle.numbers.reduce((sum, num) => {
+        if (num.status === 'PendingPayment') {
+            return sum + raffle.numberValue;
+        }
+        return sum;
+    }, 0);
+
     setProfitDetails({
       totalSales,
       totalPrizeValue,
       netProfit,
+      totalPendingSales
     });
     setIsProfitDialogOpen(true);
   };
@@ -157,7 +166,7 @@ export default function RafflePage() {
                 <div className="bg-primary h-2.5 rounded-full" style={{ width: `${progress}%` }}></div>
               </div>
             </div>
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="w-full"> 
@@ -267,22 +276,29 @@ export default function RafflePage() {
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>{t('raffleDetailsPage.profitDialogTitle')}</AlertDialogTitle>
-                <AlertDialogDescription>
-                  <div className="space-y-2 mt-4 text-sm">
-                    <div className="flex justify-between">
-                      <span>{t('raffleDetailsPage.profitDialog.totalSales')}:</span>
-                      <span className="font-semibold">{formatPrice(profitDetails.totalSales, raffle.country.currencySymbol, raffle.country.currencyCode)}</span>
+                <AlertDialogDescription asChild>
+                    <div className="space-y-2 mt-4 text-sm">
+                        <div className="flex justify-between">
+                        <span>{t('raffleDetailsPage.profitDialog.totalSales')}:</span>
+                        <span className="font-semibold">{formatPrice(profitDetails.totalSales, raffle.country.currencySymbol, raffle.country.currencyCode)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                        <span>{t('raffleDetailsPage.profitDialog.totalPrizeValue')}:</span>
+                        <span className="font-semibold">{formatPrice(profitDetails.totalPrizeValue, raffle.country.currencySymbol, raffle.country.currencyCode)}</span>
+                        </div>
+                        <hr className="my-2 border-border" />
+                        <div className="flex justify-between text-base">
+                        <span className="font-bold">{t('raffleDetailsPage.profitDialog.netProfit')}:</span>
+                        <span className="font-bold text-primary">{formatPrice(profitDetails.netProfit, raffle.country.currencySymbol, raffle.country.currencyCode)}</span>
+                        </div>
+                        {profitDetails.totalPendingSales > 0 && (
+                        <p className="text-xs text-muted-foreground mt-4 pt-2 border-t border-border/50">
+                            {t('raffleDetailsPage.profitDialog.notePendingSales', { 
+                            amount: formatPrice(profitDetails.totalPendingSales, raffle.country.currencySymbol, raffle.country.currencyCode) 
+                            })}
+                        </p>
+                        )}
                     </div>
-                    <div className="flex justify-between">
-                      <span>{t('raffleDetailsPage.profitDialog.totalPrizeValue')}:</span>
-                      <span className="font-semibold">{formatPrice(profitDetails.totalPrizeValue, raffle.country.currencySymbol, raffle.country.currencyCode)}</span>
-                    </div>
-                    <hr className="my-2 border-border" />
-                    <div className="flex justify-between text-base">
-                      <span className="font-bold">{t('raffleDetailsPage.profitDialog.netProfit')}:</span>
-                      <span className="font-bold text-primary">{formatPrice(profitDetails.netProfit, raffle.country.currencySymbol, raffle.country.currencyCode)}</span>
-                    </div>
-                  </div>
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

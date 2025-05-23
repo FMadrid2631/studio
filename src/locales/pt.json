@@ -55,18 +55,14 @@
       "purchasedCash": "Pago (Dinheiro)",
       "purchasedTransfer": "Pago (Transferência)"
     },
-    "exportImageButton": "Exportar Imagem",
-    "exportSuccessTitle": "Exportado!",
-    "exportSuccessDescription": "Imagem da grade da rifa exportada com sucesso.",
-    "exportErrorTitle": "Erro na Exportação",
-    "exportErrorDescription": "Não foi possível exportar a imagem da grade da rifa.",
     "viewProfitButton": "Ver Lucro",
     "profitDialogTitle": "Lucro da Rifa",
     "profitDialog": {
       "totalSales": "Vendas Totais (Números Pagos)",
       "totalPrizeValue": "Valor de Referência Total dos Prêmios",
       "netProfit": "Lucro Líquido",
-      "closeButton": "Fechar"
+      "closeButton": "Fechar",
+      "notePendingSales": "Nota: Existem {{amount}} em pagamentos pendentes não incluídos no cálculo do lucro."
     }
   },
   "configurePage": {

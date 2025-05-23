@@ -34,6 +34,7 @@ export default function HomePage() {
     totalSales: number;
     totalPrizeValue: number;
     netProfit: number;
+    totalPendingSales: number; // Added for pending payments
   } | null>(null);
   const [currentRaffleForProfit, setCurrentRaffleForProfit] = useState<Raffle | null>(null);
 
@@ -73,7 +74,14 @@ export default function HomePage() {
 
     const netProfit = totalSales - totalPrizeValue;
 
-    setProfitDetails({ totalSales, totalPrizeValue, netProfit });
+    const totalPendingSales = raffleToShow.numbers.reduce((sum, num) => {
+        if (num.status === 'PendingPayment') {
+            return sum + raffleToShow.numberValue;
+        }
+        return sum;
+    }, 0);
+
+    setProfitDetails({ totalSales, totalPrizeValue, netProfit, totalPendingSales });
     setCurrentRaffleForProfit(raffleToShow);
     setIsProfitDialogOpen(true);
   };
@@ -161,7 +169,7 @@ export default function HomePage() {
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>{t('raffleDetailsPage.profitDialogTitle')}</AlertDialogTitle>
-              <AlertDialogDescription>
+              <AlertDialogDescription asChild>
                 <div className="space-y-2 mt-4 text-sm">
                   <p>{t('configureForm.labels.raffleName')}: <span className="font-semibold">{currentRaffleForProfit.name}</span></p>
                   <div className="flex justify-between">
@@ -177,6 +185,13 @@ export default function HomePage() {
                     <span className="font-bold">{t('raffleDetailsPage.profitDialog.netProfit')}:</span>
                     <span className="font-bold text-primary">{formatPrice(profitDetails.netProfit, currentRaffleForProfit.country.currencySymbol, currentRaffleForProfit.country.currencyCode)}</span>
                   </div>
+                  {profitDetails.totalPendingSales > 0 && (
+                    <p className="text-xs text-muted-foreground mt-4 pt-2 border-t border-border/50">
+                      {t('raffleDetailsPage.profitDialog.notePendingSales', { 
+                        amount: formatPrice(profitDetails.totalPendingSales, currentRaffleForProfit.country.currencySymbol, currentRaffleForProfit.country.currencyCode) 
+                      })}
+                    </p>
+                  )}
                 </div>
               </AlertDialogDescription>
             </AlertDialogHeader>
