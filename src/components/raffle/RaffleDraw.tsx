@@ -45,21 +45,17 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
 
     setIsDrawing(true);
     setDrawError(null);
-    setLastDrawnWinners([]);
+    // Do not clear lastDrawnWinners here, so the '000' or previous number persists until new draw
+    // setLastDrawnWinners([]); 
 
-    // 1. Get all numbers that are fully 'Purchased' and have buyer details.
     const purchasedNumbers = raffle.numbers.filter(
       (n) => n.status === 'Purchased' && n.buyerName && n.buyerPhone
     );
 
-    // 2. Get all numbers that have already won a prize in this raffle.
     const winningNumbersSoFar = raffle.prizes
       .map(p => p.winningNumber)
       .filter(n => n !== undefined) as number[];
 
-    // 3. Determine eligible numbers for this specific draw:
-    //    - Must be from 'purchasedNumbers'.
-    //    - Must NOT be in 'winningNumbersSoFar'.
     const eligibleNumbersToDrawFrom = purchasedNumbers.filter(n => !winningNumbersSoFar.includes(n.id));
 
     if (eligibleNumbersToDrawFrom.length === 0) {
@@ -69,26 +65,24 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
     }
 
     try {
-      // The flow will randomly select one number from the provided list of eligible IDs.
       const result = await automatedRaffleDraw({
-        numberOfPrizes: 1, // We draw one prize at a time.
-        availableNumbers: eligibleNumbersToDrawFrom.map(n => n.id), // Pass only IDs of eligible numbers.
+        numberOfPrizes: 1, 
+        availableNumbers: eligibleNumbersToDrawFrom.map(n => n.id), 
       });
 
       if (result.drawnNumbers.length > 0) {
         const winningNumberId = result.drawnNumbers[0];
-        const winnerDetails = purchasedNumbers.find(n => n.id === winningNumberId); // Find details from purchased list
+        const winnerDetails = purchasedNumbers.find(n => n.id === winningNumberId); 
 
         if (winnerDetails && winnerDetails.buyerName && winnerDetails.buyerPhone) {
           recordPrizeWinner(raffle.id, currentPrizeToAward.order, winningNumberId, winnerDetails.buyerName, winnerDetails.buyerPhone);
           const awardedPrizeDetails = { ...currentPrizeToAward, winningNumber: winningNumberId, winnerName: winnerDetails.buyerName, winnerPhone: winnerDetails.buyerPhone };
-          setLastDrawnWinners([awardedPrizeDetails]);
+          setLastDrawnWinners([awardedPrizeDetails]); // Update lastDrawnWinners with the new winner
           toast({ 
             title: t('drawPage.toast.winnerDrawnTitle'), 
             description: t('drawPage.toast.winnerDrawnDescription', { winningNumber: String(winningNumberId), prizeDescription: currentPrizeToAward.description, winnerName: winnerDetails.buyerName })
           });
 
-          // If this was the last prize to award, close the raffle.
           if (prizesToAward.length === 1) { 
             closeRaffle(raffle.id);
             toast({ 
@@ -98,7 +92,6 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
             });
           }
         } else {
-          // This case should ideally not be reached if eligibleNumbersToDrawFrom is derived from purchasedNumbers with details.
           setDrawError(t('drawPage.errorUnexpected')); 
         }
       } else {
@@ -119,6 +112,9 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
   }
 
   const nextPrizeDescription = prizesToAward[0]?.description || t('drawPage.buttonDrawNext');
+  const displayWinningNumber = lastDrawnWinners.length > 0 && lastDrawnWinners[0].winningNumber 
+                               ? String(lastDrawnWinners[0].winningNumber).padStart(3, '0') 
+                               : '000';
 
   return (
     <Card className="max-w-2xl mx-auto shadow-lg">
@@ -147,7 +143,13 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
           </Alert>
         ) : (
           <div className="text-center">
-             <Image src="https://placehold.co/300x180.png" alt="Raffle drum" width={300} height={180} className="mb-6 mx-auto rounded-md shadow-md" data-ai-hint="raffle drum lottery" />
+            <div className="my-8 p-6 bg-muted/30 rounded-lg shadow-inner">
+              <p className="text-lg font-medium text-muted-foreground mb-2">{t('drawPage.winningNumberLabel')}</p>
+              <p className="text-7xl font-bold text-primary tracking-wider">
+                {displayWinningNumber}
+              </p>
+            </div>
+            
             <Button onClick={handleDraw} disabled={isDrawing} size="lg" className="w-full md:w-auto">
               {isDrawing ? (
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -211,5 +213,3 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
     </Card>
   );
 }
-
-    
