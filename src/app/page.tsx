@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -7,9 +8,21 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { PlusCircle, Eye, Edit, ListChecks, Trophy } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
+import { useTranslations } from '@/contexts/LocalizationContext';
+import { format } from 'date-fns';
+import { getLocaleFromString } from '@/lib/date-fns-locales';
+import { useEffect } from 'react';
+
 
 export default function HomePage() {
   const { raffles, isLoading } = useRaffles();
+  const { t, locale, changeLocaleForRaffle } = useTranslations();
+
+  // Reset locale to default when on home page
+  useEffect(() => {
+    changeLocaleForRaffle(undefined);
+  }, [changeLocaleForRaffle]);
+
 
   if (isLoading) {
     return (
@@ -18,15 +31,17 @@ export default function HomePage() {
       </div>
     );
   }
+  
+  const dateLocale = getLocaleFromString(locale);
 
   return (
     <div className="space-y-8">
       <section className="text-center py-12 bg-gradient-to-r from-primary/10 via-background to-accent/10 rounded-lg shadow-md">
-        <h1 className="text-5xl font-bold text-primary mb-4">Welcome to Rifa Fácil!</h1>
-        <p className="text-xl text-muted-foreground mb-8">Your one-stop solution for creating and managing raffles effortlessly.</p>
+        <h1 className="text-5xl font-bold text-primary mb-4">{t('homePage.welcomeTitle')}</h1>
+        <p className="text-xl text-muted-foreground mb-8">{t('homePage.welcomeSubtitle')}</p>
         <Button asChild size="lg">
           <Link href="/configure">
-            <PlusCircle className="mr-2 h-5 w-5" /> Create New Raffle
+            <PlusCircle className="mr-2 h-5 w-5" /> {t('homePage.createNewRaffleButton')}
           </Link>
         </Button>
       </section>
@@ -34,8 +49,8 @@ export default function HomePage() {
       {raffles.length === 0 ? (
         <Card className="text-center py-12">
           <CardHeader>
-            <CardTitle className="text-2xl">No Raffles Yet</CardTitle>
-            <CardDescription>Get started by creating your first raffle!</CardDescription>
+            <CardTitle className="text-2xl">{t('homePage.noRafflesTitle')}</CardTitle>
+            <CardDescription>{t('homePage.noRafflesDescription')}</CardDescription>
           </CardHeader>
           <CardContent>
             <Image src="https://placehold.co/300x200.png" alt="No raffles placeholder" width={300} height={200} className="mx-auto rounded-md shadow-md" data-ai-hint="empty state illustration" />
@@ -49,37 +64,37 @@ export default function HomePage() {
                 <div className="flex justify-between items-start">
                   <CardTitle className="text-2xl text-primary">{raffle.name}</CardTitle>
                   <Badge variant={raffle.status === 'Open' ? 'default' : 'secondary'} className={raffle.status === 'Open' ? 'bg-green-500 text-white' : 'bg-gray-500 text-white'}>
-                    {raffle.status}
+                    {raffle.status === 'Open' ? t('homePage.raffleStatusOpen') : t('homePage.raffleStatusClosed')}
                   </Badge>
                 </div>
                 <CardDescription>
-                  {raffle.totalNumbers} numbers | {raffle.numberValue} {raffle.country.currencySymbol} each
+                  {t('homePage.labels.totalNumbers', { count: raffle.totalNumbers })} | {t('homePage.labels.numberValue', { value: raffle.numberValue, currencySymbol: raffle.country.currencySymbol })}
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex-grow space-y-2">
-                <p className="text-sm text-muted-foreground">Country: {raffle.country.name}</p>
-                <p className="text-sm text-muted-foreground">Prizes: {raffle.prizes.length}</p>
-                <p className="text-sm text-muted-foreground">Draw Date: {new Date(raffle.drawDate).toLocaleDateString()}</p>
+                <p className="text-sm text-muted-foreground">{t('homePage.labels.country', { countryName: raffle.country.name })}</p>
+                <p className="text-sm text-muted-foreground">{t('homePage.labels.prizes', { count: raffle.prizes.length })}</p>
+                <p className="text-sm text-muted-foreground">{t('homePage.labels.drawDate', { date: format(new Date(raffle.drawDate), 'PPP', { locale: dateLocale }) })}</p>
               </CardContent>
               <CardFooter className="grid grid-cols-2 gap-2">
                 <Button variant="outline" asChild className="w-full">
                   <Link href={`/raffles/${raffle.id}`}>
-                    <Eye className="mr-2 h-4 w-4" /> View Grid
+                    <Eye className="mr-2 h-4 w-4" /> {t('homePage.viewGridButton')}
                   </Link>
                 </Button>
                 <Button variant="outline" asChild className="w-full">
                   <Link href={`/raffles/${raffle.id}/purchase`}>
-                    <Edit className="mr-2 h-4 w-4" /> Purchase
+                    <Edit className="mr-2 h-4 w-4" /> {t('homePage.purchaseButton')}
                   </Link>
                 </Button>
                 <Button variant="outline" asChild className="w-full">
                   <Link href={`/raffles/${raffle.id}/available`}>
-                    <ListChecks className="mr-2 h-4 w-4" /> Available
+                    <ListChecks className="mr-2 h-4 w-4" /> {t('homePage.availableButton')}
                   </Link>
                 </Button>
                 <Button variant="default" asChild className="w-full" disabled={raffle.status === 'Closed'}>
                   <Link href={`/raffles/${raffle.id}/draw`}>
-                    <Trophy className="mr-2 h-4 w-4" /> Draw
+                    <Trophy className="mr-2 h-4 w-4" /> {t('homePage.drawButton')}
                   </Link>
                 </Button>
               </CardFooter>

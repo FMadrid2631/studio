@@ -1,7 +1,9 @@
+
 'use client';
 
+import React, { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, Controller, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -10,32 +12,38 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { COUNTRIES, getCountryByCode } from '@/lib/countries';
-import type { RaffleConfigurationFormInput, Country as CountryType } from '@/types';
+import type { RaffleConfigurationFormInput } from '@/types';
 import { useRaffles } from '@/contexts/RaffleContext';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { CalendarIcon, PlusCircle, Trash2 } from 'lucide-react';
+import { CalendarIcon, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { useTranslations } from '@/contexts/LocalizationContext';
+import { getLocaleFromString } from '@/lib/date-fns-locales';
 
-const raffleFormSchema = z.object({
-  name: z.string().min(3, { message: 'Raffle name must be at least 3 characters.' }),
-  countryCode: z.string().min(1, { message: 'Please select a country.' }),
-  totalNumbers: z.coerce.number().int().positive({ message: 'Total numbers must be positive.' }).min(10, {message: "Minimum 10 numbers"}).max(10000, {message: "Maximum 10000 numbers"}),
-  numberValue: z.coerce.number().positive({ message: 'Number value must be positive.' }),
-  numberOfPrizes: z.coerce.number().int().positive({ message: 'Number of prizes must be positive.' }).min(1).max(20),
+
+const createRaffleFormSchema = (t: Function) => z.object({
+  name: z.string().min(3, { message: t('configureForm.validation.nameMin') }),
+  countryCode: z.string().min(1, { message: t('configureForm.validation.countryRequired') }),
+  totalNumbers: z.coerce.number().int().positive({ message: t('configureForm.validation.totalNumbersPositive') }).min(10, {message: t('configureForm.validation.totalNumbersMin')}).max(10000, {message: t('configureForm.validation.totalNumbersMax')}),
+  numberValue: z.coerce.number().positive({ message: t('configureForm.validation.numberValuePositive') }),
+  numberOfPrizes: z.coerce.number().int().positive({ message: t('configureForm.validation.numberOfPrizesPositive') }).min(1, {message: t('configureForm.validation.numberOfPrizesMin')}).max(20, {message: t('configureForm.validation.numberOfPrizesMax')}),
   prizes: z.array(
     z.object({
-      description: z.string().min(1, { message: 'Prize description cannot be empty.' }),
+      description: z.string().min(1, { message: t('configureForm.validation.prizeDescriptionEmpty') }),
     })
-  ).min(1, { message: 'At least one prize is required.' }),
-  drawDate: z.date({ required_error: 'Draw date is required.' }),
+  ).min(1, { message: t('configureForm.validation.atLeastOnePrize') }),
+  drawDate: z.date({ required_error: t('configureForm.validation.drawDateRequired') }),
 });
 
 export function RaffleConfigureForm() {
   const { addRaffle } = useRaffles();
   const router = useRouter();
   const { toast } = useToast();
+  const { t, locale, changeLocaleForRaffle } = useTranslations();
+
+  const raffleFormSchema = createRaffleFormSchema(t);
 
   const form = useForm<RaffleConfigurationFormInput>({
     resolver: zodResolver(raffleFormSchema),
@@ -58,9 +66,18 @@ export function RaffleConfigureForm() {
   const watchedNumberOfPrizes = form.watch('numberOfPrizes');
   const watchedCountryCode = form.watch('countryCode');
   const selectedCountry = getCountryByCode(watchedCountryCode);
+  
+  // Note: The form itself doesn't change language dynamically based on country selection *within* the form.
+  // The overall page language is set by LocalizationContext based on URL or defaults.
+  // If dynamic language change *within this form* on country select is needed,
+  // it would require calling `setLocale` from `useTranslations` when `watchedCountryCode` changes.
+  // For now, the configure page uses the default language.
+  useEffect(() => {
+    changeLocaleForRaffle(undefined); // Use default locale for configure page
+  }, [changeLocaleForRaffle]);
 
-  // Sync prizes array with numberOfPrizes
-  React.useEffect(() => {
+
+  useEffect(() => {
     const currentPrizesCount = fields.length;
     const targetPrizesCount = Number(watchedNumberOfPrizes) || 0;
     if (targetPrizesCount > currentPrizesCount) {
@@ -78,7 +95,7 @@ export function RaffleConfigureForm() {
   function onSubmit(data: RaffleConfigurationFormInput) {
     const country = COUNTRIES.find(c => c.code === data.countryCode);
     if (!country) {
-      toast({ title: 'Error', description: 'Invalid country selected.', variant: 'destructive' });
+      toast({ title: t('configureForm.toast.errorTitle'), description: t('configureForm.toast.errorCountry'), variant: 'destructive' });
       return;
     }
 
@@ -92,15 +109,17 @@ export function RaffleConfigureForm() {
       prizeDescriptions: data.prizes.map(p => p.description)
     });
 
-    toast({ title: 'Success!', description: `Raffle "${newRaffle.name}" created.` });
+    toast({ title: t('configureForm.toast.successTitle'), description: t('configureForm.toast.successDescription', {raffleName: newRaffle.name }) });
     router.push(`/raffles/${newRaffle.id}`);
   }
+  
+  const dateLocale = getLocaleFromString(locale);
 
   return (
     <Card className="max-w-2xl mx-auto shadow-lg">
       <CardHeader>
-        <CardTitle className="text-3xl font-bold text-primary">Create New Raffle</CardTitle>
-        <CardDescription>Fill in the details below to set up your raffle.</CardDescription>
+        <CardTitle className="text-3xl font-bold text-primary">{t('configureForm.title')}</CardTitle>
+        <CardDescription>{t('configureForm.description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -110,9 +129,9 @@ export function RaffleConfigureForm() {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Raffle Name/Description</FormLabel>
+                  <FormLabel>{t('configureForm.labels.raffleName')}</FormLabel>
                   <FormControl>
-                    <Input placeholder="E.g., Christmas Charity Raffle" {...field} />
+                    <Input placeholder={t('configureForm.placeholders.raffleName')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -125,11 +144,11 @@ export function RaffleConfigureForm() {
                 name="countryCode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Country</FormLabel>
+                    <FormLabel>{t('configureForm.labels.country')}</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select a country" />
+                          <SelectValue placeholder={t('configureForm.placeholders.selectCountry')} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -150,9 +169,9 @@ export function RaffleConfigureForm() {
                 name="numberValue"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Value per Number ({selectedCountry?.currencySymbol || 'Currency'})</FormLabel>
+                    <FormLabel>{t('configureForm.labels.numberValue', { currencySymbol: selectedCountry?.currencySymbol || '$' })}</FormLabel>
                     <FormControl>
-                      <Input type="number" step="0.01" placeholder="E.g., 5" {...field} />
+                      <Input type="number" step="0.01" placeholder={t('configureForm.placeholders.numberValue')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -166,9 +185,9 @@ export function RaffleConfigureForm() {
                 name="totalNumbers"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Total Numbers in Raffle</FormLabel>
+                    <FormLabel>{t('configureForm.labels.totalNumbers')}</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="E.g., 500" {...field} />
+                      <Input type="number" placeholder={t('configureForm.placeholders.totalNumbers')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -180,7 +199,7 @@ export function RaffleConfigureForm() {
                 name="drawDate"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Draw Date</FormLabel>
+                    <FormLabel>{t('configureForm.labels.drawDate')}</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -188,7 +207,7 @@ export function RaffleConfigureForm() {
                             variant={"outline"}
                             className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
                           >
-                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                            {field.value ? format(field.value, "PPP", { locale: dateLocale }) : <span>{t('configureForm.placeholders.pickDate')}</span>}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
@@ -198,8 +217,9 @@ export function RaffleConfigureForm() {
                           mode="single"
                           selected={field.value}
                           onSelect={field.onChange}
-                          disabled={(date) => date < new Date(new Date().setDate(new Date().getDate()-1)) } // Disable past dates
+                          disabled={(date) => date < new Date(new Date().setDate(new Date().getDate()-1)) }
                           initialFocus
+                          locale={dateLocale}
                         />
                       </PopoverContent>
                     </Popover>
@@ -214,9 +234,9 @@ export function RaffleConfigureForm() {
               name="numberOfPrizes"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Number of Prizes</FormLabel>
+                  <FormLabel>{t('configureForm.labels.numberOfPrizes')}</FormLabel>
                   <FormControl>
-                    <Input type="number" min="1" max="20" placeholder="E.g., 3" {...field} />
+                    <Input type="number" min="1" max="20" placeholder={t('configureForm.placeholders.numberOfPrizes')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -230,10 +250,10 @@ export function RaffleConfigureForm() {
                 name={`prizes.${index}.description`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Prize {index + 1} Description (Major to Minor)</FormLabel>
+                    <FormLabel>{t('configureForm.labels.prizeDescription', { index: index + 1 })}</FormLabel>
                     <div className="flex items-center gap-2">
                       <FormControl>
-                        <Input placeholder={`E.g., Grand Prize: A new car`} {...field} />
+                        <Input placeholder={t('configureForm.placeholders.prizeDescription')} {...field} />
                       </FormControl>
                       {fields.length > 1 && (
                         <Button type="button" variant="destructive" size="icon" onClick={() => {
@@ -250,7 +270,7 @@ export function RaffleConfigureForm() {
               />
             ))}
             
-            <Button type="submit" className="w-full" size="lg">Create Raffle</Button>
+            <Button type="submit" className="w-full" size="lg">{t('configureForm.buttons.createRaffle')}</Button>
           </form>
         </Form>
       </CardContent>

@@ -1,0 +1,194 @@
+
+{
+  "app": {
+    "title": "Rifa Fácil",
+    "description": "Manage and participate in raffles easily."
+  },
+  "navbar": {
+    "home": "Home",
+    "newRaffle": "New Raffle"
+  },
+  "homePage": {
+    "welcomeTitle": "Welcome to Rifa Fácil!",
+    "welcomeSubtitle": "Your one-stop solution for creating and managing raffles effortlessly.",
+    "createNewRaffleButton": "Create New Raffle",
+    "noRafflesTitle": "No Raffles Yet",
+    "noRafflesDescription": "Get started by creating your first raffle!",
+    "viewGridButton": "View Grid",
+    "purchaseButton": "Purchase",
+    "availableButton": "Available",
+    "drawButton": "Draw",
+    "raffleStatusOpen": "Open",
+    "raffleStatusClosed": "Closed",
+    "labels": {
+        "totalNumbers": "{{count}} numbers",
+        "numberValue": "{{value}} {{currencySymbol}} each",
+        "country": "Country: {{countryName}}",
+        "prizes": "Prizes: {{count}}",
+        "drawDate": "Draw Date: {{date}}"
+    }
+  },
+  "raffleDetailsPage": {
+    "backToAllRaffles": "Back to All Raffles",
+    "raffleDetailsTitle": "Raffle Details",
+    "drawDateLabel": "Draw Date: {{date}}",
+    "pricePerNumberLabel": "{{value}} {{currencySymbol}} per number",
+    "totalNumbersLabel": "Total Numbers",
+    "numbersSoldLabel": "Numbers Sold",
+    "prizesLabel": "Prizes",
+    "salesProgressLabel": "Sales Progress",
+    "purchaseNumbersButton": "Purchase Numbers",
+    "viewAvailableButton": "View Available",
+    "conductDrawButton": "Conduct Draw",
+    "raffleGridTitle": "Raffle Grid",
+    "raffleGridDescription": "Click on an available number to purchase it.",
+    "prizesListTitle": "Prizes",
+    "prizeItem": "Prize {{order}}",
+    "prizeWonBy": "Won by #{{number}} - {{name}}",
+    "raffleNotFoundTitle": "Raffle Not Found",
+    "raffleNotFoundDescription": "The raffle you are looking for does not exist or may have been removed.",
+    "backToHomeButton": "Back to Home"
+  },
+  "configurePage": {
+    "title": "Create New Raffle"
+  },
+  "configureForm": {
+    "title": "Create New Raffle",
+    "description": "Fill in the details below to set up your raffle.",
+    "labels": {
+      "raffleName": "Raffle Name/Description",
+      "country": "Country",
+      "numberValue": "Value per Number ({{currencySymbol}})",
+      "totalNumbers": "Total Numbers in Raffle",
+      "drawDate": "Draw Date",
+      "numberOfPrizes": "Number of Prizes",
+      "prizeDescription": "Prize {{index}} Description (Major to Minor)"
+    },
+    "placeholders": {
+      "raffleName": "E.g., Christmas Charity Raffle",
+      "selectCountry": "Select a country",
+      "numberValue": "E.g., 5",
+      "totalNumbers": "E.g., 500",
+      "pickDate": "Pick a date",
+      "numberOfPrizes": "E.g., 3",
+      "prizeDescription": "E.g., Grand Prize: A new car"
+    },
+    "buttons": {
+      "createRaffle": "Create Raffle"
+    },
+    "validation": {
+        "nameMin": "Raffle name must be at least 3 characters.",
+        "countryRequired": "Please select a country.",
+        "totalNumbersPositive": "Total numbers must be positive.",
+        "totalNumbersMin": "Minimum 10 numbers",
+        "totalNumbersMax": "Maximum 10000 numbers",
+        "numberValuePositive": "Number value must be positive.",
+        "numberOfPrizesPositive": "Number of prizes must be positive.",
+        "numberOfPrizesMin": "Minimum 1 prize.",
+        "numberOfPrizesMax": "Maximum 20 prizes.",
+        "prizeDescriptionEmpty": "Prize description cannot be empty.",
+        "atLeastOnePrize": "At least one prize is required.",
+        "drawDateRequired": "Draw date is required."
+    },
+    "toast": {
+      "successTitle": "Success!",
+      "successDescription": "Raffle \"{{raffleName}}\" created.",
+      "errorTitle": "Error",
+      "errorCountry": "Invalid country selected."
+    }
+  },
+  "purchaseForm": {
+    "title": "Purchase Numbers for \"{{raffleName}}\"",
+    "description": "Select your numbers and fill in your details.",
+    "labels": {
+      "fullName": "Full Name",
+      "phoneNumber": "Phone Number",
+      "selectNumbers": "Select Numbers",
+      "paymentMethod": "Payment Method"
+    },
+    "placeholders": {
+      "fullName": "John Doe",
+      "phoneNumber": "+1234567890",
+      "selectPaymentMethod": "Select payment method"
+    },
+    "selectNumbersDescription": "Choose your lucky numbers. {{value}} {{currencySymbol}} each.",
+    "allNumbersSoldOut": "All numbers are sold out!",
+    "paymentMethods": {
+        "cash": "Cash",
+        "transfer": "Transfer",
+        "pending": "Pending Payment"
+    },
+    "totalAmount": "Total Amount",
+    "totalAmountDetails": "({{count}} number(s) x {{value}} {{currencySymbol}})",
+    "purchaseButton": "Purchase",
+    "toast": {
+        "successTitle": "Success!",
+        "successDescription": "{{count}} number(s) purchased for {{buyerName}}.",
+        "errorTitle": "Error",
+        "errorDescription": "Failed to purchase numbers. Some might have been taken."
+    },
+    "validation": {
+        "nameMin": "Name must be at least 2 characters.",
+        "phoneMin": "Phone number seems too short.",
+        "selectedNumbersMin": "Please select at least one number.",
+        "selectedNumbersUnavailable": "One or more selected numbers are not available.",
+        "paymentMethodRequired": "Payment method is required."
+    },
+    "raffleClosedTitle": "Raffle Closed",
+    "raffleClosedDescription": "This raffle is no longer open for purchases.",
+    "backToRaffleButton": "Back to Raffle"
+  },
+  "availableNumbersPage": {
+    "backToRaffleDetails": "Back to Raffle Details",
+    "title": "Available Numbers for \"{{raffleName}}\"",
+    "listTitle": "Available Numbers",
+    "listDescription": "These numbers are still up for grabs! Each costs {{value}} {{currencySymbol}}.",
+    "allSoldOut": "All numbers have been sold or are pending payment!",
+    "countSummary": "{{availableCount}} of {{totalCount}} numbers available."
+  },
+  "drawPage": {
+    "backToRaffleDetails": "Back to Raffle Details",
+    "title": "Conduct Draw for \"{{raffleName}}\"",
+    "statusAllAwarded": "All prizes have been awarded. This raffle is closed.",
+    "statusReadyToDraw": "Ready to draw for the next prize: {{prizeDescription}}.",
+    "statusNoMorePrizes": "No more prizes to award in this round.",
+    "errorNoEligibleNumbers": "No eligible purchased numbers available to draw from.",
+    "errorDrawFailed": "The draw did not return any winning numbers.",
+    "errorUnexpected": "An unexpected error occurred during the draw.",
+    "raffleConcludedTitle": "Raffle Concluded",
+    "raffleConcludedDescription": "All prizes have been successfully awarded. The raffle is now officially closed. Congratulations to all the winners!",
+    "buttonDrawFor": "Draw for: {{prizeDescription}}",
+    "buttonDrawNext": "Next Prize",
+    "drawOnePrizeHint": "Only one prize will be drawn per click.",
+    "lastDrawWinnersTitle": "🎉 Last Draw Winner(s) 🎉",
+    "prizeDetailsTitle": "Prize Details",
+    "winningNumberLabel": "Winning Number",
+    "winnerLabel": "Winner",
+    "phoneLabel": "Phone",
+    "awardedPrizesTitle": "Awarded Prizes",
+    "noPrizesAwardedYet": "No prizes awarded yet.",
+    "prizeWonByDetails": "Won by: {{winnerName}} (Number: {{winningNumber}}, Phone: {{winnerPhone}})",
+    "morePrizesHint": "{{count}} more prize(s) to draw after this one.",
+    "toast": {
+        "infoTitle": "Info",
+        "infoAllPrizesAwardedOrClosed": "All prizes have been awarded or the raffle is closed.",
+        "infoNoMorePrizesThisRound": "No more prizes to award in this round.",
+        "winnerDrawnTitle": "Winner Drawn!",
+        "winnerDrawnDescription": "Number {{winningNumber}} wins {{prizeDescription}}! Congratulations to {{winnerName}}!",
+        "raffleCompleteTitle": "Raffle Complete!",
+        "raffleCompleteDescription": "All prizes have been awarded. The raffle is now closed.",
+        "drawErrorTitle": "Draw Error",
+        "drawErrorDescriptionGeneric": "Failed to conduct draw."
+    }
+  },
+  "raffleTabs": {
+    "grid": "Grid",
+    "purchase": "Purchase",
+    "available": "Available",
+    "draw": "Draw"
+  },
+  "loading": "Loading...",
+  "actions": {
+    "backToHome": "Back to Home"
+  }
+}

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
@@ -9,45 +10,60 @@ import { ArrowLeft, Edit, ListChecks, Trophy } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
+import { useTranslations } from '@/contexts/LocalizationContext';
+import { format } from 'date-fns';
+import { getLocaleFromString } from '@/lib/date-fns-locales';
+import { useEffect } from 'react';
 
 export default function RafflePage() {
   const params = useParams();
   const raffleId = params.id as string;
   const { getRaffleById, isLoading } = useRaffles();
   const router = useRouter();
+  const { t, locale, changeLocaleForRaffle } = useTranslations();
 
-  if (isLoading) {
-    return <div className="flex justify-center items-center min-h-[calc(100vh-10rem)]"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>;
-  }
 
   const raffle = getRaffleById(raffleId);
+
+  useEffect(() => {
+    if (raffle) {
+      changeLocaleForRaffle(raffle.country.code);
+    }
+  }, [raffle, changeLocaleForRaffle]);
+
+
+  if (isLoading && !raffle) { // Ensure isLoading is also checked when raffle might be undefined initially
+    return <div className="flex justify-center items-center min-h-[calc(100vh-10rem)]"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>;
+  }
 
   if (!raffle) {
     return (
       <div className="text-center py-10">
-        <Image src="https://placehold.co/300x200.png" alt="Raffle not found" width={300} height={200} className="mx-auto rounded-md shadow-md mb-4" data-ai-hint="error notfound" />
-        <h2 className="text-2xl font-semibold mb-4">Raffle Not Found</h2>
-        <p className="text-muted-foreground mb-6">The raffle you are looking for does not exist or may have been removed.</p>
+        <Image src="https://placehold.co/300x200.png" alt={t('raffleDetailsPage.raffleNotFoundTitle')} width={300} height={200} className="mx-auto rounded-md shadow-md mb-4" data-ai-hint="error notfound" />
+        <h2 className="text-2xl font-semibold mb-4">{t('raffleDetailsPage.raffleNotFoundTitle')}</h2>
+        <p className="text-muted-foreground mb-6">{t('raffleDetailsPage.raffleNotFoundDescription')}</p>
         <Button asChild>
           <Link href="/">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Home
+            <ArrowLeft className="mr-2 h-4 w-4" /> {t('actions.backToHome')}
           </Link>
         </Button>
       </div>
     );
   }
+  
+  const dateLocale = getLocaleFromString(locale);
 
   const handleNumberClick = (numberId: number) => {
     router.push(`/raffles/${raffleId}/purchase?selectedNumber=${numberId}`);
   };
 
   const purchasedCount = raffle.numbers.filter(n => n.status === 'Purchased' || n.status === 'PendingPayment').length;
-  const progress = (purchasedCount / raffle.totalNumbers) * 100;
+  const progress = raffle.totalNumbers > 0 ? (purchasedCount / raffle.totalNumbers) * 100 : 0;
 
   return (
     <div className="space-y-6">
       <Button variant="outline" onClick={() => router.push('/')} className="mb-6">
-        <ArrowLeft className="mr-2 h-4 w-4" /> Back to All Raffles
+        <ArrowLeft className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.backToAllRaffles')}
       </Button>
 
       <Card className="shadow-lg">
@@ -56,23 +72,23 @@ export default function RafflePage() {
             <div>
               <CardTitle className="text-3xl font-bold text-primary">{raffle.name}</CardTitle>
               <CardDescription>
-                Draw Date: {new Date(raffle.drawDate).toLocaleDateString()} | {raffle.numberValue} {raffle.country.currencySymbol} per number
+                {t('raffleDetailsPage.drawDateLabel', { date: format(new Date(raffle.drawDate), 'PPP', { locale: dateLocale }) })} | {t('raffleDetailsPage.pricePerNumberLabel', { value: raffle.numberValue, currencySymbol: raffle.country.currencySymbol })}
               </CardDescription>
             </div>
             <Badge variant={raffle.status === 'Open' ? 'default' : 'secondary'} className={`text-lg px-4 py-2 ${raffle.status === 'Open' ? 'bg-green-500 text-white' : 'bg-gray-500 text-white'}`}>
-              {raffle.status}
+              {raffle.status === 'Open' ? t('homePage.raffleStatusOpen') : t('homePage.raffleStatusClosed')}
             </Badge>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <div className="bg-accent/30 p-3 rounded-md"><strong>Total Numbers:</strong> {raffle.totalNumbers}</div>
-            <div className="bg-accent/30 p-3 rounded-md"><strong>Numbers Sold:</strong> {purchasedCount}</div>
-            <div className="bg-accent/30 p-3 rounded-md"><strong>Prizes:</strong> {raffle.prizes.length}</div>
+            <div className="bg-accent/30 p-3 rounded-md"><strong>{t('raffleDetailsPage.totalNumbersLabel')}:</strong> {raffle.totalNumbers}</div>
+            <div className="bg-accent/30 p-3 rounded-md"><strong>{t('raffleDetailsPage.numbersSoldLabel')}:</strong> {purchasedCount}</div>
+            <div className="bg-accent/30 p-3 rounded-md"><strong>{t('raffleDetailsPage.prizesLabel')}:</strong> {raffle.prizes.length}</div>
           </div>
           <div>
             <div className="flex justify-between mb-1 text-sm font-medium">
-              <span>Sales Progress</span>
+              <span>{t('raffleDetailsPage.salesProgressLabel')}</span>
               <span>{Math.round(progress)}%</span>
             </div>
             <div className="w-full bg-muted rounded-full h-2.5">
@@ -82,17 +98,17 @@ export default function RafflePage() {
            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             <Button variant="outline" asChild>
               <Link href={`/raffles/${raffle.id}/purchase`}>
-                <Edit className="mr-2 h-4 w-4" /> Purchase Numbers
+                <Edit className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.purchaseNumbersButton')}
               </Link>
             </Button>
             <Button variant="outline" asChild>
               <Link href={`/raffles/${raffle.id}/available`}>
-                <ListChecks className="mr-2 h-4 w-4" /> View Available
+                <ListChecks className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.viewAvailableButton')}
               </Link>
             </Button>
             <Button variant="default" asChild disabled={raffle.status === 'Closed'}>
               <Link href={`/raffles/${raffle.id}/draw`}>
-                <Trophy className="mr-2 h-4 w-4" /> Conduct Draw
+                <Trophy className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.conductDrawButton')}
               </Link>
             </Button>
           </div>
@@ -101,8 +117,8 @@ export default function RafflePage() {
       
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Raffle Grid</CardTitle>
-          <CardDescription>Click on an available number to purchase it.</CardDescription>
+          <CardTitle className="text-2xl">{t('raffleDetailsPage.raffleGridTitle')}</CardTitle>
+          <CardDescription>{t('raffleDetailsPage.raffleGridDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
           <RaffleGrid 
@@ -117,15 +133,15 @@ export default function RafflePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Prizes</CardTitle>
+          <CardTitle className="text-2xl">{t('raffleDetailsPage.prizesListTitle')}</CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="space-y-2">
             {raffle.prizes.sort((a,b) => a.order - b.order).map(prize => (
               <li key={prize.id} className="p-3 bg-muted/50 rounded-md">
-                <strong className="text-primary">Prize {prize.order}:</strong> {prize.description}
-                {prize.winningNumber && (
-                  <span className="ml-2 text-sm text-green-600 font-semibold">(Won by #{prize.winningNumber} - {prize.winnerName})</span>
+                <strong className="text-primary">{t('raffleDetailsPage.prizeItem', { order: prize.order })}:</strong> {prize.description}
+                {prize.winningNumber && prize.winnerName && (
+                  <span className="ml-2 text-sm text-green-600 font-semibold">({t('raffleDetailsPage.prizeWonBy', { number: prize.winningNumber, name: prize.winnerName})})</span>
                 )}
               </li>
             ))}

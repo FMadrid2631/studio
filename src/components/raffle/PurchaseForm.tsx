@@ -1,10 +1,11 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { PurchaseFormInput, Raffle } from '@/types';
@@ -16,19 +17,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Checkbox } from '../ui/checkbox';
 import { ScrollArea } from '../ui/scroll-area';
 import { Badge } from '../ui/badge';
+import { useTranslations } from '@/contexts/LocalizationContext';
 
 interface PurchaseFormProps {
   raffle: Raffle;
 }
 
-const createPurchaseFormSchema = (availableNumbers: number[]) => z.object({
-  buyerName: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
-  buyerPhone: z.string().min(5, { message: 'Phone number seems too short.' }),
-  selectedNumbers: z.array(z.number()).min(1, { message: 'Please select at least one number.' })
+const createPurchaseFormSchema = (availableNumbers: number[], t: Function) => z.object({
+  buyerName: z.string().min(2, { message: t('purchaseForm.validation.nameMin') }),
+  buyerPhone: z.string().min(5, { message: t('purchaseForm.validation.phoneMin') }),
+  selectedNumbers: z.array(z.number()).min(1, { message: t('purchaseForm.validation.selectedNumbersMin') })
     .refine(numbers => numbers.every(num => availableNumbers.includes(num)), {
-      message: "One or more selected numbers are not available."
+      message: t('purchaseForm.validation.selectedNumbersUnavailable')
     }),
-  paymentMethod: z.enum(['Cash', 'Transfer', 'Pending'], { required_error: 'Payment method is required.' }),
+  paymentMethod: z.enum(['Cash', 'Transfer', 'Pending'], { required_error: t('purchaseForm.validation.paymentMethodRequired') }),
 });
 
 
@@ -38,9 +40,10 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [totalAmount, setTotalAmount] = useState(0);
+  const { t } = useTranslations();
 
   const availableRaffleNumbers = raffle.numbers.filter(n => n.status === 'Available').map(n => n.id);
-  const purchaseFormSchema = createPurchaseFormSchema(availableRaffleNumbers);
+  const purchaseFormSchema = createPurchaseFormSchema(availableRaffleNumbers, t);
   
   const form = useForm<PurchaseFormInput>({
     resolver: zodResolver(purchaseFormSchema),
@@ -69,20 +72,26 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
   function onSubmit(data: PurchaseFormInput) {
     const success = purchaseNumbers(raffle.id, data.buyerName, data.buyerPhone, data.selectedNumbers, data.paymentMethod);
     if (success) {
-      toast({ title: 'Success!', description: `${data.selectedNumbers.length} number(s) purchased for ${data.buyerName}.` });
+      toast({ 
+        title: t('purchaseForm.toast.successTitle'), 
+        description: t('purchaseForm.toast.successDescription', { count: data.selectedNumbers.length, buyerName: data.buyerName }) 
+      });
       router.push(`/raffles/${raffle.id}`);
     } else {
-      toast({ title: 'Error', description: 'Failed to purchase numbers. Some might have been taken.', variant: 'destructive' });
-      // Optionally, re-fetch raffle data or update available numbers here
-      form.resetField("selectedNumbers"); // Reset selection as it might be outdated
+      toast({ 
+        title: t('purchaseForm.toast.errorTitle'), 
+        description: t('purchaseForm.toast.errorDescription'), 
+        variant: 'destructive' 
+      });
+      form.resetField("selectedNumbers");
     }
   }
 
   return (
     <Card className="max-w-lg mx-auto shadow-lg">
       <CardHeader>
-        <CardTitle className="text-2xl text-primary">Purchase Numbers for "{raffle.name}"</CardTitle>
-        <CardDescription>Select your numbers and fill in your details.</CardDescription>
+        <CardTitle className="text-2xl text-primary">{t('purchaseForm.title', { raffleName: raffle.name })}</CardTitle>
+        <CardDescription>{t('purchaseForm.description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -92,9 +101,9 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
               name="buyerName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Full Name</FormLabel>
+                  <FormLabel>{t('purchaseForm.labels.fullName')}</FormLabel>
                   <FormControl>
-                    <Input placeholder="John Doe" {...field} />
+                    <Input placeholder={t('purchaseForm.placeholders.fullName')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -105,9 +114,9 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
               name="buyerPhone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone Number</FormLabel>
+                  <FormLabel>{t('purchaseForm.labels.phoneNumber')}</FormLabel>
                   <FormControl>
-                    <Input placeholder="+1234567890" {...field} />
+                    <Input placeholder={t('purchaseForm.placeholders.phoneNumber')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -120,14 +129,14 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
               render={() => (
                 <FormItem>
                   <div className="mb-2">
-                    <FormLabel>Select Numbers</FormLabel>
+                    <FormLabel>{t('purchaseForm.labels.selectNumbers')}</FormLabel>
                     <FormDescription>
-                      Choose your lucky numbers. {raffle.numberValue} {raffle.country.currencySymbol} each.
+                      {t('purchaseForm.selectNumbersDescription', {value: raffle.numberValue, currencySymbol: raffle.country.currencySymbol})}
                     </FormDescription>
                   </div>
                   <ScrollArea className="h-48 border rounded-md p-2">
                     <div className="grid grid-cols-5 gap-2">
-                    {availableRaffleNumbers.length === 0 ? <p className="col-span-full text-center text-muted-foreground">All numbers are sold out!</p> : 
+                    {availableRaffleNumbers.length === 0 ? <p className="col-span-full text-center text-muted-foreground">{t('purchaseForm.allNumbersSoldOut')}</p> : 
                       availableRaffleNumbers.map((numberId) => (
                         <FormField
                           key={numberId}
@@ -141,7 +150,7 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
                               >
                                 <FormControl>
                                   <Checkbox
-                                    className="sr-only" // Hide actual checkbox, styling the label
+                                    className="sr-only"
                                     checked={field.value?.includes(numberId)}
                                     onCheckedChange={(checked) => {
                                       return checked
@@ -179,17 +188,17 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
               name="paymentMethod"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Payment Method</FormLabel>
+                  <FormLabel>{t('purchaseForm.labels.paymentMethod')}</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select payment method" />
+                        <SelectValue placeholder={t('purchaseForm.placeholders.selectPaymentMethod')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Cash">Cash</SelectItem>
-                      <SelectItem value="Transfer">Transfer</SelectItem>
-                      <SelectItem value="Pending">Pending Payment</SelectItem>
+                      <SelectItem value="Cash">{t('purchaseForm.paymentMethods.cash')}</SelectItem>
+                      <SelectItem value="Transfer">{t('purchaseForm.paymentMethods.transfer')}</SelectItem>
+                      <SelectItem value="Pending">{t('purchaseForm.paymentMethods.pending')}</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -199,19 +208,19 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
 
             {selectedNumbersWatch.length > 0 && (
               <div className="p-4 bg-accent/30 rounded-md text-center">
-                <p className="text-lg font-semibold">Total Amount: 
+                <p className="text-lg font-semibold">{t('purchaseForm.totalAmount')}: 
                   <Badge variant="secondary" className="ml-2 text-lg bg-primary text-primary-foreground">
                     {totalAmount.toFixed(2)} {raffle.country.currencySymbol}
                   </Badge>
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  ({selectedNumbersWatch.length} number(s) x {raffle.numberValue} {raffle.country.currencySymbol})
+                  {t('purchaseForm.totalAmountDetails', {count: selectedNumbersWatch.length, value: raffle.numberValue, currencySymbol: raffle.country.currencySymbol})}
                 </p>
               </div>
             )}
 
             <Button type="submit" className="w-full" size="lg" disabled={availableRaffleNumbers.length === 0}>
-              Purchase
+              {t('purchaseForm.purchaseButton')}
             </Button>
           </form>
         </Form>
