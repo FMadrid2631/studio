@@ -74,7 +74,10 @@
     "shareMessageTextShort": "¡Mira esta rifa: {{raffleName}}!",
     "shareLinkCopiedTitle": "¡Enlace Copiado!",
     "shareLinkCopiedDescription": "Enlace de la rifa ({{url}}) copiado al portapapeles. ¡Compártelo en Instagram!",
-    "exportImageButton": "Exportar Detalles de Disponibles y Banco"
+    "exportImageButton": "Exportar Detalles de Disponibles y Banco",
+    "exportSuccessTitle": "Excelente",
+    "exportErrorTitle": "Error de Exportación",
+    "exportErrorDescription": "No se pudo exportar la imagen. Por favor, inténtalo de nuevo."
   },
   "configurePage": {
     "title": "Crear Nueva Rifa"
@@ -227,9 +230,6 @@
     "allSoldOut": "¡Todos los números han sido vendidos o están pendientes de pago!",
     "countSummary": "{{availableCount}} de {{totalCount}} números disponibles.",
     "noBankDetailsProvided": "No se han proporcionado detalles bancarios para esta rifa.",
-    "exportSuccessTitle": "Exportación Exitosa",
-    "exportErrorTitle": "Error de Exportación",
-    "exportErrorDescription": "No se pudo exportar la imagen. Por favor, inténtalo de nuevo.",
     "exportAllSuccessDescription": "Imagen de números disponibles y datos bancarios exportada exitosamente.",
     "exportDisabledRaffleClosedTooltip": "Exportación no disponible: la rifa está cerrada."
   },
