@@ -1,0 +1,137 @@
+'use client';
+
+import { useParams, useRouter } from 'next/navigation';
+import { useRaffles } from '@/contexts/RaffleContext';
+import { RaffleGrid } from '@/components/raffle/RaffleGrid';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { ArrowLeft, Edit, ListChecks, Trophy } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import Image from 'next/image';
+
+export default function RafflePage() {
+  const params = useParams();
+  const raffleId = params.id as string;
+  const { getRaffleById, isLoading } = useRaffles();
+  const router = useRouter();
+
+  if (isLoading) {
+    return <div className="flex justify-center items-center min-h-[calc(100vh-10rem)]"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>;
+  }
+
+  const raffle = getRaffleById(raffleId);
+
+  if (!raffle) {
+    return (
+      <div className="text-center py-10">
+        <Image src="https://placehold.co/300x200.png" alt="Raffle not found" width={300} height={200} className="mx-auto rounded-md shadow-md mb-4" data-ai-hint="error notfound" />
+        <h2 className="text-2xl font-semibold mb-4">Raffle Not Found</h2>
+        <p className="text-muted-foreground mb-6">The raffle you are looking for does not exist or may have been removed.</p>
+        <Button asChild>
+          <Link href="/">
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Home
+          </Link>
+        </Button>
+      </div>
+    );
+  }
+
+  const handleNumberClick = (numberId: number) => {
+    router.push(`/raffles/${raffleId}/purchase?selectedNumber=${numberId}`);
+  };
+
+  const purchasedCount = raffle.numbers.filter(n => n.status === 'Purchased' || n.status === 'PendingPayment').length;
+  const progress = (purchasedCount / raffle.totalNumbers) * 100;
+
+  return (
+    <div className="space-y-6">
+      <Button variant="outline" onClick={() => router.push('/')} className="mb-6">
+        <ArrowLeft className="mr-2 h-4 w-4" /> Back to All Raffles
+      </Button>
+
+      <Card className="shadow-lg">
+        <CardHeader>
+          <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
+            <div>
+              <CardTitle className="text-3xl font-bold text-primary">{raffle.name}</CardTitle>
+              <CardDescription>
+                Draw Date: {new Date(raffle.drawDate).toLocaleDateString()} | {raffle.numberValue} {raffle.country.currencySymbol} per number
+              </CardDescription>
+            </div>
+            <Badge variant={raffle.status === 'Open' ? 'default' : 'secondary'} className={`text-lg px-4 py-2 ${raffle.status === 'Open' ? 'bg-green-500 text-white' : 'bg-gray-500 text-white'}`}>
+              {raffle.status}
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div className="bg-accent/30 p-3 rounded-md"><strong>Total Numbers:</strong> {raffle.totalNumbers}</div>
+            <div className="bg-accent/30 p-3 rounded-md"><strong>Numbers Sold:</strong> {purchasedCount}</div>
+            <div className="bg-accent/30 p-3 rounded-md"><strong>Prizes:</strong> {raffle.prizes.length}</div>
+          </div>
+          <div>
+            <div className="flex justify-between mb-1 text-sm font-medium">
+              <span>Sales Progress</span>
+              <span>{Math.round(progress)}%</span>
+            </div>
+            <div className="w-full bg-muted rounded-full h-2.5">
+              <div className="bg-primary h-2.5 rounded-full" style={{ width: `${progress}%` }}></div>
+            </div>
+          </div>
+           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            <Button variant="outline" asChild>
+              <Link href={`/raffles/${raffle.id}/purchase`}>
+                <Edit className="mr-2 h-4 w-4" /> Purchase Numbers
+              </Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href={`/raffles/${raffle.id}/available`}>
+                <ListChecks className="mr-2 h-4 w-4" /> View Available
+              </Link>
+            </Button>
+            <Button variant="default" asChild disabled={raffle.status === 'Closed'}>
+              <Link href={`/raffles/${raffle.id}/draw`}>
+                <Trophy className="mr-2 h-4 w-4" /> Conduct Draw
+              </Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl">Raffle Grid</CardTitle>
+          <CardDescription>Click on an available number to purchase it.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <RaffleGrid 
+            numbers={raffle.numbers} 
+            currencySymbol={raffle.country.currencySymbol}
+            numberValue={raffle.numberValue}
+            onNumberClick={handleNumberClick}
+            interactive={raffle.status === 'Open'}
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl">Prizes</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className="space-y-2">
+            {raffle.prizes.sort((a,b) => a.order - b.order).map(prize => (
+              <li key={prize.id} className="p-3 bg-muted/50 rounded-md">
+                <strong className="text-primary">Prize {prize.order}:</strong> {prize.description}
+                {prize.winningNumber && (
+                  <span className="ml-2 text-sm text-green-600 font-semibold">(Won by #{prize.winningNumber} - {prize.winnerName})</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
