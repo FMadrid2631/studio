@@ -59,7 +59,15 @@
     "exportSuccessTitle": "Exported!",
     "exportSuccessDescription": "Raffle grid image exported successfully.",
     "exportErrorTitle": "Export Error",
-    "exportErrorDescription": "Could not export raffle grid image."
+    "exportErrorDescription": "Could not export raffle grid image.",
+    "viewProfitButton": "View Profit",
+    "profitDialogTitle": "Raffle Profit",
+    "profitDialog": {
+      "totalSales": "Total Sales (Paid Numbers)",
+      "totalPrizeValue": "Total Prize Reference Value",
+      "netProfit": "Net Profit",
+      "closeButton": "Close"
+    }
   },
   "configurePage": {
     "title": "Create New Raffle"

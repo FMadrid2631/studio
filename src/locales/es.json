@@ -59,7 +59,15 @@
     "exportSuccessTitle": "¡Exportado!",
     "exportSuccessDescription": "Imagen de la cuadrícula de la rifa exportada exitosamente.",
     "exportErrorTitle": "Error de Exportación",
-    "exportErrorDescription": "No se pudo exportar la imagen de la cuadrícula de la rifa."
+    "exportErrorDescription": "No se pudo exportar la imagen de la cuadrícula de la rifa.",
+    "viewProfitButton": "Ver Ganancia",
+    "profitDialogTitle": "Ganancia de la Rifa",
+    "profitDialog": {
+      "totalSales": "Ventas Totales (Números Pagados)",
+      "totalPrizeValue": "Valor Referencial Total de Premios",
+      "netProfit": "Ganancia Neta",
+      "closeButton": "Cerrar"
+    }
   },
   "configurePage": {
     "title": "Crear Nueva Rifa"

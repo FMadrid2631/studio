@@ -6,15 +6,27 @@ import { useRaffles } from '@/contexts/RaffleContext';
 import { RaffleGrid } from '@/components/raffle/RaffleGrid';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, Edit, Settings, Trophy, ListChecks, Download, Loader2 } from 'lucide-react';
+import { ArrowLeft, Edit, Settings, Trophy, ListChecks, DollarSign } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { useTranslations } from '@/contexts/LocalizationContext';
 import { format } from 'date-fns';
 import { getLocaleFromString } from '@/lib/date-fns-locales';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import type { RaffleNumber as RaffleNumberType, Prize } from '@/types';
 
 
 export default function RafflePage() {
@@ -25,6 +37,13 @@ export default function RafflePage() {
   const { t, locale, changeLocaleForRaffle } = useTranslations();
   
   const raffle = getRaffleById(raffleId);
+
+  const [isProfitDialogOpen, setIsProfitDialogOpen] = useState(false);
+  const [profitDetails, setProfitDetails] = useState<{
+    totalSales: number;
+    totalPrizeValue: number;
+    netProfit: number;
+  } | null>(null);
   
   useEffect(() => {
     if (raffle) {
@@ -68,9 +87,33 @@ export default function RafflePage() {
   const purchasedCount = raffle.numbers.filter(n => n.status === 'Purchased' || n.status === 'PendingPayment').length;
   const progress = raffle.totalNumbers > 0 ? (purchasedCount / raffle.totalNumbers) * 100 : 0;
   const hasSoldNumbers = raffle.numbers.some(n => n.status !== 'Available');
-  const canEditConfiguration = !hasSoldNumbers && raffle.status !== 'Closed';
+  const canEditConfiguration = !hasSoldNumbers && raffle.status !== 'Open';
 
   let formattedNumberValueWithSymbol = formatPrice(raffle.numberValue, raffle.country.currencySymbol, raffle.country.currencyCode);
+
+  const calculateAndShowProfit = () => {
+    if (!raffle) return;
+
+    const totalSales = raffle.numbers.reduce((sum, num) => {
+      if (num.status === 'Purchased' && (num.paymentMethod === 'Cash' || num.paymentMethod === 'Transfer')) {
+        return sum + raffle.numberValue;
+      }
+      return sum;
+    }, 0);
+
+    const totalPrizeValue = raffle.prizes.reduce((sum, prize) => {
+      return sum + (prize.referenceValue || 0);
+    }, 0);
+
+    const netProfit = totalSales - totalPrizeValue;
+
+    setProfitDetails({
+      totalSales,
+      totalPrizeValue,
+      netProfit,
+    });
+    setIsProfitDialogOpen(true);
+  };
 
   return (
     <TooltipProvider>
@@ -114,7 +157,7 @@ export default function RafflePage() {
                 <div className="bg-primary h-2.5 rounded-full" style={{ width: `${progress}%` }}></div>
               </div>
             </div>
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="w-full"> 
@@ -146,6 +189,10 @@ export default function RafflePage() {
                 <Link href={`/raffles/${raffle.id}/available`}>
                   <ListChecks className="mr-2 h-4 w-4" /> {t('homePage.availableButton')}
                 </Link>
+              </Button>
+              <Button variant="default" onClick={calculateAndShowProfit} className="w-full">
+                <DollarSign className="mr-2 h-4 w-4" />
+                {t('raffleDetailsPage.viewProfitButton')}
               </Button>
               <Button variant="default" asChild disabled={raffle.status === 'Closed'} className="w-full">
                 <Link href={`/raffles/${raffle.id}/draw`}>
@@ -214,6 +261,37 @@ export default function RafflePage() {
             </ul>
           </CardContent>
         </Card>
+
+        {profitDetails && (
+          <AlertDialog open={isProfitDialogOpen} onOpenChange={setIsProfitDialogOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>{t('raffleDetailsPage.profitDialogTitle')}</AlertDialogTitle>
+                <AlertDialogDescription>
+                  <div className="space-y-2 mt-4 text-sm">
+                    <div className="flex justify-between">
+                      <span>{t('raffleDetailsPage.profitDialog.totalSales')}:</span>
+                      <span className="font-semibold">{formatPrice(profitDetails.totalSales, raffle.country.currencySymbol, raffle.country.currencyCode)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>{t('raffleDetailsPage.profitDialog.totalPrizeValue')}:</span>
+                      <span className="font-semibold">{formatPrice(profitDetails.totalPrizeValue, raffle.country.currencySymbol, raffle.country.currencyCode)}</span>
+                    </div>
+                    <hr className="my-2 border-border" />
+                    <div className="flex justify-between text-base">
+                      <span className="font-bold">{t('raffleDetailsPage.profitDialog.netProfit')}:</span>
+                      <span className="font-bold text-primary">{formatPrice(profitDetails.netProfit, raffle.country.currencySymbol, raffle.country.currencyCode)}</span>
+                    </div>
+                  </div>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogAction onClick={() => setIsProfitDialogOpen(false)}>{t('raffleDetailsPage.profitDialog.closeButton')}</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
+
       </div>
     </TooltipProvider>
   );
