@@ -47,7 +47,9 @@
     "prizeWonBy": "Ganado por #{{number}} - {{name}}",
     "raffleNotFoundTitle": "Rifa No Encontrada",
     "raffleNotFoundDescription": "La rifa que buscas no existe o ha sido eliminada.",
-    "backToHomeButton": "Volver al Inicio"
+    "backToHomeButton": "Volver al Inicio",
+    "configureButton": "Configurar",
+    "configureDisabledTooltip": "La configuración no se puede cambiar después de que hayan comenzado las ventas o la rifa esté cerrada."
   },
   "configurePage": {
     "title": "Crear Nueva Rifa"
@@ -74,7 +76,8 @@
       "prizeDescription": "Ej: Gran Premio: Un auto nuevo"
     },
     "buttons": {
-      "createRaffle": "Crear Rifa"
+      "createRaffle": "Crear Rifa",
+      "updateRaffle": "Actualizar Rifa"
     },
      "validation": {
         "nameMin": "El nombre de la rifa debe tener al menos 3 caracteres.",
@@ -93,9 +96,20 @@
     "toast": {
       "successTitle": "¡Éxito!",
       "successDescription": "Rifa \"{{raffleName}}\" creada.",
+      "updateSuccessTitle": "¡Actualizado!",
+      "updateSuccessDescription": "Rifa \"{{raffleName}}\" actualizada.",
       "errorTitle": "Error",
-      "errorCountry": "País seleccionado inválido."
-    }
+      "errorCountry": "País seleccionado inválido.",
+      "errorUpdate": "Error al actualizar la rifa. Podría estar bloqueada o ocurrió un problema."
+    },
+    "fieldsDisabledEdit": "Este campo no se puede cambiar después de la creación si las ventas han comenzado."
+  },
+  "editRafflePage": {
+    "title": "Editar Configuración de Rifa",
+    "description": "Modifica los detalles de tu rifa a continuación. Algunos campos pueden estar bloqueados si las ventas han comenzado.",
+    "cannotEditTitle": "No se Puede Editar la Rifa",
+    "cannotEditDescriptionSales": "Esta rifa no se puede editar porque las ventas ya comenzaron.",
+    "cannotEditDescriptionClosed": "Esta rifa no se puede editar porque está cerrada."
   },
   "purchaseForm": {
     "title": "Comprar Números para \"{{raffleName}}\"",
@@ -192,3 +206,4 @@
     "backToHome": "Volver al Inicio"
   }
 }
+

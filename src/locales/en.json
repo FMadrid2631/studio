@@ -47,7 +47,9 @@
     "prizeWonBy": "Won by #{{number}} - {{name}}",
     "raffleNotFoundTitle": "Raffle Not Found",
     "raffleNotFoundDescription": "The raffle you are looking for does not exist or may have been removed.",
-    "backToHomeButton": "Back to Home"
+    "backToHomeButton": "Back to Home",
+    "configureButton": "Configure",
+    "configureDisabledTooltip": "Configuration cannot be changed after sales have started or raffle is closed."
   },
   "configurePage": {
     "title": "Create New Raffle"
@@ -74,7 +76,8 @@
       "prizeDescription": "E.g., Grand Prize: A new car"
     },
     "buttons": {
-      "createRaffle": "Create Raffle"
+      "createRaffle": "Create Raffle",
+      "updateRaffle": "Update Raffle"
     },
     "validation": {
         "nameMin": "Raffle name must be at least 3 characters.",
@@ -93,9 +96,20 @@
     "toast": {
       "successTitle": "Success!",
       "successDescription": "Raffle \"{{raffleName}}\" created.",
+      "updateSuccessTitle": "Updated!",
+      "updateSuccessDescription": "Raffle \"{{raffleName}}\" updated.",
       "errorTitle": "Error",
-      "errorCountry": "Invalid country selected."
-    }
+      "errorCountry": "Invalid country selected.",
+      "errorUpdate": "Failed to update raffle. It might be locked or an issue occurred."
+    },
+    "fieldsDisabledEdit": "This field cannot be changed after creation if sales have started."
+  },
+  "editRafflePage": {
+    "title": "Edit Raffle Configuration",
+    "description": "Modify the details of your raffle below. Some fields may be locked if sales have started.",
+    "cannotEditTitle": "Cannot Edit Raffle",
+    "cannotEditDescriptionSales": "This raffle cannot be edited because sales have already started.",
+    "cannotEditDescriptionClosed": "This raffle cannot be edited because it is closed."
   },
   "purchaseForm": {
     "title": "Purchase Numbers for \"{{raffleName}}\"",
@@ -192,3 +206,4 @@
     "backToHome": "Back to Home"
   }
 }
+

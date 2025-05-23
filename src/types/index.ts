@@ -47,9 +47,15 @@ export type RaffleConfigurationFormInput = {
   drawDate: Date;
 };
 
+// Used when submitting an update to an existing raffle where some fields might be locked.
+// For now, if editable, all fields in RaffleConfigurationFormInput are editable.
+export type RaffleUpdateFormInput = RaffleConfigurationFormInput;
+
+
 export type PurchaseFormInput = {
   buyerName: string;
   buyerPhone: string;
   selectedNumbers: number[];
   paymentMethod: 'Cash' | 'Transfer' | 'Pending';
 };
+
