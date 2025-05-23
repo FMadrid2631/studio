@@ -6,7 +6,7 @@ import { useRaffles } from '@/contexts/RaffleContext';
 import { RaffleGrid } from '@/components/raffle/RaffleGrid';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, Edit, Download, Trophy, Settings, ListChecks, Loader2 } from 'lucide-react';
+import { ArrowLeft, Edit, Download, Trophy, Settings, Loader2 } from 'lucide-react'; // ListChecks removed
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -69,10 +69,6 @@ export default function RafflePage() {
       const dataUrl = await toPng(gridRef.current, { 
         quality: 0.95, 
         backgroundColor: 'white',
-        // Ensure the entire grid is captured if it's larger than the viewport
-        // by targeting an element that wraps the grid content appropriately.
-        // If gridRef directly wraps only the grid cells, this should be fine.
-        // Consider pixelRatio for higher resolution, e.g., pixelRatio: 2
       });
       const link = document.createElement('a');
       const sanitizedRaffleName = raffle.name.replace(/[^\w\s-]/gi, '').replace(/\s+/g, '_').toLowerCase();
@@ -200,7 +196,6 @@ export default function RafflePage() {
         
         <Card>
           <CardContent className="pt-6">
-            {/* The div below is targeted by gridRef for image export */}
             <div ref={gridRef}>
               <RaffleGrid 
                 numbers={raffle.numbers} 
@@ -209,7 +204,7 @@ export default function RafflePage() {
                 numberValue={raffle.numberValue}
                 onNumberClick={handleNumberClick}
                 interactive={raffle.status === 'Open'}
-                t={t} // Pass translation function
+                t={t}
               />
             </div>
           </CardContent>
@@ -236,3 +231,5 @@ export default function RafflePage() {
     </TooltipProvider>
   );
 }
+
+    
