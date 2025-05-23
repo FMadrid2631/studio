@@ -8,33 +8,37 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { PurchaseFormInput, Raffle } from '@/types';
+import type { PurchaseFormInput, Raffle, RaffleNumber as RaffleNumberType } from '@/types';
 import { useRaffles } from '@/contexts/RaffleContext';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Checkbox } from '../ui/checkbox';
 import { ScrollArea } from '../ui/scroll-area';
 import { Badge } from '../ui/badge';
 import { useTranslations } from '@/contexts/LocalizationContext';
+import { cn } from '@/lib/utils';
 
 interface PurchaseFormProps {
   raffle: Raffle;
 }
 
-const createPurchaseFormSchema = (availableNumbers: number[], t: Function) => z.object({
+// Schema factory remains the same, validation is on the array of numbers.
+const createPurchaseFormSchema = (allRaffleNumbers: RaffleNumberType[], t: Function) => z.object({
   buyerName: z.string().min(2, { message: t('purchaseForm.validation.nameMin') }),
   buyerPhone: z.string().min(5, { message: t('purchaseForm.validation.phoneMin') }),
   selectedNumbers: z.array(z.number()).min(1, { message: t('purchaseForm.validation.selectedNumbersMin') })
-    .refine(numbers => numbers.every(num => availableNumbers.includes(num)), {
+    .refine(numbers => numbers.every(numId => {
+      const raffleNum = allRaffleNumbers.find(n => n.id === numId);
+      return raffleNum && raffleNum.status === 'Available';
+    }), {
       message: t('purchaseForm.validation.selectedNumbersUnavailable')
     }),
   paymentMethod: z.enum(['Cash', 'Transfer', 'Pending'], { required_error: t('purchaseForm.validation.paymentMethodRequired') }),
 });
 
 
-export function PurchaseForm({ raffle }: PurchaseFormProps) {
+export function PurchaseForm({ raffle: initialRaffle }: PurchaseFormProps) {
   const { purchaseNumbers, getRaffleById } = useRaffles();
   const { toast } = useToast();
   const router = useRouter();
@@ -43,18 +47,16 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
   const [totalAmount, setTotalAmount] = useState(0);
   const { t, locale } = useTranslations();
 
+  // Get the latest raffle state
+  const raffle = useMemo(() => getRaffleById(initialRaffle.id) || initialRaffle, [getRaffleById, initialRaffle]);
+
   const paramProcessedForCurrentState = useRef(false);
   const processedRaffleIdRef = useRef<string | null>(null);
   const processedParamValueRef = useRef<string | null>(null);
-
-  const availableRaffleNumbers = useMemo(() => {
-    const currentRaffle = getRaffleById(raffle.id) || raffle;
-    return currentRaffle.numbers.filter(n => n.status === 'Available').map(n => n.id);
-  }, [raffle.id, raffle.numbers, getRaffleById]);
-
+  
   const purchaseFormSchema = useMemo(() => {
-    return createPurchaseFormSchema(availableRaffleNumbers, t);
-  }, [availableRaffleNumbers, t]);
+    return createPurchaseFormSchema(raffle.numbers, t);
+  }, [raffle.numbers, t]);
 
   const form = useForm<PurchaseFormInput>({
     resolver: zodResolver(purchaseFormSchema),
@@ -66,7 +68,7 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
     },
   });
 
-  const { watch } = form;
+  const { watch, setValue, getValues } = form;
   const selectedNumbersWatch = watch('selectedNumbers');
 
   useEffect(() => {
@@ -78,13 +80,15 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
         processedRaffleIdRef.current = currentRaffleId;
         processedParamValueRef.current = preSelectedNumberStr;
     }
+    
+    const availableIds = raffle.numbers.filter(n => n.status === 'Available').map(n => n.id);
 
-    if (preSelectedNumberStr && !paramProcessedForCurrentState.current && availableRaffleNumbers.length > 0) {
+    if (preSelectedNumberStr && !paramProcessedForCurrentState.current && availableIds.length > 0) {
         const preSelectedNumberVal = Number(preSelectedNumberStr);
-        if (availableRaffleNumbers.includes(preSelectedNumberVal)) {
-            const currentSelections = form.getValues('selectedNumbers') || [];
+        if (availableIds.includes(preSelectedNumberVal)) {
+            const currentSelections = getValues('selectedNumbers') || [];
             if (!currentSelections.includes(preSelectedNumberVal)) {
-                form.setValue('selectedNumbers', [...currentSelections, preSelectedNumberVal], {
+                setValue('selectedNumbers', [...currentSelections, preSelectedNumberVal], {
                     shouldDirty: true,
                     shouldValidate: true,
                 });
@@ -92,10 +96,11 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
         }
         paramProcessedForCurrentState.current = true;
     } else if (!preSelectedNumberStr && processedParamValueRef.current !== null) {
+        // Reset if param is removed
         paramProcessedForCurrentState.current = false;
         processedParamValueRef.current = null;
     }
-  }, [searchParams, raffle.id, availableRaffleNumbers, form.setValue, form.getValues]);
+  }, [searchParams, raffle.id, raffle.numbers, setValue, getValues]);
 
 
   useEffect(() => {
@@ -104,11 +109,14 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
 
 
   function onSubmit(data: PurchaseFormInput) {
-    const currentRaffleState = getRaffleById(raffle.id);
-    const currentAvailableAtSubmit = currentRaffleState
-        ? currentRaffleState.numbers.filter(n => n.status === 'Available').map(n => n.id)
-        : availableRaffleNumbers;
-
+    const currentRaffleState = getRaffleById(raffle.id); // Get latest state
+    if (!currentRaffleState) {
+        toast({ title: t('raffleDetailsPage.raffleNotFoundTitle'), description: t('purchaseForm.toast.errorRaffleState'), variant: 'destructive' });
+        return;
+    }
+    const currentAvailableAtSubmit = currentRaffleState.numbers
+        .filter(n => n.status === 'Available')
+        .map(n => n.id);
 
     const allSelectedAreStillAvailable = data.selectedNumbers.every(num => currentAvailableAtSubmit.includes(num));
 
@@ -119,7 +127,7 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
             variant: 'destructive'
         });
         const stillValidSelections = data.selectedNumbers.filter(numId => currentAvailableAtSubmit.includes(numId));
-        form.setValue('selectedNumbers', stillValidSelections);
+        setValue('selectedNumbers', stillValidSelections);
         return;
     }
 
@@ -134,8 +142,9 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
         newSearchParams.delete('selectedNumber');
         router.replace(`${pathname}?${newSearchParams.toString()}`, { scroll: false });
       } else {
-        router.push(`/raffles/${raffle.id}`);
+        router.push(`/raffles/${raffle.id}`); // Go to raffle details page after purchase
       }
+       form.reset(); // Reset form after successful purchase
 
     } else {
       toast({
@@ -143,12 +152,13 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
         description: t('purchaseForm.toast.errorDescription'),
         variant: 'destructive'
       });
+      // Refresh available numbers and update user's selection if some were taken
       const refreshedRaffleState = getRaffleById(raffle.id);
       const stillAvailableForSelectionAfterFailedSubmit = refreshedRaffleState
         ? refreshedRaffleState.numbers.filter(n => n.status === 'Available').map(n => n.id)
-        : availableRaffleNumbers;
+        : currentAvailableAtSubmit; // Fallback to previous check
       const stillValidUserSelection = data.selectedNumbers.filter(numId => stillAvailableForSelectionAfterFailedSubmit.includes(numId));
-      form.setValue('selectedNumbers', stillValidUserSelection);
+      setValue('selectedNumbers', stillValidUserSelection);
     }
   }
 
@@ -162,6 +172,28 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
   const pricePerNumberFormatted = formatPrice(raffle.numberValue, raffle.country.currencySymbol, raffle.country.currencyCode);
   const totalAmountFormatted = formatPrice(totalAmount, raffle.country.currencySymbol, raffle.country.currencyCode);
 
+  const handleNumberClick = (numberId: number, status: RaffleNumberType['status']) => {
+    if (status !== 'Available') return; // Only allow clicking available numbers
+
+    const currentSelected = getValues('selectedNumbers') || [];
+    let newSelected: number[];
+    if (currentSelected.includes(numberId)) {
+      newSelected = currentSelected.filter(id => id !== numberId);
+    } else {
+      newSelected = [...currentSelected, numberId];
+    }
+    setValue('selectedNumbers', newSelected, { shouldValidate: true, shouldDirty: true });
+  };
+
+  const getNumberStatusClass = (status: RaffleNumberType['status'], isSelected: boolean) => {
+    if (status === 'Purchased') return 'bg-green-500 text-white cursor-not-allowed opacity-70';
+    if (status === 'PendingPayment') return 'bg-yellow-400 text-black cursor-not-allowed opacity-70';
+    // Available
+    if (isSelected) return 'bg-primary text-primary-foreground border-primary';
+    return 'bg-card hover:bg-accent/50 border';
+  };
+  
+  const allRaffleNumbersForGrid = raffle.numbers; // Use the latest raffle state
 
   return (
     <Card className="max-w-lg mx-auto shadow-lg">
@@ -201,51 +233,44 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
 
             <FormField
               control={form.control}
-              name="selectedNumbers"
-              render={({ field }) => ( // field is for the selectedNumbers array
-                <FormItem> {/* FormItem for the entire group of number selections */}
+              name="selectedNumbers" // This field still tracks the array of selected numbers
+              render={({ field }) => ( // field.value is selectedNumbersWatch
+                <FormItem>
                   <div className="mb-2">
                     <FormLabel>{t('purchaseForm.labels.selectNumbers')}</FormLabel>
                     <FormDescription>
                       {t('purchaseForm.selectNumbersDescription', { price: pricePerNumberFormatted })}
                     </FormDescription>
                   </div>
-                  <ScrollArea className="h-48 border rounded-md p-2">
-                    <div className="grid grid-cols-5 gap-2">
-                    {availableRaffleNumbers.length === 0 ? (
-                        <p className="col-span-full text-center text-muted-foreground">{t('purchaseForm.allNumbersSoldOut')}</p>
+                  <ScrollArea className="h-60 border rounded-md p-2">
+                    <div className="grid grid-cols-10 gap-1.5"> {/* Always 10 columns for consistency */}
+                    {allRaffleNumbersForGrid.length === 0 ? (
+                        <p className="col-span-full text-center text-muted-foreground">{t('purchaseForm.noNumbersInRaffle')}</p>
                     ) : (
-                      availableRaffleNumbers.map((numberId) => {
-                        const isSelected = (field.value || []).includes(numberId);
+                      allRaffleNumbersForGrid.map((num) => {
+                        const isSelected = (field.value || []).includes(num.id);
+                        const isAvailable = num.status === 'Available';
                         return (
-                          // Using a simple div as the keyed element for the map
-                          // Removed nested FormItem and FormControl for individual checkboxes
-                          <div key={numberId} className="flex flex-row items-center justify-center space-x-0 space-y-0">
-                            <Checkbox
-                              className="sr-only"
-                              id={`number-checkbox-${numberId}`} // Ensure ID is unique for the label
-                              checked={isSelected}
-                              onCheckedChange={(checkedClientState) => {
-                                const currentSelected = field.value || [];
-                                let newSelected: number[];
-                                if (checkedClientState === true) {
-                                  newSelected = [...currentSelected, numberId];
-                                } else {
-                                  newSelected = currentSelected.filter(id => id !== numberId);
-                                }
-                                field.onChange(newSelected); // Update RHF state for "selectedNumbers"
-                              }}
-                            />
-                            {/* Using a plain label for simplicity and to avoid potential context issues from ShadCN's FormLabel here */}
-                            <label
-                              htmlFor={`number-checkbox-${numberId}`}
-                              className={`flex items-center justify-center w-full aspect-square rounded-md border cursor-pointer transition-colors
-                                ${(isSelected)
-                                  ? 'bg-primary text-primary-foreground border-primary'
-                                  : 'bg-card hover:bg-accent/50'}`}
-                            >
-                              {numberId}
-                            </label>
+                          <div
+                            key={num.id}
+                            onClick={() => handleNumberClick(num.id, num.status)}
+                            role="button"
+                            tabIndex={isAvailable ? 0 : -1}
+                            onKeyDown={(e) => {
+                              if (isAvailable && (e.key === 'Enter' || e.key === ' ')) {
+                                handleNumberClick(num.id, num.status);
+                              }
+                            }}
+                            className={cn(
+                              'aspect-square flex items-center justify-center text-xs sm:text-sm font-medium rounded-md transition-colors',
+                              getNumberStatusClass(num.status, isSelected),
+                              isAvailable ? 'cursor-pointer' : 'cursor-not-allowed'
+                            )}
+                            aria-pressed={isSelected}
+                            aria-disabled={!isAvailable}
+                            title={isAvailable ? `Number ${num.id}` : `Number ${num.id} (${num.status})`}
+                          >
+                            {num.id}
                           </div>
                         );
                       })
@@ -293,7 +318,12 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
               </div>
             )}
 
-            <Button type="submit" className="w-full" size="lg" disabled={availableRaffleNumbers.length === 0 || (selectedNumbersWatch || []).length === 0}>
+            <Button 
+              type="submit" 
+              className="w-full" 
+              size="lg" 
+              disabled={allRaffleNumbersForGrid.filter(n=>n.status === 'Available').length === 0 || (selectedNumbersWatch || []).length === 0}
+            >
               {t('purchaseForm.purchaseButton')}
             </Button>
           </form>
@@ -302,3 +332,5 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
     </Card>
   );
 }
+
+    

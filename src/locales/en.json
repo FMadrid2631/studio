@@ -113,7 +113,7 @@
     "cannotEditDescriptionClosed": "This raffle cannot be edited because it is closed."
   },
   "purchaseForm": {
-    "title": "Purchase numbers",
+    "title": "Purchase Numbers",
     "description": "Select your numbers and fill in your details.",
     "labels": {
       "fullName": "Full Name",
@@ -128,6 +128,7 @@
     },
     "selectNumbersDescription": "Choose your lucky numbers. {{price}} each.",
     "allNumbersSoldOut": "All numbers are sold out!",
+    "noNumbersInRaffle": "No numbers configured for this raffle yet.",
     "paymentMethods": {
         "cash": "Cash",
         "transfer": "Transfer",
@@ -140,13 +141,14 @@
         "successTitle": "Success!",
         "successDescription": "{{count}} number(s) purchased for {{buyerName}}.",
         "errorTitle": "Error",
-        "errorDescription": "Failed to purchase numbers. Some might have been taken."
+        "errorDescription": "Failed to purchase numbers. Some might have been taken.",
+        "errorRaffleState": "Could not retrieve current raffle state. Please try again."
     },
     "validation": {
         "nameMin": "Name must be at least 2 characters.",
         "phoneMin": "Phone number seems too short.",
         "selectedNumbersMin": "Please select at least one number.",
-        "selectedNumbersUnavailable": "One or more selected numbers are not available.",
+        "selectedNumbersUnavailable": "One or more selected numbers are not available or have been taken.",
         "paymentMethodRequired": "Payment method is required."
     },
     "raffleClosedTitle": "Raffle Closed",
@@ -213,3 +215,4 @@
     "pt": "Portuguese"
   }
 }
+    

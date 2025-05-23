@@ -113,7 +113,7 @@
     "cannotEditDescriptionClosed": "Esta rifa no se puede editar porque está cerrada."
   },
   "purchaseForm": {
-    "title": "Comprar números",
+    "title": "Comprar Números",
     "description": "Selecciona tus números y completa tus datos.",
     "labels": {
       "fullName": "Nombre Completo",
@@ -128,6 +128,7 @@
     },
     "selectNumbersDescription": "Elige tus números de la suerte. {{price}} cada uno.",
     "allNumbersSoldOut": "¡Todos los números están agotados!",
+    "noNumbersInRaffle": "Aún no se han configurado números para esta rifa.",
     "paymentMethods": {
         "cash": "Efectivo",
         "transfer": "Transferencia",
@@ -140,13 +141,14 @@
         "successTitle": "¡Éxito!",
         "successDescription": "{{count}} número(s) comprados para {{buyerName}}.",
         "errorTitle": "Error",
-        "errorDescription": "Error al comprar números. Algunos podrían haber sido tomados."
+        "errorDescription": "Error al comprar números. Algunos podrían haber sido tomados.",
+        "errorRaffleState": "No se pudo recuperar el estado actual de la rifa. Por favor, inténtalo de nuevo."
     },
     "validation": {
         "nameMin": "El nombre debe tener al menos 2 caracteres.",
         "phoneMin": "El número de teléfono parece demasiado corto.",
         "selectedNumbersMin": "Por favor selecciona al menos un número.",
-        "selectedNumbersUnavailable": "Uno o más números seleccionados no están disponibles.",
+        "selectedNumbersUnavailable": "Uno o más números seleccionados no están disponibles o ya fueron tomados.",
         "paymentMethodRequired": "El método de pago es requerido."
     },
     "raffleClosedTitle": "Rifa Cerrada",
@@ -213,3 +215,4 @@
     "pt": "Portugués (Português)"
   }
 }
+    
