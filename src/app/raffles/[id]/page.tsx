@@ -66,19 +66,17 @@ export default function RafflePage() {
     if (!gridRef.current || !raffle) return;
     setIsExporting(true);
     try {
-      // Ensure a background color is applied for consistent export, especially if the page/element background is transparent
       const dataUrl = await toPng(gridRef.current, { 
         quality: 0.95, 
-        backgroundColor: 'white' // Or use a theme-aware color
+        backgroundColor: 'white'
       });
       const link = document.createElement('a');
-      // Sanitize raffle name for filename
       const sanitizedRaffleName = raffle.name.replace(/[^\w\s-]/gi, '').replace(/\s+/g, '_').toLowerCase();
       link.download = `rifa-${sanitizedRaffleName}-numeros.png`;
       link.href = dataUrl;
-      document.body.appendChild(link); // Required for Firefox
+      document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link); // Clean up
+      document.body.removeChild(link);
       toast({
         title: t('raffleDetailsPage.exportSuccessTitle'),
         description: t('raffleDetailsPage.exportSuccessDescription'),

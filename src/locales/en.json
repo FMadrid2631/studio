@@ -159,6 +159,7 @@
     "backToRaffleButton": "Back to Raffle",
     "grid": {
       "numberTitle": "Number {{id}} (Status: {{status}})",
+      "numberStatusTitle": "Number {{id}} (Status: {{status}})",
       "noNumbersInRaffle": "No numbers configured for this raffle yet."
     }
   },

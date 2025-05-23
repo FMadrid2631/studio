@@ -158,7 +158,8 @@
     "raffleClosedDescription": "Esta rifa ya no está abierta para compras.",
     "backToRaffleButton": "Volver a la Rifa",
     "grid": {
-      "numberTitle": "Número {{id}} (Estado: {{status}})",
+      "numberTitle": "Número {{id}} (Disponible)",
+      "numberStatusTitle": "Número {{id}} (Estado: {{status}})",
       "noNumbersInRaffle": "Aún no se han configurado números para esta rifa."
     }
   },
