@@ -13,8 +13,7 @@ import { Loader2, CheckCircle, CalendarDays, Trophy } from 'lucide-react';
 import { useTranslations } from '@/contexts/LocalizationContext';
 import { format } from 'date-fns';
 import { getLocaleFromString } from '@/lib/date-fns-locales';
-import { Badge } from '@/components/ui/badge';
-
+// import { Badge } from '@/components/ui/badge'; // No longer used here
 
 interface RaffleDrawProps {
   raffle: Raffle;
@@ -22,6 +21,7 @@ interface RaffleDrawProps {
 
 export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
   const { getRaffleById, recordPrizeWinner, closeRaffle, isLoading: isRaffleContextLoading } = useRaffles();
+  // Ensure we always work with the latest raffle state from context if available
   const raffle = getRaffleById(initialRaffle.id) || initialRaffle;
   const { t, locale } = useTranslations();
   const { toast } = useToast();
@@ -30,7 +30,8 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
   const [drawError, setDrawError] = useState<string | null>(null);
   const [lastDrawnWinners, setLastDrawnWinners] = useState<Prize[]>([]);
   
-  const prizesToAward = raffle.prizes.filter(p => !p.winningNumber);
+  // Get prizes that are yet to be awarded, unsorted at this stage by useMemo
+  const prizesToAward = useMemo(() => raffle.prizes.filter(p => !p.winningNumber), [raffle.prizes]);
   const allPrizesAwardedOrRaffleClosed = prizesToAward.length === 0 || raffle.status === 'Closed';
 
   const initialDisplay = useMemo(() => '0'.repeat(String(raffle.totalNumbers > 0 ? raffle.totalNumbers : 1).length), [raffle.totalNumbers]);
@@ -38,13 +39,6 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
   const [activePrizeForLabel, setActivePrizeForLabel] = useState<Prize | null>(null);
 
   const dateLocaleForFormatting = getLocaleFromString(locale);
-
-  // const formatPrice = (value: number, currencySymbol: string, currencyCode: string) => { // This function is not used here anymore
-  //   if (currencyCode === 'CLP') {
-  //     return `${currencySymbol}${value.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
-  //   }
-  //   return `${currencySymbol}${value.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  // };
 
   useEffect(() => {
     let displayTimer: NodeJS.Timeout;
@@ -72,7 +66,8 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
     if (activePrizeForLabel) { 
       return t('drawPage.displayLabelWinnerForPrize', { prizeDescription: activePrizeForLabel.description });
     }
-    const nextPrize = prizesToAward.sort((a, b) => a.order - b.order)[0];
+    // Sort a copy of prizesToAward in descending order to find the next one
+    const nextPrize = [...prizesToAward].sort((a, b) => b.order - a.order)[0];
     if (nextPrize) {
       return t('drawPage.displayLabelDrawingForPrize', { prizeDescription: nextPrize.description });
     }
@@ -85,7 +80,8 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
       return;
     }
 
-    const currentPrizeToAward = prizesToAward.sort((a, b) => a.order - b.order)[0];
+    // Sort a copy of prizesToAward in descending order to find the current one to award
+    const currentPrizeToAward = [...prizesToAward].sort((a, b) => b.order - a.order)[0];
     if (!currentPrizeToAward) {
         toast({ title: t('drawPage.toast.infoTitle'), description: t('drawPage.toast.infoNoMorePrizesThisRound'), variant: 'default' });
         setIsDrawing(false);
@@ -164,7 +160,8 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
      return <div className="flex justify-center items-center min-h-[20rem]"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
   }
 
-  const nextPrizeToAwardForButton = prizesToAward.sort((a, b) => a.order - b.order)[0];
+  // Sort a copy of prizesToAward in descending order for the button label
+  const nextPrizeToAwardForButton = [...prizesToAward].sort((a, b) => b.order - a.order)[0];
   const buttonDrawLabel = nextPrizeToAwardForButton?.description || t('drawPage.buttonDrawNext');
   
   return (
@@ -226,7 +223,6 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
                   <p><strong>{t('drawPage.winnerLabel')}:</strong> {prize.winnerName}</p>
                   <p><strong>{t('drawPage.phoneLabel')}:</strong> {prize.winnerPhone}</p>
                   <p><strong>{t('drawPage.winningNumberLabelTitle')}:</strong> <span className="text-primary font-bold text-lg">{String(prize.winningNumber).padStart(String(raffle.totalNumbers > 0 ? raffle.totalNumbers : 1).length, '0')}</span></p>
-                   {/* Reference value display removed from here */}
                    {prize.drawDate && (
                     <p className="text-sm text-muted-foreground mt-1 flex items-center">
                       <CalendarDays className="mr-1.5 h-4 w-4" />
@@ -248,12 +244,11 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
                     <p className="text-muted-foreground">{t('drawPage.noPrizesDefinedInRaffle')}</p>
                 ) : (
                     <ul className="space-y-3">
-                        {raffle.prizes.sort((a,b) => a.order - b.order).map(prize => (
+                        {raffle.prizes.sort((a,b) => a.order - b.order).map(prize => ( // Display order remains ascending
                             <li key={prize.id} className="p-3 border rounded-md bg-muted/20">
                                 <div className="flex justify-between items-start">
                                   <div>
                                     <p className="font-semibold">{t('raffleDetailsPage.prizeItem', { order: prize.order })}: {prize.description}</p>
-                                     {/* Reference value display removed from here */}
                                   </div>
                                 </div>
                                 {prize.winnerName && prize.winningNumber && prize.winnerPhone ? (
@@ -283,13 +278,18 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
         </Card>
 
       </CardContent>
-      {!allPrizesAwardedOrRaffleClosed && prizesToAward.length > 1 && (
+      {/* Ensure we check against the explicitly sorted list for the hint */}
+      { !allPrizesAwardedOrRaffleClosed && 
+        ([...prizesToAward].sort((a, b) => b.order - a.order).length > 1) && 
+        (
          <CardFooter className="flex-col items-center gap-2">
             <p className="text-sm text-muted-foreground">
-              {t('drawPage.morePrizesHint', { count: prizesToAward.length -1 })}
+              {/* The count for 'morePrizesHint' should be based on how many are left *after* the one about to be drawn */}
+              {t('drawPage.morePrizesHint', { count: [...prizesToAward].sort((a, b) => b.order - a.order).length -1 })}
             </p>
          </CardFooter>
       )}
     </Card>
   );
 }
+    
