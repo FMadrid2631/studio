@@ -63,7 +63,8 @@
       "netProfit": "Net Profit",
       "closeButton": "Close",
       "notePendingSales": "Note: There are {{amount}} in pending payments not included in the profit calculation."
-    }
+    },
+    "exportImageButton": "Export Image"
   },
   "configurePage": {
     "title": "Create New Raffle"
@@ -216,8 +217,11 @@
     "allSoldOut": "All numbers have been sold or are pending payment!",
     "countSummary": "{{availableCount}} of {{totalCount}} numbers available.",
     "noBankDetailsProvided": "No bank details have been provided for this raffle.",
+    "exportSuccessTitle": "Export Successful",
+    "exportErrorTitle": "Export Error",
+    "exportErrorDescription": "Could not export the image. Please try again.",
     "exportAllSuccessDescription": "Image of available numbers and bank details exported successfully.",
-    "exportDisabledRaffleClosedTooltip": "Export is disabled because the raffle is closed."
+    "exportDisabledRaffleClosedTooltip": "Export not available: raffle is closed."
   },
   "drawPage": {
     "backToRaffleDetails": "Back to Raffle Details",

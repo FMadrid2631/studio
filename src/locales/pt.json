@@ -63,7 +63,8 @@
       "netProfit": "Lucro Líquido",
       "closeButton": "Fechar",
       "notePendingSales": "Nota: Existem {{amount}} em pagamentos pendentes não incluídos no cálculo do lucro."
-    }
+    },
+    "exportImageButton": "Exportar Imagem"
   },
   "configurePage": {
     "title": "Criar Nova Rifa"
@@ -216,8 +217,11 @@
     "allSoldOut": "Todos os números foram vendidos ou estão com pagamento pendente!",
     "countSummary": "{{availableCount}} de {{totalCount}} números disponíveis.",
     "noBankDetailsProvided": "Nenhum detalhe bancário foi fornecido para esta rifa.",
+    "exportSuccessTitle": "Exportação Bem-sucedida",
+    "exportErrorTitle": "Erro na Exportação",
+    "exportErrorDescription": "Não foi possível exportar a imagem. Por favor, tente novamente.",
     "exportAllSuccessDescription": "Imagem de números disponíveis e dados bancários exportada com sucesso.",
-    "exportDisabledRaffleClosedTooltip": "A exportação está desabilitada porque a rifa está fechada."
+    "exportDisabledRaffleClosedTooltip": "Exportação não disponível: rifa encerrada."
   },
   "drawPage": {
     "backToRaffleDetails": "Voltar para Detalhes da Rifa",
@@ -297,7 +301,7 @@
   "languageSwitcher": {
     "selectLanguage": "Selecionar Idioma",
     "en": "Inglês (English)",
-    "es": "Espanhol (Español)",
+    "es": "Español (Español)",
     "pt": "Português (Português)"
   }
 }
