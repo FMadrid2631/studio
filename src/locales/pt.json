@@ -73,7 +73,8 @@
     "shareMessageText": "Confira esta rifa: {{raffleName}}! {{url}}",
     "shareMessageTextShort": "Confira esta rifa: {{raffleName}}!",
     "shareLinkCopiedTitle": "Link Copiado!",
-    "shareLinkCopiedDescription": "Link da rifa ({{url}}) copiado para a área de transferência. Compartilhe no Instagram!"
+    "shareLinkCopiedDescription": "Link da rifa ({{url}}) copiado para a área de transferência. Compartilhe no Instagram!",
+    "exportImageButton": "Exportar Detalhes de Disponíveis e Banco"
   },
   "configurePage": {
     "title": "Criar Nova Rifa"
@@ -314,6 +315,4 @@
     "pt": "Português (Português)"
   }
 }
-    
-
     

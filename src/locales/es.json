@@ -73,7 +73,8 @@
     "shareMessageText": "¡Mira esta rifa: {{raffleName}}! {{url}}",
     "shareMessageTextShort": "¡Mira esta rifa: {{raffleName}}!",
     "shareLinkCopiedTitle": "¡Enlace Copiado!",
-    "shareLinkCopiedDescription": "Enlace de la rifa ({{url}}) copiado al portapapeles. ¡Compártelo en Instagram!"
+    "shareLinkCopiedDescription": "Enlace de la rifa ({{url}}) copiado al portapapeles. ¡Compártelo en Instagram!",
+    "exportImageButton": "Exportar Detalles de Disponibles y Banco"
   },
   "configurePage": {
     "title": "Crear Nueva Rifa"
@@ -314,6 +315,4 @@
     "pt": "Portugués (Português)"
   }
 }
-    
-
     

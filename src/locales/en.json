@@ -73,7 +73,8 @@
     "shareMessageText": "Check out this raffle: {{raffleName}}! {{url}}",
     "shareMessageTextShort": "Check out this raffle: {{raffleName}}!",
     "shareLinkCopiedTitle": "Link Copied!",
-    "shareLinkCopiedDescription": "Raffle link ({{url}}) copied to clipboard. Share it on Instagram!"
+    "shareLinkCopiedDescription": "Raffle link ({{url}}) copied to clipboard. Share it on Instagram!",
+    "exportImageButton": "Export Available Details & Bank Info"
   },
   "configurePage": {
     "title": "Create New Raffle"
@@ -314,6 +315,4 @@
     "pt": "Portuguese"
   }
 }
-    
-
     
