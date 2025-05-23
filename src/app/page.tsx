@@ -5,18 +5,37 @@ import Link from 'next/link';
 import { useRaffles } from '@/contexts/RaffleContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, Eye, Edit, ListChecks, Trophy } from 'lucide-react';
+import { PlusCircle, Eye, Edit, ListChecks, Trophy, DollarSign, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { useTranslations } from '@/contexts/LocalizationContext';
 import { format } from 'date-fns';
 import { getLocaleFromString } from '@/lib/date-fns-locales';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import type { Raffle } from '@/types';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 
 export default function HomePage() {
   const { raffles, isLoading } = useRaffles();
   const { t, locale, changeLocaleForRaffle } = useTranslations();
+
+  const [isProfitDialogOpen, setIsProfitDialogOpen] = useState(false);
+  const [profitDetails, setProfitDetails] = useState<{
+    totalSales: number;
+    totalPrizeValue: number;
+    netProfit: number;
+  } | null>(null);
+  const [currentRaffleForProfit, setCurrentRaffleForProfit] = useState<Raffle | null>(null);
 
   useEffect(() => {
     changeLocaleForRaffle(undefined);
@@ -26,7 +45,7 @@ export default function HomePage() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-10rem)]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <Loader2 className="animate-spin rounded-full h-12 w-12 text-primary" />
       </div>
     );
   }
@@ -38,6 +57,25 @@ export default function HomePage() {
       return `${currencySymbol}${value.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
     }
     return `${currencySymbol}${value.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
+  const calculateAndShowProfitForRaffle = (raffleToShow: Raffle) => {
+    const totalSales = raffleToShow.numbers.reduce((sum, num) => {
+      if (num.status === 'Purchased' && (num.paymentMethod === 'Cash' || num.paymentMethod === 'Transfer')) {
+        return sum + raffleToShow.numberValue;
+      }
+      return sum;
+    }, 0);
+
+    const totalPrizeValue = raffleToShow.prizes.reduce((sum, prize) => {
+      return sum + (prize.referenceValue || 0);
+    }, 0);
+
+    const netProfit = totalSales - totalPrizeValue;
+
+    setProfitDetails({ totalSales, totalPrizeValue, netProfit });
+    setCurrentRaffleForProfit(raffleToShow);
+    setIsProfitDialogOpen(true);
   };
 
   return (
@@ -109,10 +147,44 @@ export default function HomePage() {
                     <Trophy className="mr-2 h-4 w-4" /> {t('homePage.drawButton')}
                   </Link>
                 </Button>
+                <Button variant="outline" className="w-full col-span-2 sm:col-span-1" onClick={() => calculateAndShowProfitForRaffle(raffle)}>
+                  <DollarSign className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.viewProfitButton')}
+                </Button>
               </CardFooter>
             </Card>
           ))}
         </div>
+      )}
+
+      {profitDetails && currentRaffleForProfit && (
+        <AlertDialog open={isProfitDialogOpen} onOpenChange={setIsProfitDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t('raffleDetailsPage.profitDialogTitle')}</AlertDialogTitle>
+              <AlertDialogDescription>
+                <div className="space-y-2 mt-4 text-sm">
+                  <p>{t('configureForm.labels.raffleName')}: <span className="font-semibold">{currentRaffleForProfit.name}</span></p>
+                  <div className="flex justify-between">
+                    <span>{t('raffleDetailsPage.profitDialog.totalSales')}:</span>
+                    <span className="font-semibold">{formatPrice(profitDetails.totalSales, currentRaffleForProfit.country.currencySymbol, currentRaffleForProfit.country.currencyCode)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>{t('raffleDetailsPage.profitDialog.totalPrizeValue')}:</span>
+                    <span className="font-semibold">{formatPrice(profitDetails.totalPrizeValue, currentRaffleForProfit.country.currencySymbol, currentRaffleForProfit.country.currencyCode)}</span>
+                  </div>
+                  <hr className="my-2 border-border" />
+                  <div className="flex justify-between text-base">
+                    <span className="font-bold">{t('raffleDetailsPage.profitDialog.netProfit')}:</span>
+                    <span className="font-bold text-primary">{formatPrice(profitDetails.netProfit, currentRaffleForProfit.country.currencySymbol, currentRaffleForProfit.country.currencyCode)}</span>
+                  </div>
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction onClick={() => setIsProfitDialogOpen(false)}>{t('raffleDetailsPage.profitDialog.closeButton')}</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       )}
     </div>
   );
