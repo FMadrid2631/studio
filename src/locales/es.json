@@ -226,6 +226,7 @@
     "allPrizesStatusTitle": "Estado de Todos los Premios",
     "noPrizesDefinedInRaffle": "No se han configurado premios para esta rifa.",
     "prizeWonByDetails": "Ganado por: {{winnerName}} (Número: {{winningNumber}}, Teléfono: {{winnerPhone}})",
+    "prizeDrawnOn": "Sorteado el: {{date}}",
     "prizePendingDraw": "Pendiente de Sorteo",
     "morePrizesHint": "{{count}} premio(s) más para sortear después de este.",
     "displayLabelWinnerForPrize": "Ganador para: {{prizeDescription}}",

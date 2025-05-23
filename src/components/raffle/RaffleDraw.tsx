@@ -9,9 +9,12 @@ import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, CheckCircle } from 'lucide-react';
+import { Loader2, CheckCircle, CalendarDays } from 'lucide-react';
 import { Trophy } from 'lucide-react';
 import { useTranslations } from '@/contexts/LocalizationContext';
+import { format } from 'date-fns';
+import { getLocaleFromString } from '@/lib/date-fns-locales';
+
 
 interface RaffleDrawProps {
   raffle: Raffle;
@@ -20,7 +23,7 @@ interface RaffleDrawProps {
 export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
   const { getRaffleById, recordPrizeWinner, closeRaffle, isLoading: isRaffleContextLoading } = useRaffles();
   const raffle = getRaffleById(initialRaffle.id) || initialRaffle;
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
   const { toast } = useToast();
 
   const [isDrawing, setIsDrawing] = useState(false);
@@ -30,16 +33,18 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
   const prizesToAward = raffle.prizes.filter(p => !p.winningNumber);
   const allPrizesAwardedOrRaffleClosed = prizesToAward.length === 0 || raffle.status === 'Closed';
 
-  const initialDisplay = useMemo(() => '0'.repeat(String(raffle.totalNumbers).length), [raffle.totalNumbers]);
+  const initialDisplay = useMemo(() => '0'.repeat(String(raffle.totalNumbers > 0 ? raffle.totalNumbers : 1).length), [raffle.totalNumbers]);
   const [animatedDisplayNumber, setAnimatedDisplayNumber] = useState<string>(initialDisplay);
   const [activePrizeForLabel, setActivePrizeForLabel] = useState<Prize | null>(null);
+
+  const dateLocaleForFormatting = getLocaleFromString(locale);
 
   useEffect(() => {
     let displayTimer: NodeJS.Timeout;
 
     if (lastDrawnWinners.length > 0 && lastDrawnWinners[0].winningNumber) {
       const justWonPrize = lastDrawnWinners[0];
-      const winningNumStr = String(justWonPrize.winningNumber).padStart(String(raffle.totalNumbers).length, '0');
+      const winningNumStr = String(justWonPrize.winningNumber).padStart(String(raffle.totalNumbers > 0 ? raffle.totalNumbers : 1).length, '0');
       
       setAnimatedDisplayNumber(winningNumStr);
       setActivePrizeForLabel(justWonPrize);
@@ -112,16 +117,17 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
         if (winnerDetails && winnerDetails.buyerName && winnerDetails.buyerPhone) {
           recordPrizeWinner(raffle.id, currentPrizeToAward.order, winningNumberId, winnerDetails.buyerName, winnerDetails.buyerPhone);
           
-          const awardedPrizeDetails = { ...currentPrizeToAward, winningNumber: winningNumberId, winnerName: winnerDetails.buyerName, winnerPhone: winnerDetails.buyerPhone };
-          setLastDrawnWinners([awardedPrizeDetails]); // This will trigger the useEffect for animation
+          const awardedPrizeDetails = { ...currentPrizeToAward, winningNumber: winningNumberId, winnerName: winnerDetails.buyerName, winnerPhone: winnerDetails.buyerPhone, drawDate: new Date().toISOString() };
+          setLastDrawnWinners([awardedPrizeDetails]); 
           toast({ 
             title: t('drawPage.toast.winnerDrawnTitle'), 
-            description: t('drawPage.toast.winnerDrawnDescription', { winningNumber: String(winningNumberId).padStart(String(raffle.totalNumbers).length, '0'), prizeDescription: currentPrizeToAward.description, winnerName: winnerDetails.buyerName })
+            description: t('drawPage.toast.winnerDrawnDescription', { winningNumber: String(winningNumberId).padStart(String(raffle.totalNumbers > 0 ? raffle.totalNumbers : 1).length, '0'), prizeDescription: currentPrizeToAward.description, winnerName: winnerDetails.buyerName })
           });
 
-          const updatedRaffleState = getRaffleById(raffle.id);
+          // Check if all prizes are awarded AFTER recording the winner
+          const updatedRaffleState = getRaffleById(raffle.id); // Get the freshest state
           if (updatedRaffleState && updatedRaffleState.prizes.every(p => !!p.winningNumber)) {
-            if (updatedRaffleState.status !== 'Closed') {
+            if (updatedRaffleState.status !== 'Closed') { // Only close if not already closed
               closeRaffle(raffle.id);
               toast({ 
                 title: t('drawPage.toast.raffleCompleteTitle'), 
@@ -202,7 +208,7 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
           </div>
         )}
 
-        {lastDrawnWinners.length > 0 && (
+        {lastDrawnWinners.length > 0 && lastDrawnWinners[0].winningNumber && (
           <div className="mt-6 space-y-4">
             <h3 className="text-xl font-semibold text-center">{t('drawPage.lastDrawWinnersTitle')}</h3>
             {lastDrawnWinners.map(prize => (
@@ -213,7 +219,13 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
                 <CardContent>
                   <p><strong>{t('drawPage.winnerLabel')}:</strong> {prize.winnerName}</p>
                   <p><strong>{t('drawPage.phoneLabel')}:</strong> {prize.winnerPhone}</p>
-                  <p><strong>{t('drawPage.winningNumberLabelTitle')}:</strong> <span className="text-primary font-bold text-lg">{String(prize.winningNumber).padStart(String(raffle.totalNumbers).length, '0')}</span></p>
+                  <p><strong>{t('drawPage.winningNumberLabelTitle')}:</strong> <span className="text-primary font-bold text-lg">{String(prize.winningNumber).padStart(String(raffle.totalNumbers > 0 ? raffle.totalNumbers : 1).length, '0')}</span></p>
+                   {prize.drawDate && (
+                    <p className="text-sm text-muted-foreground mt-1 flex items-center">
+                      <CalendarDays className="mr-1.5 h-4 w-4" />
+                      {t('drawPage.prizeDrawnOn', { date: format(new Date(prize.drawDate), 'Pp', { locale: dateLocaleForFormatting }) })}
+                    </p>
+                  )}
                 </CardContent>
               </Card>
             ))}
@@ -233,14 +245,20 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
                             <li key={prize.id} className="p-3 border rounded-md bg-muted/20">
                                 <p className="font-semibold">{t('raffleDetailsPage.prizeItem', { order: prize.order })}: {prize.description}</p>
                                 {prize.winnerName && prize.winningNumber && prize.winnerPhone ? (
-                                  <div className="mt-1">
+                                  <div className="mt-1 space-y-0.5">
                                     <p className="text-sm text-green-600">
                                       {t('drawPage.prizeWonByDetails', {
                                         winnerName: prize.winnerName, 
-                                        winningNumber: String(prize.winningNumber).padStart(String(raffle.totalNumbers).length, '0'), 
+                                        winningNumber: String(prize.winningNumber).padStart(String(raffle.totalNumbers > 0 ? raffle.totalNumbers : 1).length, '0'), 
                                         winnerPhone: prize.winnerPhone
                                       })}
                                     </p>
+                                    {prize.drawDate && (
+                                      <p className="text-xs text-muted-foreground flex items-center">
+                                        <CalendarDays className="mr-1.5 h-3.5 w-3.5" />
+                                        {t('drawPage.prizeDrawnOn', { date: format(new Date(prize.drawDate), 'Pp', { locale: dateLocaleForFormatting }) })}
+                                      </p>
+                                    )}
                                   </div>
                                 ) : (
                                   <p className="text-sm text-orange-500 italic mt-1">{t('drawPage.prizePendingDraw')}</p>

@@ -106,6 +106,7 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         id: crypto.randomUUID(),
         description: desc,
         order: index + 1,
+        // drawDate will be undefined initially
       })),
       bankDetails: bankDetails,
     };
@@ -155,18 +156,22 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       ...existingRaffle,
       name: updatedData.name,
       country: country,
-      totalNumbers: updatedData.totalNumbers,
+      totalNumbers: updatedData.totalNumbers, // This field is disabled in edit mode if sales started
       numberValue: updatedData.numberValue,
       drawDate: updatedData.drawDate.toISOString(),
       prizes: updatedData.prizes.map((p, index) => ({
         id: existingRaffle.prizes[index]?.id || crypto.randomUUID(),
         description: p.description,
         order: index + 1,
+        winningNumber: existingRaffle.prizes[index]?.winningNumber, // Preserve existing winner info
+        winnerName: existingRaffle.prizes[index]?.winnerName,
+        winnerPhone: existingRaffle.prizes[index]?.winnerPhone,
+        drawDate: existingRaffle.prizes[index]?.drawDate, // Preserve existing draw date
       })),
-      numbers: Array.from({ length: updatedData.totalNumbers }, (_, i) => ({ // Reset numbers if totalNumbers changes
-        id: i + 1,
-        status: 'Available',
-      })),
+      // Numbers array is not changed here if totalNumbers is disabled.
+      // If totalNumbers were changeable and no sales, numbers would be reset.
+      // For now, assuming totalNumbers is locked if raffle is editable.
+      numbers: existingRaffle.numbers, 
       bankDetails: bankDetails,
     };
 
@@ -210,7 +215,7 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     const updatedPrizes = raffle.prizes.map(prize => {
       if (prize.order === prizeOrder) {
-        return { ...prize, winningNumber, winnerName, winnerPhone };
+        return { ...prize, winningNumber, winnerName, winnerPhone, drawDate: new Date().toISOString() };
       }
       return prize;
     });
@@ -220,7 +225,7 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const closeRaffle = (raffleId: string) => {
     const raffle = getRaffleById(raffleId);
     if (!raffle) return;
-    // Ensure all prizes are awarded before closing
+    
     const allPrizesAwarded = raffle.prizes.every(p => !!p.winningNumber);
     if (allPrizesAwarded) {
       updateRaffle({ ...raffle, status: 'Closed' });

@@ -22,6 +22,7 @@ export interface Prize {
   winningNumber?: number; // Assigned after draw
   winnerName?: string;
   winnerPhone?: string;
+  drawDate?: string; // ISO string of when the prize was drawn
 }
 
 export interface BankDetails {
@@ -40,7 +41,7 @@ export interface Raffle {
   totalNumbers: number;
   numberValue: number;
   prizes: Prize[];
-  drawDate: string; // ISO string, e.g. "YYYY-MM-DD"
+  drawDate: string; // ISO string, e.g. "YYYY-MM-DD" (general draw date for the raffle event)
   status: 'Open' | 'Closed';
   numbers: RaffleNumber[]; // Array from 1 to totalNumbers
   createdAt: string; // ISO string
@@ -54,7 +55,7 @@ export type RaffleConfigurationFormInput = {
   numberValue: number;
   numberOfPrizes: number;
   prizes: { description: string }[];
-  drawDate: Date;
+  drawDate: Date; // General draw date for the raffle event
   // Bank Details - all optional
   bankName?: string;
   accountHolderName?: string;

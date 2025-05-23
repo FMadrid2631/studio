@@ -226,6 +226,7 @@
     "allPrizesStatusTitle": "All Prizes Status",
     "noPrizesDefinedInRaffle": "No prizes have been configured for this raffle.",
     "prizeWonByDetails": "Won by: {{winnerName}} (Number: {{winningNumber}}, Phone: {{winnerPhone}})",
+    "prizeDrawnOn": "Drawn on: {{date}}",
     "prizePendingDraw": "Pending Draw",
     "morePrizesHint": "{{count}} more prize(s) to draw after this one.",
     "displayLabelWinnerForPrize": "Winner for: {{prizeDescription}}",
