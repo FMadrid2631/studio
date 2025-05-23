@@ -47,7 +47,12 @@
     "raffleNotFoundDescription": "La rifa que buscas no existe o ha sido eliminada.",
     "backToHomeButton": "Volver al Inicio",
     "configureButton": "Configurar",
-    "configureDisabledTooltip": "La configuración no se puede cambiar después de que hayan comenzado las ventas o la rifa esté cerrada."
+    "configureDisabledTooltip": "La configuración no se puede cambiar después de que hayan comenzado las ventas o la rifa esté cerrada.",
+    "exportImageButton": "Exportar Imagen",
+    "exportSuccessTitle": "¡Imagen Exportada!",
+    "exportSuccessDescription": "La imagen de la cuadrícula de la rifa se ha descargado correctamente.",
+    "exportErrorTitle": "Error de Exportación",
+    "exportErrorDescription": "No se pudo exportar la imagen de la cuadrícula de la rifa."
   },
   "configurePage": {
     "title": "Crear Nueva Rifa"
@@ -199,7 +204,8 @@
     "listDescription": "¡Estos números aún están disponibles! Cada uno cuesta {{price}}.",
     "allSoldOut": "¡Todos los números han sido vendidos o están pendientes de pago!",
     "countSummary": "{{availableCount}} de {{totalCount}} números disponibles.",
-    "noBankDetailsProvided": "No se han proporcionado detalles bancarios para esta rifa."
+    "noBankDetailsProvided": "No se han proporcionado detalles bancarios para esta rifa.",
+    "exportAllSuccessDescription": "Imagen de números disponibles y datos bancarios exportada exitosamente."
   },
   "drawPage": {
     "backToRaffleDetails": "Volver a Detalles de la Rifa",

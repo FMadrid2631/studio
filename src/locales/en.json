@@ -47,7 +47,12 @@
     "raffleNotFoundDescription": "The raffle you are looking for does not exist or may have been removed.",
     "backToHomeButton": "Back to Home",
     "configureButton": "Configure",
-    "configureDisabledTooltip": "Configuration cannot be changed after sales have started or raffle is closed."
+    "configureDisabledTooltip": "Configuration cannot be changed after sales have started or raffle is closed.",
+    "exportImageButton": "Export Image",
+    "exportSuccessTitle": "Image Exported!",
+    "exportSuccessDescription": "The raffle grid image has been successfully downloaded.",
+    "exportErrorTitle": "Export Error",
+    "exportErrorDescription": "Could not export the raffle grid image."
   },
   "configurePage": {
     "title": "Create New Raffle"
@@ -199,7 +204,8 @@
     "listDescription": "These numbers are still up for grabs! Each costs {{price}}.",
     "allSoldOut": "All numbers have been sold or are pending payment!",
     "countSummary": "{{availableCount}} of {{totalCount}} numbers available.",
-    "noBankDetailsProvided": "No bank details have been provided for this raffle."
+    "noBankDetailsProvided": "No bank details have been provided for this raffle.",
+    "exportAllSuccessDescription": "Image of available numbers and bank details exported successfully."
   },
   "drawPage": {
     "backToRaffleDetails": "Back to Raffle Details",

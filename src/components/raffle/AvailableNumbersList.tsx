@@ -3,7 +3,6 @@
 
 import type { RaffleNumber } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-// ScrollArea is removed from here
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { useTranslations } from '@/contexts/LocalizationContext';
@@ -16,7 +15,6 @@ interface AvailableNumbersListProps {
   currencyCode: string;
 }
 
-// The ref now points to the root Card element (HTMLDivElement)
 export const AvailableNumbersList = React.forwardRef<
   HTMLDivElement,
   AvailableNumbersListProps
@@ -33,7 +31,7 @@ export const AvailableNumbersList = React.forwardRef<
   const priceDisplay = formatPrice();
 
   return (
-    <Card ref={ref} className="shadow-lg"> {/* Ref is attached to the Card */}
+    <Card ref={ref} className="shadow-lg">
       <CardHeader>
         <CardTitle className="text-2xl text-primary">{t('availableNumbersPage.listTitle')}</CardTitle>
         <CardDescription>
@@ -47,7 +45,6 @@ export const AvailableNumbersList = React.forwardRef<
             <p className="text-xl font-semibold text-muted-foreground">{t('availableNumbersPage.allSoldOut')}</p>
           </div>
         ) : (
-          // ScrollArea is removed from here. The grid will expand to show all numbers.
           <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2 p-1">
             {availableNumbers.map(num => (
               <Badge
