@@ -43,17 +43,11 @@
     "prizesListTitle": "Prêmios",
     "prizeItem": "Prêmio {{order}}",
     "prizeWonBy": "Ganhado por #{{number}} - {{name}}",
-    "prizeReferenceValueLabel": "(Valor Ref.: {{value}})",
     "raffleNotFoundTitle": "Rifa Não Encontrada",
     "raffleNotFoundDescription": "A rifa que você está procurando não existe ou pode ter sido removida.",
     "backToHomeButton": "Voltar ao Início",
     "configureButton": "Configurar",
-    "configureDisabledTooltip": "A configuração não pode ser alterada após o início das vendas ou se a rifa estiver fechada.",
-    "exportImageButton": "Exportar Imagem",
-    "exportSuccessTitle": "Imagem Exportada!",
-    "exportSuccessDescription": "A imagem da grade da rifa foi baixada com sucesso.",
-    "exportErrorTitle": "Erro de Exportação",
-    "exportErrorDescription": "Não foi possível exportar a imagem da grade da rifa."
+    "configureDisabledTooltip": "A configuração não pode ser alterada após o início das vendas ou se a rifa estiver fechada."
   },
   "configurePage": {
     "title": "Criar Nova Rifa"
@@ -228,7 +222,6 @@
     "winnerLabel": "Ganhador(a)",
     "phoneLabel": "Telefone",
     "winningNumberLabelTitle": "Número Ganhador",
-    "prizeReferenceValueLabel": "(Valor Ref.: {{value}})",
     "allPrizesStatusTitle": "Status de Todos os Prêmios",
     "noPrizesDefinedInRaffle": "Nenhum prêmio foi configurado para esta rifa.",
     "prizeWonByDetails": "Ganhador: {{winnerName}} (Número: {{winningNumber}}, Telefone: {{winnerPhone}})",
@@ -252,7 +245,7 @@
     }
   },
   "raffleTabs": {
-    "grid": "Grade",
+    "grid": "Rifa",
     "purchase": "Comprar",
     "available": "Disponíveis",
     "draw": "Sortear"
@@ -292,3 +285,5 @@
     "pt": "Português (Português)"
   }
 }
+
+    
