@@ -6,7 +6,7 @@ import { useRaffles } from '@/contexts/RaffleContext';
 import { RaffleGrid } from '@/components/raffle/RaffleGrid';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, Edit, Settings, Trophy, DollarSign, MessageSquare, Facebook, Instagram, Twitter, Copy, Share2 } from 'lucide-react';
+import { Edit, Settings, Trophy, DollarSign, MessageSquare, Facebook, Instagram, Twitter, ListChecks } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -72,7 +72,8 @@ export default function RafflePage() {
         <p className="text-muted-foreground mb-6">{t('raffleDetailsPage.raffleNotFoundDescription')}</p>
         <Button asChild>
           <Link href="/">
-            <ArrowLeft className="mr-2 h-4 w-4" /> {t('actions.backToHome')}
+             {/* ArrowLeft icon removed as per previous request to remove "Back to Home" */}
+             {t('actions.backToHome')}
           </Link>
         </Button>
       </div>
@@ -174,9 +175,7 @@ export default function RafflePage() {
   return (
     <TooltipProvider>
       <div className="space-y-6">
-        <Button variant="outline" onClick={() => router.push('/')} className="mb-6">
-          <ArrowLeft className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.backToAllRaffles')}
-        </Button>
+        {/* The "Back to All Raffles" button was here and has been removed. */}
 
         <Card className="shadow-lg">
           <CardHeader>
@@ -213,7 +212,7 @@ export default function RafflePage() {
                 <div className="bg-primary h-2.5 rounded-full" style={{ width: `${progress}%` }}></div>
               </div>
             </div>
-            <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            <div className="mt-4 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="w-full">
@@ -243,19 +242,19 @@ export default function RafflePage() {
               </Button>
               <Button variant="outline" asChild className="w-full">
                 <Link href={`/raffles/${raffle.id}/available`}>
-                  <Share2 className="mr-2 h-4 w-4" /> {/* Replaced ListChecks with Share2 for a general available/details button */}
+                  <ListChecks className="mr-2 h-4 w-4" />
                   {t('homePage.availableButton')}
                 </Link>
               </Button>
-              <Button variant="default" onClick={calculateAndShowProfit} className="w-full">
-                <DollarSign className="mr-2 h-4 w-4" />
-                {t('raffleDetailsPage.viewProfitButton')}
-              </Button>
-              <Button variant="default" asChild disabled={raffle.status === 'Closed'} className="w-full col-span-full sm:col-span-1">
+              <Button variant="default" asChild disabled={raffle.status === 'Closed'} className="w-full">
                 <Link href={`/raffles/${raffle.id}/draw`}>
                   <Trophy className="mr-2 h-4 w-4" />
                   {t('raffleDetailsPage.conductDrawButton')}
                 </Link>
+              </Button>
+              <Button variant="default" onClick={calculateAndShowProfit} className="w-full col-span-full sm:col-span-2 md:col-span-4">
+                <DollarSign className="mr-2 h-4 w-4" />
+                {t('raffleDetailsPage.viewProfitButton')}
               </Button>
             </div>
           </CardContent>
@@ -323,7 +322,7 @@ export default function RafflePage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-xl flex items-center">
-              <Share2 className="mr-2 h-5 w-5 text-primary" />
+              <ListChecks className="mr-2 h-5 w-5 text-primary" /> {/* Replaced Share2 with ListChecks for generic share title */}
               {t('raffleDetailsPage.shareSectionTitle')}
             </CardTitle>
           </CardHeader>
@@ -432,6 +431,4 @@ export default function RafflePage() {
     </TooltipProvider>
   );
 }
-    
-
     
