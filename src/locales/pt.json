@@ -183,8 +183,8 @@
       "title": "Informações para Transferência Bancária",
       "notConfiguredTitle": "Detalhes da Transferência Não Disponíveis",
       "notConfiguredDescription": "O organizador não forneceu detalhes bancários para transferências para esta rifa. Por favor, escolha outro método de pagamento ou entre em contato com o organizador.",
-      "selectedNumbersInstructionSuffix": "Além disso, na referência do pagamento, certifique-se de incluir seu nome completo e os números selecionados: {{selectedNumbersList}}.",
-      "selectedNumbersInstructionStandalone": "Ao fazer a transferência, por favor, inclua seu nome completo e os números selecionados: {{selectedNumbersList}}."
+      "selectedNumbersInstructionSuffix": "Não se esqueça de incluir seu nome completo e os números selecionados ({{selectedNumbersList}}) na referência do pagamento.",
+      "selectedNumbersInstructionStandalone": "Por favor, inclua seu nome completo e os números selecionados ({{selectedNumbersList}}) na referência da transferência."
     }
   },
   "availableNumbersPage": {

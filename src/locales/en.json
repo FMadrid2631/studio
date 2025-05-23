@@ -183,8 +183,8 @@
       "title": "Bank Transfer Information",
       "notConfiguredTitle": "Transfer Details Not Available",
       "notConfiguredDescription": "The organizer has not provided bank details for transfers for this raffle. Please choose another payment method or contact the organizer.",
-      "selectedNumbersInstructionSuffix": "Additionally, in the payment reference, please ensure you include your full name and the selected numbers: {{selectedNumbersList}}.",
-      "selectedNumbersInstructionStandalone": "When making the transfer, please include your full name and the selected numbers: {{selectedNumbersList}}."
+      "selectedNumbersInstructionSuffix": "Don't forget to include your full name and the selected numbers ({{selectedNumbersList}}) in the payment reference.",
+      "selectedNumbersInstructionStandalone": "Please include your full name and the selected numbers ({{selectedNumbersList}}) in the transfer reference."
     }
   },
   "availableNumbersPage": {
