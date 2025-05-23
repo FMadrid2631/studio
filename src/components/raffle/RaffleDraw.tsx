@@ -113,8 +113,8 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
 
   const nextPrizeDescription = prizesToAward[0]?.description || t('drawPage.buttonDrawNext');
   const displayWinningNumber = lastDrawnWinners.length > 0 && lastDrawnWinners[0].winningNumber 
-                               ? String(lastDrawnWinners[0].winningNumber).padStart(3, '0') 
-                               : '000';
+                               ? String(lastDrawnWinners[0].winningNumber).padStart(String(raffle.totalNumbers).length, '0') 
+                               : '0'.repeat(String(raffle.totalNumbers).length);
 
   return (
     <Card className="max-w-2xl mx-auto shadow-lg">
@@ -139,7 +139,7 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
              <CheckCircle className="h-5 w-5 text-green-600" />
             <AlertTitle className="font-semibold">{t('drawPage.raffleConcludedTitle')}</AlertTitle>
             <AlertDescription>{t('drawPage.raffleConcludedDescription')}</AlertDescription>
-            <Image src="https://placehold.co/300x180.png" alt={t('drawPage.raffleConcludedTitle')} width={300} height={180} className="mt-4 mx-auto rounded-md" data-ai-hint="celebration party confetti" />
+            {/* Image placeholder removed from here */}
           </Alert>
         ) : (
           <div className="text-center">
@@ -213,3 +213,4 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
     </Card>
   );
 }
+
