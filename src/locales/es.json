@@ -53,9 +53,13 @@
       "available": "Disponible",
       "pendingPayment": "Pago Pendiente",
       "purchasedCash": "Pagado (Efectivo)",
-      "purchasedTransfer": "Pagado (Transferencia)",
-      "purchasedOther": "Pagado (Otro)"
-    }
+      "purchasedTransfer": "Pagado (Transferencia)"
+    },
+    "exportImageButton": "Exportar Imagen",
+    "exportSuccessTitle": "¡Exportado!",
+    "exportSuccessDescription": "Imagen de la cuadrícula de la rifa exportada exitosamente.",
+    "exportErrorTitle": "Error de Exportación",
+    "exportErrorDescription": "No se pudo exportar la imagen de la cuadrícula de la rifa."
   },
   "configurePage": {
     "title": "Crear Nueva Rifa"
@@ -293,5 +297,4 @@
     "pt": "Portugués (Português)"
   }
 }
-
     

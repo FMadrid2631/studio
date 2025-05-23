@@ -53,9 +53,13 @@
       "available": "Disponível",
       "pendingPayment": "Pagamento Pendente",
       "purchasedCash": "Pago (Dinheiro)",
-      "purchasedTransfer": "Pago (Transferência)",
-      "purchasedOther": "Pago (Outro)"
-    }
+      "purchasedTransfer": "Pago (Transferência)"
+    },
+    "exportImageButton": "Exportar Imagem",
+    "exportSuccessTitle": "Exportado!",
+    "exportSuccessDescription": "Imagem da grade da rifa exportada com sucesso.",
+    "exportErrorTitle": "Erro na Exportação",
+    "exportErrorDescription": "Não foi possível exportar a imagem da grade da rifa."
   },
   "configurePage": {
     "title": "Criar Nova Rifa"
@@ -293,5 +297,4 @@
     "pt": "Português (Português)"
   }
 }
-
     

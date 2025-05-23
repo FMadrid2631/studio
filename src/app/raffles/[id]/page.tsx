@@ -6,7 +6,7 @@ import { useRaffles } from '@/contexts/RaffleContext';
 import { RaffleGrid } from '@/components/raffle/RaffleGrid';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, Edit, Settings, Trophy, ListChecks } from 'lucide-react';
+import { ArrowLeft, Edit, Settings, Trophy, ListChecks, Download, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -171,27 +171,25 @@ export default function RafflePage() {
           </CardContent>
         </Card>
 
-        <div className="p-4 border rounded-md bg-muted/30 text-sm space-y-2">
-          <h4 className="font-semibold text-base">{t('raffleDetailsPage.legend.title')}</h4>
-          <div className="flex items-center gap-2">
-            <div className="h-4 w-4 rounded-sm border bg-card"></div>
-            <span>{t('raffleDetailsPage.legend.available')}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-4 w-4 rounded-sm bg-yellow-400"></div>
-            <span>{t('raffleDetailsPage.legend.pendingPayment')}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-4 w-4 rounded-sm bg-sky-500"></div>
-            <span>{t('raffleDetailsPage.legend.purchasedCash')}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-4 w-4 rounded-sm bg-emerald-500"></div>
-            <span>{t('raffleDetailsPage.legend.purchasedTransfer')}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-4 w-4 rounded-sm bg-green-600"></div>
-            <span>{t('raffleDetailsPage.legend.purchasedOther')}</span>
+        <div className="p-4 border rounded-md bg-muted/30 text-sm">
+          <h4 className="font-semibold text-base mb-2">{t('raffleDetailsPage.legend.title')}</h4>
+          <div className="flex flex-row flex-wrap gap-x-4 gap-y-2">
+            <div className="inline-flex items-center gap-2">
+              <div className="h-4 w-4 rounded-sm border bg-card"></div>
+              <span>{t('raffleDetailsPage.legend.available')}</span>
+            </div>
+            <div className="inline-flex items-center gap-2">
+              <div className="h-4 w-4 rounded-sm bg-yellow-400"></div>
+              <span>{t('raffleDetailsPage.legend.pendingPayment')}</span>
+            </div>
+            <div className="inline-flex items-center gap-2">
+              <div className="h-4 w-4 rounded-sm bg-sky-500"></div>
+              <span>{t('raffleDetailsPage.legend.purchasedCash')}</span>
+            </div>
+            <div className="inline-flex items-center gap-2">
+              <div className="h-4 w-4 rounded-sm bg-emerald-500"></div>
+              <span>{t('raffleDetailsPage.legend.purchasedTransfer')}</span>
+            </div>
           </div>
         </div>
 
@@ -220,5 +218,4 @@ export default function RafflePage() {
     </TooltipProvider>
   );
 }
-
     

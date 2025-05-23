@@ -53,9 +53,13 @@
       "available": "Available",
       "pendingPayment": "Pending Payment",
       "purchasedCash": "Paid (Cash)",
-      "purchasedTransfer": "Paid (Transfer)",
-      "purchasedOther": "Paid (Other)"
-    }
+      "purchasedTransfer": "Paid (Transfer)"
+    },
+    "exportImageButton": "Export Image",
+    "exportSuccessTitle": "Exported!",
+    "exportSuccessDescription": "Raffle grid image exported successfully.",
+    "exportErrorTitle": "Export Error",
+    "exportErrorDescription": "Could not export raffle grid image."
   },
   "configurePage": {
     "title": "Create New Raffle"
@@ -293,5 +297,4 @@
     "pt": "Portuguese"
   }
 }
-
     
