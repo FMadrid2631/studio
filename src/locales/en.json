@@ -23,7 +23,7 @@
     "raffleStatusClosed": "Closed",
     "labels": {
         "totalNumbers": "{{count}} numbers",
-        "numberValue": "{{value}} {{currencySymbol}} each",
+        "numberValueEach": "{{price}} each",
         "country": "Country: {{countryName}}",
         "prizes": "Prizes: {{count}}",
         "drawDate": "Draw Date: {{date}}"
@@ -113,7 +113,7 @@
     "cannotEditDescriptionClosed": "This raffle cannot be edited because it is closed."
   },
   "purchaseForm": {
-    "title": "Purchase Numbers for \"{{raffleName}}\"",
+    "title": "Purchase numbers",
     "description": "Select your numbers and fill in your details.",
     "labels": {
       "fullName": "Full Name",
@@ -126,7 +126,7 @@
       "phoneNumber": "+1234567890",
       "selectPaymentMethod": "Select payment method"
     },
-    "selectNumbersDescription": "Choose your lucky numbers. {{value}} {{currencySymbol}} each.",
+    "selectNumbersDescription": "Choose your lucky numbers. {{price}} each.",
     "allNumbersSoldOut": "All numbers are sold out!",
     "paymentMethods": {
         "cash": "Cash",
@@ -134,7 +134,7 @@
         "pending": "Pending Payment"
     },
     "totalAmount": "Total Amount",
-    "totalAmountDetails": "({{count}} number(s) x {{value}} {{currencySymbol}})",
+    "totalAmountDetails": "({{count}} number(s) x {{price}})",
     "purchaseButton": "Purchase",
     "toast": {
         "successTitle": "Success!",
@@ -157,7 +157,7 @@
     "backToRaffleDetails": "Back to Raffle Details",
     "title": "Available Numbers for \"{{raffleName}}\"",
     "listTitle": "Available Numbers",
-    "listDescription": "These numbers are still up for grabs! Each costs {{value}} {{currencySymbol}}.",
+    "listDescription": "These numbers are still up for grabs! Each costs {{price}}.",
     "allSoldOut": "All numbers have been sold or are pending payment!",
     "countSummary": "{{availableCount}} of {{totalCount}} numbers available."
   },

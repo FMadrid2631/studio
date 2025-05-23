@@ -5,16 +5,20 @@ import type { RaffleNumber } from '@/types';
 import { cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useTranslations } from '@/contexts/LocalizationContext';
 
 interface RaffleGridProps {
   numbers: RaffleNumber[];
   currencySymbol: string;
+  currencyCode: string; // Added currencyCode
   numberValue: number;
   onNumberClick?: (numberId: number) => void;
   interactive?: boolean;
 }
 
-export function RaffleGrid({ numbers, currencySymbol, numberValue, onNumberClick, interactive = true }: RaffleGridProps) {
+export function RaffleGrid({ numbers, currencySymbol, currencyCode, numberValue, onNumberClick, interactive = true }: RaffleGridProps) {
+  const { locale } = useTranslations();
+  
   const getStatusColor = (status: RaffleNumber['status']) => {
     switch (status) {
       case 'Purchased':
@@ -27,9 +31,17 @@ export function RaffleGrid({ numbers, currencySymbol, numberValue, onNumberClick
     }
   };
 
+  const formatPriceForTooltip = () => {
+    if (currencyCode === 'CLP') {
+      return `${currencySymbol}${numberValue.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+    }
+    return `${currencySymbol}${numberValue.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+  const priceDisplay = formatPriceForTooltip();
+
   return (
     <TooltipProvider>
-      <div className="grid grid-cols-10 gap-2"> {/* Changed to always use 10 columns */}
+      <div className="grid grid-cols-10 gap-2">
         {numbers.map((num) => (
           <Tooltip key={num.id}>
             <TooltipTrigger asChild>
@@ -57,7 +69,7 @@ export function RaffleGrid({ numbers, currencySymbol, numberValue, onNumberClick
               {num.status !== 'Available' && num.buyerName && <p>Buyer: {num.buyerName}</p>}
               {num.status !== 'Available' && num.buyerPhone && <p>Phone: {num.buyerPhone}</p>}
               {num.paymentMethod && <p>Payment: {num.paymentMethod}</p>}
-              <p>Price: {numberValue} {currencySymbol}</p>
+              <p>Price: {priceDisplay}</p>
             </TooltipContent>
           </Tooltip>
         ))}
@@ -65,4 +77,3 @@ export function RaffleGrid({ numbers, currencySymbol, numberValue, onNumberClick
     </TooltipProvider>
   );
 }
-

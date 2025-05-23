@@ -18,7 +18,6 @@ export default function HomePage() {
   const { raffles, isLoading } = useRaffles();
   const { t, locale, changeLocaleForRaffle } = useTranslations();
 
-  // Reset locale to default when on home page
   useEffect(() => {
     changeLocaleForRaffle(undefined);
   }, [changeLocaleForRaffle]);
@@ -33,6 +32,13 @@ export default function HomePage() {
   }
   
   const dateLocale = getLocaleFromString(locale);
+
+  const formatPrice = (value: number, currencySymbol: string, currencyCode: string) => {
+    if (currencyCode === 'CLP') {
+      return `${currencySymbol}${value.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+    }
+    return `${currencySymbol}${value.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
 
   return (
     <div className="space-y-8">
@@ -68,7 +74,7 @@ export default function HomePage() {
                   </Badge>
                 </div>
                 <CardDescription>
-                  {t('homePage.labels.totalNumbers', { count: raffle.totalNumbers })} | {t('homePage.labels.numberValue', { value: raffle.numberValue, currencySymbol: raffle.country.currencySymbol })}
+                  {t('homePage.labels.totalNumbers', { count: raffle.totalNumbers })} | {t('homePage.labels.numberValueEach', { price: formatPrice(raffle.numberValue, raffle.country.currencySymbol, raffle.country.currencyCode) })}
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex-grow space-y-2">

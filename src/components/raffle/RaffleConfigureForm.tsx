@@ -22,7 +22,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { useTranslations } from '@/contexts/LocalizationContext';
 import { getLocaleFromString } from '@/lib/date-fns-locales';
 
-// Custom hook to get the previous value of a prop or state
 function usePrevious<T>(value: T): T | undefined {
   const ref = useRef<T>();
   useEffect(() => {
@@ -46,7 +45,7 @@ const createRaffleFormSchema = (t: Function) => z.object({
 });
 
 interface RaffleConfigureFormProps {
-  editingRaffle?: Raffle; // For edit mode
+  editingRaffle?: Raffle;
 }
 
 export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps) {
@@ -81,23 +80,24 @@ export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps)
     },
   });
 
-  const { fields, append, remove, replace } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'prizes',
   });
 
   const watchedNumberOfPrizes = form.watch('numberOfPrizes');
   const watchedCountryCode = form.watch('countryCode');
-  const selectedCountry = getCountryByCode(watchedCountryCode);
+  const selectedCountryDetails = getCountryByCode(watchedCountryCode || (editingRaffle?.country.code ?? ''));
   const prevWatchedNumberOfPrizes = usePrevious(watchedNumberOfPrizes);
   
   useEffect(() => {
-    // For new raffles (create mode), or if editing an existing one and its country changes
-    // the localization context should reflect that specific country's locale if possible.
-    // If no specific country/raffle (e.g. on /configure directly), use default.
-    const targetCountryCode = editingRaffle ? editingRaffle.country.code : undefined;
-    changeLocaleForRaffle(targetCountryCode);
-  }, [editingRaffle, changeLocaleForRaffle]);
+    const targetCountryCode = editingRaffle ? editingRaffle.country.code : (watchedCountryCode || undefined);
+    if (targetCountryCode) {
+      changeLocaleForRaffle(targetCountryCode);
+    } else {
+      changeLocaleForRaffle(undefined); // Fallback to default/localStorage if no country context
+    }
+  }, [editingRaffle, watchedCountryCode, changeLocaleForRaffle]);
 
 
   useEffect(() => {
@@ -117,8 +117,6 @@ export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps)
   
 
   useEffect(() => {
-    // Only run this effect if initial data for an edit has been loaded OR if it's create mode.
-    // And only if numberOfPrizes has actually been changed by the user.
     if ((isEditMode && !initialDataLoaded)) return;
 
     const userChangedNumberOfPrizes = prevWatchedNumberOfPrizes !== undefined && prevWatchedNumberOfPrizes !== watchedNumberOfPrizes;
@@ -132,14 +130,11 @@ export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps)
                 append({ description: '' });
             }
         } else if (targetPrizesCount < currentPrizesCount) {
-            // Only remove if we are not in the initial render of edit mode
              if (isEditMode && !userChangedNumberOfPrizes && initialDataLoaded) {
-                // This case is tricky: if form is reset, fields are replaced.
-                // If numberOfPrizes is then changed, we adjust.
-                // For now, let's assume reset handles initial prize setup.
+                // This case is handled by form.reset
              } else {
                 for (let i = currentPrizesCount - 1; i >= targetPrizesCount; i--) {
-                    if (fields[i]) { // Ensure field exists before removing
+                    if (fields[i]) { 
                         remove(i);
                     }
                 }
@@ -151,13 +146,12 @@ export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps)
 
   function onSubmit(data: RaffleConfigurationFormInput) {
     const country = COUNTRIES.find(c => c.code === data.countryCode);
-    if (!country && !isEditMode) { // country check less critical if just updating existing, but good to have consistency
+    if (!country && !isEditMode) {
       toast({ title: t('configureForm.toast.errorTitle'), description: t('configureForm.toast.errorCountry'), variant: 'destructive' });
       return;
     }
 
     if (isEditMode && editingRaffle) {
-      // Ensure the context gets the correct country object for the edited raffle
       const finalData = { ...data, country: country || editingRaffle.country }; 
       const updatedRaffle = editRaffle(editingRaffle.id, finalData);
       if (updatedRaffle) {
@@ -169,7 +163,7 @@ export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps)
     } else {
       const newRaffle = addRaffle({
         ...data,
-        country: country!, // country is validated for non-edit mode
+        country: country!, 
         prizeDescriptions: data.prizes.map(p => p.description)
       });
       toast({ title: t('configureForm.toast.successTitle'), description: t('configureForm.toast.successDescription', {raffleName: newRaffle.name }) });
@@ -178,6 +172,7 @@ export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps)
   }
   
   const dateLocale = getLocaleFromString(locale);
+  const currencySymbolForLabel = selectedCountryDetails?.currencySymbol || (isEditMode && editingRaffle ? editingRaffle.country.currencySymbol : '$');
 
   return (
     <Card className="max-w-2xl mx-auto shadow-lg">
@@ -209,7 +204,15 @@ export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps)
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{t('configureForm.labels.country')}</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isEditMode}>
+                    <Select 
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        // Explicitly trigger revalidation or update for currency symbol if needed,
+                        // though watching countryCode should handle it.
+                      }} 
+                      defaultValue={field.value} 
+                      disabled={isEditMode}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder={t('configureForm.placeholders.selectCountry')} />
@@ -234,7 +237,7 @@ export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps)
                 name="numberValue"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('configureForm.labels.numberValue', { currencySymbol: selectedCountry?.currencySymbol || editingRaffle?.country.currencySymbol || '$' })}</FormLabel>
+                    <FormLabel>{t('configureForm.labels.numberValue', { currencySymbol: currencySymbolForLabel })}</FormLabel>
                     <FormControl>
                       <Input type="number" step="0.01" placeholder={t('configureForm.placeholders.numberValue')} {...field} />
                     </FormControl>
@@ -321,11 +324,9 @@ export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps)
                       <FormControl>
                         <Input placeholder={t('configureForm.placeholders.prizeDescription')} {...field} />
                       </FormControl>
-                      {/* Allow removing prizes only if more than one and numberOfPrizes input supports it */}
                       {fields.length > 1 && (
                         <Button type="button" variant="destructive" size="icon" onClick={() => {
                           remove(index);
-                          // Update numberOfPrizes form value to reflect removal
                           const newNumberOfPrizes = Math.max(1, fields.length - 1);
                           form.setValue('numberOfPrizes', newNumberOfPrizes, { shouldValidate: true });
                         }}>
@@ -348,4 +349,3 @@ export function RaffleConfigureForm({ editingRaffle }: RaffleConfigureFormProps)
     </Card>
   );
 }
-

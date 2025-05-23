@@ -23,7 +23,7 @@
     "raffleStatusClosed": "Fechada",
     "labels": {
         "totalNumbers": "{{count}} números",
-        "numberValue": "{{value}} {{currencySymbol}} cada",
+        "numberValueEach": "{{price}} cada",
         "country": "País: {{countryName}}",
         "prizes": "Prêmios: {{count}}",
         "drawDate": "Data do Sorteio: {{date}}"
@@ -107,13 +107,13 @@
   },
   "editRafflePage": {
     "title": "Editar Configuração da Rifa",
-    "description": "Modifique os detalhes da sua rifa abaixo. Alguns campos могут estar bloqueados se as vendas tiverem começado.",
+    "description": "Modifique os detalhes da sua rifa abaixo. Alguns campos podem estar bloqueados se as vendas tiverem começado.",
     "cannotEditTitle": "Não é Possível Editar a Rifa",
     "cannotEditDescriptionSales": "Esta rifa não pode ser editada porque as vendas já começaram.",
     "cannotEditDescriptionClosed": "Esta rifa não pode ser editada porque está fechada."
   },
   "purchaseForm": {
-    "title": "Comprar Números para \"{{raffleName}}\"",
+    "title": "Comprar números",
     "description": "Selecione seus números e preencha seus dados.",
     "labels": {
       "fullName": "Nome Completo",
@@ -126,7 +126,7 @@
       "phoneNumber": "+5511912345678",
       "selectPaymentMethod": "Selecione o método de pagamento"
     },
-    "selectNumbersDescription": "Escolha seus números da sorte. {{value}} {{currencySymbol}} cada.",
+    "selectNumbersDescription": "Escolha seus números da sorte. {{price}} cada.",
     "allNumbersSoldOut": "Todos os números estão esgotados!",
     "paymentMethods": {
         "cash": "Dinheiro",
@@ -134,7 +134,7 @@
         "pending": "Pagamento Pendente"
     },
     "totalAmount": "Valor Total",
-    "totalAmountDetails": "({{count}} número(s) x {{value}} {{currencySymbol}})",
+    "totalAmountDetails": "({{count}} número(s) x {{price}})",
     "purchaseButton": "Comprar",
     "toast": {
         "successTitle": "Sucesso!",
@@ -157,7 +157,7 @@
     "backToRaffleDetails": "Voltar para Detalhes da Rifa",
     "title": "Números Disponíveis para \"{{raffleName}}\"",
     "listTitle": "Números Disponíveis",
-    "listDescription": "Estes números ainda estão disponíveis! Cada um custa {{value}} {{currencySymbol}}.",
+    "listDescription": "Estes números ainda estão disponíveis! Cada um custa {{price}}.",
     "allSoldOut": "Todos os números foram vendidos ou estão com pagamento pendente!",
     "countSummary": "{{availableCount}} de {{totalCount}} números disponíveis."
   },

@@ -12,18 +12,31 @@ interface AvailableNumbersListProps {
   numbers: RaffleNumber[];
   currencySymbol: string;
   numberValue: number;
+  // It seems currencyCode is missing here for proper formatting, assuming we want similar formatting.
+  // For now, I'll use a generic formatting or add currencyCode if complex logic is needed.
+  // Let's assume a simple display for now or that the description key handles it.
+  // Adding currencyCode to ensure consistency:
+  currencyCode: string;
 }
 
-export function AvailableNumbersList({ numbers, currencySymbol, numberValue }: AvailableNumbersListProps) {
+export function AvailableNumbersList({ numbers, currencySymbol, numberValue, currencyCode }: AvailableNumbersListProps) {
   const availableNumbers = numbers.filter(num => num.status === 'Available');
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
+
+  const formatPrice = () => {
+    if (currencyCode === 'CLP') {
+      return `${currencySymbol}${numberValue.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+    }
+    return `${currencySymbol}${numberValue.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+  const priceDisplay = formatPrice();
 
   return (
     <Card className="shadow-lg">
       <CardHeader>
         <CardTitle className="text-2xl text-primary">{t('availableNumbersPage.listTitle')}</CardTitle>
         <CardDescription>
-          {t('availableNumbersPage.listDescription', { value: numberValue, currencySymbol: currencySymbol })}
+          {t('availableNumbersPage.listDescription', { price: priceDisplay })}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -40,7 +53,7 @@ export function AvailableNumbersList({ numbers, currencySymbol, numberValue }: A
                   key={num.id} 
                   variant="outline" 
                   className="aspect-square flex items-center justify-center text-sm font-medium border-primary text-primary hover:bg-primary/10 transition-colors cursor-default"
-                  title={`Number ${num.id}`} // Tooltip content is not translated by default by this system
+                  title={`Number ${num.id}`}
                 >
                   {num.id}
                 </Badge>

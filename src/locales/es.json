@@ -23,7 +23,7 @@
     "raffleStatusClosed": "Cerrada",
     "labels": {
         "totalNumbers": "{{count}} números",
-        "numberValue": "{{value}} {{currencySymbol}} cada uno",
+        "numberValueEach": "{{price}} cada uno",
         "country": "País: {{countryName}}",
         "prizes": "Premios: {{count}}",
         "drawDate": "Fecha del Sorteo: {{date}}"
@@ -113,7 +113,7 @@
     "cannotEditDescriptionClosed": "Esta rifa no se puede editar porque está cerrada."
   },
   "purchaseForm": {
-    "title": "Comprar Números para \"{{raffleName}}\"",
+    "title": "Comprar números",
     "description": "Selecciona tus números y completa tus datos.",
     "labels": {
       "fullName": "Nombre Completo",
@@ -126,7 +126,7 @@
       "phoneNumber": "+521234567890",
       "selectPaymentMethod": "Selecciona método de pago"
     },
-    "selectNumbersDescription": "Elige tus números de la suerte. {{value}} {{currencySymbol}} cada uno.",
+    "selectNumbersDescription": "Elige tus números de la suerte. {{price}} cada uno.",
     "allNumbersSoldOut": "¡Todos los números están agotados!",
     "paymentMethods": {
         "cash": "Efectivo",
@@ -134,7 +134,7 @@
         "pending": "Pago Pendiente"
     },
     "totalAmount": "Monto Total",
-    "totalAmountDetails": "({{count}} número(s) x {{value}} {{currencySymbol}})",
+    "totalAmountDetails": "({{count}} número(s) x {{price}})",
     "purchaseButton": "Comprar",
     "toast": {
         "successTitle": "¡Éxito!",
@@ -157,7 +157,7 @@
     "backToRaffleDetails": "Volver a Detalles de la Rifa",
     "title": "Números Disponibles para \"{{raffleName}}\"",
     "listTitle": "Números Disponibles",
-    "listDescription": "¡Estos números aún están disponibles! Cada uno cuesta {{value}} {{currencySymbol}}.",
+    "listDescription": "¡Estos números aún están disponibles! Cada uno cuesta {{price}}.",
     "allSoldOut": "¡Todos los números han sido vendidos o están pendientes de pago!",
     "countSummary": "{{availableCount}} de {{totalCount}} números disponibles."
   },

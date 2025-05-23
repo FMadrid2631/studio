@@ -63,12 +63,12 @@ export default function RafflePage() {
   const hasSoldNumbers = raffle.numbers.some(n => n.status !== 'Available');
   const canEditConfiguration = !hasSoldNumbers && raffle.status !== 'Closed';
 
-  // Determine if numberValue has decimals to format it appropriately
-  const hasDecimals = raffle.numberValue % 1 !== 0;
-  const formattedNumberValue = raffle.numberValue.toLocaleString(locale, {
-    minimumFractionDigits: hasDecimals ? 2 : 0,
-    maximumFractionDigits: 2
-  });
+  let formattedNumberValueWithSymbol;
+  if (raffle.country.currencyCode === 'CLP') {
+    formattedNumberValueWithSymbol = `${raffle.country.currencySymbol}${raffle.numberValue.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  } else {
+    formattedNumberValueWithSymbol = `${raffle.country.currencySymbol}${raffle.numberValue.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
 
   return (
     <TooltipProvider>
@@ -86,8 +86,7 @@ export default function RafflePage() {
                   {t('raffleDetailsPage.drawDateLabel', { date: format(new Date(raffle.drawDate), 'PPP', { locale: dateLocale }) })}
                   {' | '}
                   <span className="font-bold text-lg">
-                    {raffle.country.currencySymbol}
-                    {formattedNumberValue}
+                    {formattedNumberValueWithSymbol}
                   </span>
                   {' '}
                   {t('raffleDetailsPage.pricePerNumberSuffix')}
@@ -116,7 +115,6 @@ export default function RafflePage() {
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  {/* The div is necessary for TooltipTrigger when the child button is disabled */}
                   <div className="w-full"> 
                     <Button variant="outline" asChild={canEditConfiguration} disabled={!canEditConfiguration} className="w-full">
                       {canEditConfiguration ? (
@@ -124,7 +122,6 @@ export default function RafflePage() {
                           <Settings className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.configureButton')}
                         </Link>
                       ) : (
-                        // Render a non-link Button when disabled
                         <span>
                           <Settings className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.configureButton')}
                         </span>
@@ -166,6 +163,7 @@ export default function RafflePage() {
             <RaffleGrid 
               numbers={raffle.numbers} 
               currencySymbol={raffle.country.currencySymbol}
+              currencyCode={raffle.country.currencyCode}
               numberValue={raffle.numberValue}
               onNumberClick={handleNumberClick}
               interactive={raffle.status === 'Open'}

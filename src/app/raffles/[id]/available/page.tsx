@@ -55,6 +55,7 @@ export default function AvailableNumbersPage() {
       <AvailableNumbersList 
         numbers={raffle.numbers} 
         currencySymbol={raffle.country.currencySymbol}
+        currencyCode={raffle.country.currencyCode} // Pass currencyCode
         numberValue={raffle.numberValue}
       />
     </div>

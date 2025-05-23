@@ -12,7 +12,7 @@ import type { PurchaseFormInput, Raffle } from '@/types';
 import { useRaffles } from '@/contexts/RaffleContext';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState, useMemo } from 'react'; // Added useMemo
+import { useEffect, useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Checkbox } from '../ui/checkbox';
 import { ScrollArea } from '../ui/scroll-area';
@@ -40,7 +40,7 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [totalAmount, setTotalAmount] = useState(0);
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
 
   const availableRaffleNumbers = useMemo(() => {
     return raffle.numbers.filter(n => n.status === 'Available').map(n => n.id);
@@ -58,23 +58,21 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
     },
   });
 
-  const selectedNumbersWatch = form.watch('selectedNumbers');
+  const { setValue, getValues, watch } = form;
+  const selectedNumbersWatch = watch('selectedNumbers');
 
   useEffect(() => {
     const preSelectedNumberStr = searchParams.get('selectedNumber');
     if (preSelectedNumberStr) {
       const preSelectedNumberVal = Number(preSelectedNumberStr);
-      // Ensure the number is actually available before attempting to select it
       if (availableRaffleNumbers.includes(preSelectedNumberVal)) {
-        const currentSelections = form.getValues('selectedNumbers') || [];
-        // Only add if not already present, to prevent loops and respect user's deselection
+        const currentSelections = getValues('selectedNumbers') || [];
         if (!currentSelections.includes(preSelectedNumberVal)) {
-          form.setValue('selectedNumbers', [...currentSelections, preSelectedNumberVal], { shouldDirty: true });
+          setValue('selectedNumbers', [...currentSelections, preSelectedNumberVal], { shouldDirty: true, shouldValidate: true });
         }
       }
     }
-    // This effect should run when the ability to pre-select changes (e.g. new raffle, new query param)
-  }, [searchParams, availableRaffleNumbers, form, raffle.id]);
+  }, [searchParams, availableRaffleNumbers, setValue, getValues, raffle.id]);
 
 
   useEffect(() => {
@@ -84,16 +82,21 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
 
   function onSubmit(data: PurchaseFormInput) {
     // Re-fetch current available numbers at the time of submission for final validation
-    const currentAvailableAtSubmit = raffle.numbers.filter(n => n.status === 'Available').map(n => n.id);
+    // This uses the latest raffle state from context, which might have changed due to other users
+    const currentRaffleState = useRaffles().getRaffleById(raffle.id);
+    const currentAvailableAtSubmit = currentRaffleState 
+        ? currentRaffleState.numbers.filter(n => n.status === 'Available').map(n => n.id)
+        : availableRaffleNumbers; // Fallback to initial, though less ideal
+
+
     const allSelectedAreStillAvailable = data.selectedNumbers.every(num => currentAvailableAtSubmit.includes(num));
 
     if (!allSelectedAreStillAvailable) {
         toast({
             title: t('purchaseForm.toast.errorTitle'),
-            description: t('purchaseForm.validation.selectedNumbersUnavailable'), // Or a more specific "some numbers were taken while you were selecting"
+            description: t('purchaseForm.validation.selectedNumbersUnavailable'),
             variant: 'destructive'
         });
-        // Update form with only the numbers that are still valid from their selection
         const stillValidSelections = data.selectedNumbers.filter(numId => currentAvailableAtSubmit.includes(numId));
         form.setValue('selectedNumbers', stillValidSelections);
         return;
@@ -113,16 +116,29 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
         variant: 'destructive' 
       });
       // Refresh available numbers and update form selection if some were taken
-      const stillAvailableForSelection = raffle.numbers.filter(n => n.status === 'Available').map(n => n.id);
-      const stillValidUserSelection = data.selectedNumbers.filter(numId => stillAvailableForSelection.includes(numId));
+      const stillAvailableForSelectionAfterFailedSubmit = currentRaffleState
+        ? currentRaffleState.numbers.filter(n => n.status === 'Available').map(n => n.id)
+        : availableRaffleNumbers;
+      const stillValidUserSelection = data.selectedNumbers.filter(numId => stillAvailableForSelectionAfterFailedSubmit.includes(numId));
       form.setValue('selectedNumbers', stillValidUserSelection);
     }
   }
 
+  const formatPrice = (value: number, currencySymbol: string, currencyCode: string) => {
+    if (currencyCode === 'CLP') {
+      return `${currencySymbol}${value.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+    }
+    return `${currencySymbol}${value.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+  
+  const pricePerNumberFormatted = formatPrice(raffle.numberValue, raffle.country.currencySymbol, raffle.country.currencyCode);
+  const totalAmountFormatted = formatPrice(totalAmount, raffle.country.currencySymbol, raffle.country.currencyCode);
+
+
   return (
     <Card className="max-w-lg mx-auto shadow-lg">
       <CardHeader>
-        <CardTitle className="text-2xl text-primary">{t('purchaseForm.title', { raffleName: raffle.name })}</CardTitle>
+        <CardTitle className="text-2xl text-primary">{t('purchaseForm.title')}</CardTitle>
         <CardDescription>{t('purchaseForm.description')}</CardDescription>
       </CardHeader>
       <CardContent>
@@ -163,20 +179,20 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
                   <div className="mb-2">
                     <FormLabel>{t('purchaseForm.labels.selectNumbers')}</FormLabel>
                     <FormDescription>
-                      {t('purchaseForm.selectNumbersDescription', {value: raffle.numberValue, currencySymbol: raffle.country.currencySymbol})}
+                      {t('purchaseForm.selectNumbersDescription', { price: pricePerNumberFormatted })}
                     </FormDescription>
                   </div>
                   <ScrollArea className="h-48 border rounded-md p-2">
                     <div className="grid grid-cols-5 gap-2">
                     {availableRaffleNumbers.length === 0 ? <p className="col-span-full text-center text-muted-foreground">{t('purchaseForm.allNumbersSoldOut')}</p> : 
                       availableRaffleNumbers.map((numberId) => (
-                        <FormItem // Using FormItem for structure and a11y association
+                        <FormItem 
                           key={numberId}
                           className="flex flex-row items-center justify-center space-x-0 space-y-0"
                         >
                           <FormControl>
                             <Checkbox
-                              className="sr-only" // Checkbox is visually hidden, label is the click target
+                              className="sr-only" 
                               checked={(field.value || []).includes(numberId)}
                               onCheckedChange={(checked) => {
                                 const currentSelected = field.value || [];
@@ -186,13 +202,13 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
                                 } else {
                                   newSelected = currentSelected.filter(id => id !== numberId);
                                 }
-                                field.onChange(newSelected); // Update the 'selectedNumbers' array
+                                field.onChange(newSelected);
                               }}
-                              id={`number-checkbox-${numberId}`} // Unique ID for the checkbox
+                              id={`number-checkbox-${numberId}`}
                             />
                           </FormControl>
                           <FormLabel 
-                            htmlFor={`number-checkbox-${numberId}`} // Associate label with checkbox
+                            htmlFor={`number-checkbox-${numberId}`}
                             className={`flex items-center justify-center w-full aspect-square rounded-md border cursor-pointer transition-colors
                               ${(field.value || []).includes(numberId) 
                                 ? 'bg-primary text-primary-foreground border-primary' 
@@ -204,7 +220,7 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
                       ))}
                     </div>
                   </ScrollArea>
-                  <FormMessage /> {/* For validation messages related to selectedNumbers array */}
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -236,11 +252,11 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
               <div className="p-4 bg-accent/30 rounded-md text-center">
                 <p className="text-lg font-semibold">{t('purchaseForm.totalAmount')}: 
                   <Badge variant="secondary" className="ml-2 text-lg bg-primary text-primary-foreground">
-                    {totalAmount.toFixed(2)} {raffle.country.currencySymbol}
+                    {totalAmountFormatted}
                   </Badge>
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  {t('purchaseForm.totalAmountDetails', {count: (selectedNumbersWatch || []).length, value: raffle.numberValue, currencySymbol: raffle.country.currencySymbol})}
+                  {t('purchaseForm.totalAmountDetails', {count: (selectedNumbersWatch || []).length, price: pricePerNumberFormatted})}
                 </p>
               </div>
             )}
