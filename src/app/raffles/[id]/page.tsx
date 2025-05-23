@@ -6,7 +6,7 @@ import { useRaffles } from '@/contexts/RaffleContext';
 import { RaffleGrid } from '@/components/raffle/RaffleGrid';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, Edit, ListChecks, Trophy, Settings, Download, Loader2 } from 'lucide-react';
+import { ArrowLeft, Edit, Download, Trophy, Settings, ListChecks, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -68,7 +68,11 @@ export default function RafflePage() {
     try {
       const dataUrl = await toPng(gridRef.current, { 
         quality: 0.95, 
-        backgroundColor: 'white'
+        backgroundColor: 'white',
+        // Ensure the entire grid is captured if it's larger than the viewport
+        // by targeting an element that wraps the grid content appropriately.
+        // If gridRef directly wraps only the grid cells, this should be fine.
+        // Consider pixelRatio for higher resolution, e.g., pixelRatio: 2
       });
       const link = document.createElement('a');
       const sanitizedRaffleName = raffle.name.replace(/[^\w\s-]/gi, '').replace(/\s+/g, '_').toLowerCase();
@@ -176,10 +180,14 @@ export default function RafflePage() {
                   <Edit className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.purchaseNumbersButton')}
                 </Link>
               </Button>
-              <Button variant="outline" asChild>
-                <Link href={`/raffles/${raffle.id}/available`}>
-                  <ListChecks className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.viewAvailableButton')}
-                </Link>
+              <Button 
+                variant="outline" 
+                onClick={handleExportImage} 
+                disabled={isExporting}
+                className="w-full"
+              >
+                {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+                {t('raffleDetailsPage.exportImageButton')}
               </Button>
               <Button variant="default" asChild disabled={raffle.status === 'Closed'}>
                 <Link href={`/raffles/${raffle.id}/draw`}>
@@ -192,15 +200,7 @@ export default function RafflePage() {
         
         <Card>
           <CardContent className="pt-6">
-            <div className="text-red-500 font-bold p-4 border border-red-500">DEBUG: IS THIS TEXT VISIBLE?</div>
-            <Button 
-              onClick={handleExportImage} 
-              disabled={isExporting}
-              variant="destructive" 
-              className="mb-4 p-4 text-lg" 
-            >
-              {isExporting ? "GENERANDO..." : "BOTON EXPORTAR PRUEBA"}
-            </Button>
+            {/* The div below is targeted by gridRef for image export */}
             <div ref={gridRef}>
               <RaffleGrid 
                 numbers={raffle.numbers} 
@@ -209,7 +209,7 @@ export default function RafflePage() {
                 numberValue={raffle.numberValue}
                 onNumberClick={handleNumberClick}
                 interactive={raffle.status === 'Open'}
-                t={t}
+                t={t} // Pass translation function
               />
             </div>
           </CardContent>
@@ -235,3 +235,4 @@ export default function RafflePage() {
       </div>
     </TooltipProvider>
   );
+}
