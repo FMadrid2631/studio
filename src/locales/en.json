@@ -41,8 +41,6 @@
     "purchaseNumbersButton": "Purchase Numbers",
     "viewAvailableButton": "View Available",
     "conductDrawButton": "Conduct Draw",
-    "raffleGridTitle": "Raffle Grid",
-    "raffleGridDescription": "Click on an available number to purchase it.",
     "prizesListTitle": "Prizes",
     "prizeItem": "Prize {{order}}",
     "prizeWonBy": "Won by #{{number}} - {{name}}",
@@ -50,7 +48,12 @@
     "raffleNotFoundDescription": "The raffle you are looking for does not exist or may have been removed.",
     "backToHomeButton": "Back to Home",
     "configureButton": "Configure",
-    "configureDisabledTooltip": "Configuration cannot be changed after sales have started or raffle is closed."
+    "configureDisabledTooltip": "Configuration cannot be changed after sales have started or raffle is closed.",
+    "exportImageButton": "Export Image",
+    "exportSuccessTitle": "Image Exported",
+    "exportSuccessDescription": "The raffle grid image has been downloaded.",
+    "exportErrorTitle": "Export Error",
+    "exportErrorDescription": "Could not export the raffle grid image."
   },
   "configurePage": {
     "title": "Create New Raffle"
@@ -155,8 +158,7 @@
     "raffleClosedDescription": "This raffle is no longer open for purchases.",
     "backToRaffleButton": "Back to Raffle",
     "grid": {
-      "numberTitle": "Number {{id}}",
-      "numberStatusTitle": "Number {{id}} ({{status}})",
+      "numberTitle": "Number {{id}} (Status: {{status}})",
       "noNumbersInRaffle": "No numbers configured for this raffle yet."
     }
   },

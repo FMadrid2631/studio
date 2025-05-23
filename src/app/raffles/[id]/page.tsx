@@ -6,15 +6,17 @@ import { useRaffles } from '@/contexts/RaffleContext';
 import { RaffleGrid } from '@/components/raffle/RaffleGrid';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, Edit, ListChecks, Trophy, Settings } from 'lucide-react';
+import { ArrowLeft, Edit, ListChecks, Trophy, Settings, Download, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { useTranslations } from '@/contexts/LocalizationContext';
 import { format } from 'date-fns';
 import { getLocaleFromString } from '@/lib/date-fns-locales';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { toPng } from 'html-to-image';
+import { useToast } from '@/hooks/use-toast';
 
 export default function RafflePage() {
   const params = useParams();
@@ -22,9 +24,11 @@ export default function RafflePage() {
   const { getRaffleById, isLoading } = useRaffles();
   const router = useRouter();
   const { t, locale, changeLocaleForRaffle } = useTranslations();
-
+  const { toast } = useToast();
 
   const raffle = getRaffleById(raffleId);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     if (raffle) {
@@ -57,6 +61,40 @@ export default function RafflePage() {
   const handleNumberClick = (numberId: number) => {
     router.push(`/raffles/${raffleId}/purchase?selectedNumber=${numberId}`);
   };
+
+  const handleExportImage = async () => {
+    if (!gridRef.current || !raffle) return;
+    setIsExporting(true);
+    try {
+      // Ensure a background color is applied for consistent export, especially if the page/element background is transparent
+      const dataUrl = await toPng(gridRef.current, { 
+        quality: 0.95, 
+        backgroundColor: 'white' // Or use a theme-aware color
+      });
+      const link = document.createElement('a');
+      // Sanitize raffle name for filename
+      const sanitizedRaffleName = raffle.name.replace(/[^\w\s-]/gi, '').replace(/\s+/g, '_').toLowerCase();
+      link.download = `rifa-${sanitizedRaffleName}-numeros.png`;
+      link.href = dataUrl;
+      document.body.appendChild(link); // Required for Firefox
+      link.click();
+      document.body.removeChild(link); // Clean up
+      toast({
+        title: t('raffleDetailsPage.exportSuccessTitle'),
+        description: t('raffleDetailsPage.exportSuccessDescription'),
+      });
+    } catch (error) {
+      console.error('Error exporting image:', error);
+      toast({
+        title: t('raffleDetailsPage.exportErrorTitle'),
+        description: t('raffleDetailsPage.exportErrorDescription'),
+        variant: 'destructive',
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
 
   const purchasedCount = raffle.numbers.filter(n => n.status === 'Purchased' || n.status === 'PendingPayment').length;
   const progress = raffle.totalNumbers > 0 ? (purchasedCount / raffle.totalNumbers) * 100 : 0;
@@ -155,16 +193,22 @@ export default function RafflePage() {
         </Card>
         
         <Card>
-          <CardContent className="pt-6"> {/* Added pt-6 to give some space if header is removed */}
-            <RaffleGrid 
-              numbers={raffle.numbers} 
-              currencySymbol={raffle.country.currencySymbol}
-              currencyCode={raffle.country.currencyCode}
-              numberValue={raffle.numberValue}
-              onNumberClick={handleNumberClick}
-              interactive={raffle.status === 'Open'}
-              t={t} // Pass the t function here
-            />
+          <CardContent className="pt-6">
+            <Button onClick={handleExportImage} disabled={isExporting} variant="outline" className="mb-4 w-full md:w-auto">
+              {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+              {t('raffleDetailsPage.exportImageButton')}
+            </Button>
+            <div ref={gridRef}>
+              <RaffleGrid 
+                numbers={raffle.numbers} 
+                currencySymbol={raffle.country.currencySymbol}
+                currencyCode={raffle.country.currencyCode}
+                numberValue={raffle.numberValue}
+                onNumberClick={handleNumberClick}
+                interactive={raffle.status === 'Open'}
+                t={t}
+              />
+            </div>
           </CardContent>
         </Card>
 

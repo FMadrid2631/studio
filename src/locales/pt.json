@@ -41,8 +41,6 @@
     "purchaseNumbersButton": "Comprar Números",
     "viewAvailableButton": "Ver Disponíveis",
     "conductDrawButton": "Realizar Sorteio",
-    "raffleGridTitle": "Grade da Rifa",
-    "raffleGridDescription": "Clique em um número disponível para comprá-lo.",
     "prizesListTitle": "Prêmios",
     "prizeItem": "Prêmio {{order}}",
     "prizeWonBy": "Ganhado por #{{number}} - {{name}}",
@@ -50,7 +48,12 @@
     "raffleNotFoundDescription": "A rifa que você está procurando não existe ou pode ter sido removida.",
     "backToHomeButton": "Voltar ao Início",
     "configureButton": "Configurar",
-    "configureDisabledTooltip": "A configuração não pode ser alterada após o início das vendas ou se a rifa estiver fechada."
+    "configureDisabledTooltip": "A configuração não pode ser alterada após o início das vendas ou se a rifa estiver fechada.",
+    "exportImageButton": "Exportar Imagem",
+    "exportSuccessTitle": "Imagem Exportada",
+    "exportSuccessDescription": "A imagem da grade da rifa foi baixada.",
+    "exportErrorTitle": "Erro ao Exportar",
+    "exportErrorDescription": "Não foi possível exportar a imagem da grade da rifa."
   },
   "configurePage": {
     "title": "Criar Nova Rifa"
@@ -155,8 +158,7 @@
     "raffleClosedDescription": "Esta rifa não está mais aberta para compras.",
     "backToRaffleButton": "Voltar para a Rifa",
     "grid": {
-      "numberTitle": "Número {{id}}",
-      "numberStatusTitle": "Número {{id}} ({{status}})",
+      "numberTitle": "Número {{id}} (Status: {{status}})",
       "noNumbersInRaffle": "Nenhum número configurado para esta rifa ainda."
     }
   },
