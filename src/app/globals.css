@@ -26,14 +26,14 @@ body {
     --muted: 60 30% 88%; /* Muted beige */
     --muted-foreground: 60 5% 53.1%; /* #8C8C8A - Muted gray */
 
-    --accent: 45 100% 60%; /* #FFCC00 - Warm Yellow */
-    --accent-foreground: 224 71.4% 4.1%; /* Dark for contrast on yellow */
+    --accent: 40 95% 58%; /* #FFC20E - More vibrant yellow-orange for hovers/accents */
+    --accent-foreground: 224 71.4% 4.1%; /* Dark for contrast on accent */
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 60 30% 80%; /* Border for beige theme */
-    --input: 60 30% 80%; /* This is for input BORDER color */
+    --border: 60 25% 75%; /* #D4D4BF - Slightly darker general border */
+    --input: 60 25% 70%; /* #C7C7B2 - Darker input border for better definition */
     --input-background: 0 0% 100%; /* White background for inputs in light theme */
     --ring: 30 100% 60%; /* Orange for focus rings */
 
@@ -77,14 +77,14 @@ body {
     --muted: 224 71.4% 8%;
     --muted-foreground: 60 5% 53.1%; /* Muted gray on dark */
     
-    --accent: 45 100% 60%; /* Warm Yellow */
-    --accent-foreground: 224 71.4% 4.1%;
+    --accent: 40 95% 58%; /* #FFC20E - More vibrant yellow-orange for hovers/accents */
+    --accent-foreground: 224 71.4% 4.1%; /* Dark for contrast on accent in dark theme as well, works well */
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 224 71.4% 10%;
-    --input: 224 71.4% 8%; /* This is for input BORDER color in dark theme */
+    --border: 224 71.4% 15%; /* #1F1F33 - Slightly lighter dark border */
+    --input: 224 71.4% 18%; /* #26263D - Slightly lighter dark input border */
     --input-background: 224 71.4% 8%; /* Dark grey background for inputs in dark theme */
     --ring: 30 100% 60%; /* Orange */
 
