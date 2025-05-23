@@ -12,7 +12,7 @@ import type { PurchaseFormInput, Raffle } from '@/types';
 import { useRaffles } from '@/contexts/RaffleContext';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Checkbox } from '../ui/checkbox';
 import { ScrollArea } from '../ui/scroll-area';
@@ -35,16 +35,20 @@ const createPurchaseFormSchema = (availableNumbers: number[], t: Function) => z.
 
 
 export function PurchaseForm({ raffle }: PurchaseFormProps) {
-  const { purchaseNumbers } = useRaffles();
+  const { purchaseNumbers, getRaffleById } = useRaffles(); // Added getRaffleById for latest state
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [totalAmount, setTotalAmount] = useState(0);
   const { t, locale } = useTranslations();
 
+  const initialUrlParamProcessed = useRef(false);
+
   const availableRaffleNumbers = useMemo(() => {
-    return raffle.numbers.filter(n => n.status === 'Available').map(n => n.id);
-  }, [raffle.numbers]);
+    // Ensure we are using the latest raffle state for available numbers
+    const currentRaffle = getRaffleById(raffle.id) || raffle;
+    return currentRaffle.numbers.filter(n => n.status === 'Available').map(n => n.id);
+  }, [raffle.id, raffle.numbers, getRaffleById]); // Depend on raffle.numbers too
 
   const purchaseFormSchema = createPurchaseFormSchema(availableRaffleNumbers, t);
   
@@ -61,18 +65,36 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
   const { setValue, getValues, watch } = form;
   const selectedNumbersWatch = watch('selectedNumbers');
 
+  // Effect for pre-selecting a number from URL query parameter.
+  // This should run once per relevant change in searchParams or raffle.id.
   useEffect(() => {
+    if (initialUrlParamProcessed.current && searchParams.get('selectedNumber') === null) {
+      // If already processed and no new selectedNumber param, do nothing to avoid interference
+      return;
+    }
+
     const preSelectedNumberStr = searchParams.get('selectedNumber');
     if (preSelectedNumberStr) {
       const preSelectedNumberVal = Number(preSelectedNumberStr);
+      
+      // Use the memoized availableRaffleNumbers which is derived from the latest raffle state
       if (availableRaffleNumbers.includes(preSelectedNumberVal)) {
         const currentSelections = getValues('selectedNumbers') || [];
         if (!currentSelections.includes(preSelectedNumberVal)) {
           setValue('selectedNumbers', [...currentSelections, preSelectedNumberVal], { shouldDirty: true, shouldValidate: true });
         }
       }
+      initialUrlParamProcessed.current = true; // Mark as processed for this specific param value
+    } else {
+      // If there's no selectedNumber in the URL, ensure the flag allows future processing if a param appears
+      initialUrlParamProcessed.current = false;
     }
-  }, [searchParams, availableRaffleNumbers, setValue, getValues, raffle.id]);
+  }, [searchParams, raffle.id, availableRaffleNumbers, setValue, getValues]);
+
+  // Reset the processing flag if the raffle ID changes (e.g., navigating to a different purchase page)
+  useEffect(() => {
+    initialUrlParamProcessed.current = false;
+  }, [raffle.id]);
 
 
   useEffect(() => {
@@ -81,12 +103,10 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
 
 
   function onSubmit(data: PurchaseFormInput) {
-    // Re-fetch current available numbers at the time of submission for final validation
-    // This uses the latest raffle state from context, which might have changed due to other users
-    const currentRaffleState = useRaffles().getRaffleById(raffle.id);
+    const currentRaffleState = getRaffleById(raffle.id); // Fetch latest state
     const currentAvailableAtSubmit = currentRaffleState 
         ? currentRaffleState.numbers.filter(n => n.status === 'Available').map(n => n.id)
-        : availableRaffleNumbers; // Fallback to initial, though less ideal
+        : availableRaffleNumbers; 
 
 
     const allSelectedAreStillAvailable = data.selectedNumbers.every(num => currentAvailableAtSubmit.includes(num));
@@ -115,9 +135,9 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
         description: t('purchaseForm.toast.errorDescription'), 
         variant: 'destructive' 
       });
-      // Refresh available numbers and update form selection if some were taken
-      const stillAvailableForSelectionAfterFailedSubmit = currentRaffleState
-        ? currentRaffleState.numbers.filter(n => n.status === 'Available').map(n => n.id)
+      const refreshedRaffleState = getRaffleById(raffle.id);
+      const stillAvailableForSelectionAfterFailedSubmit = refreshedRaffleState
+        ? refreshedRaffleState.numbers.filter(n => n.status === 'Available').map(n => n.id)
         : availableRaffleNumbers;
       const stillValidUserSelection = data.selectedNumbers.filter(numId => stillAvailableForSelectionAfterFailedSubmit.includes(numId));
       form.setValue('selectedNumbers', stillValidUserSelection);
@@ -270,3 +290,4 @@ export function PurchaseForm({ raffle }: PurchaseFormProps) {
     </Card>
   );
 }
+
