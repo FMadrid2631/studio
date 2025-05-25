@@ -30,7 +30,6 @@
     }
   },
   "raffleDetailsPage": {
-    "backToAllRaffles": "Back to All Raffles",
     "raffleDetailsTitle": "Raffle Details",
     "drawDateLabel": "Draw Date: {{date}}",
     "pricePerNumberSuffix": "per number",
@@ -45,7 +44,6 @@
     "prizeWonBy": "Won by #{{number}} - {{name}}",
     "raffleNotFoundTitle": "Raffle Not Found",
     "raffleNotFoundDescription": "The raffle you are looking for does not exist or may have been removed.",
-    "backToHomeButton": "Back to Home",
     "configureButton": "Configure",
     "configureDisabledTooltip": "Configuration cannot be changed after sales have started or raffle is closed.",
     "legend": {
@@ -73,8 +71,7 @@
     "shareMessageText": "Check out this raffle: {{raffleName}}! {{url}}",
     "shareMessageTextShort": "Check out this raffle: {{raffleName}}!",
     "shareLinkCopiedTitle": "Link Copied!",
-    "shareLinkCopiedDescription": "Raffle link ({{url}}) copied to clipboard. Share it on Instagram!",
-    "exportImageButton": "Export Available Details & Bank Info"
+    "shareLinkCopiedDescription": "Raffle link ({{url}}) copied to clipboard. Share it on Instagram!"
   },
   "configurePage": {
     "title": "Create New Raffle"
@@ -227,9 +224,6 @@
     "allSoldOut": "All numbers have been sold or are pending payment!",
     "countSummary": "{{availableCount}} of {{totalCount}} numbers available.",
     "noBankDetailsProvided": "No bank details have been provided for this raffle.",
-    "exportSuccessTitle": "Export Successful",
-    "exportErrorTitle": "Export Error",
-    "exportErrorDescription": "Could not export the image. Please try again.",
     "exportAllSuccessDescription": "Image of available numbers and bank details exported successfully.",
     "exportDisabledRaffleClosedTooltip": "Export not available: raffle is closed."
   },
@@ -252,6 +246,7 @@
     "winnerLabel": "Winner",
     "phoneLabel": "Phone",
     "winningNumberLabelTitle": "Winning Number",
+    "winnerPaymentMethodLabel": "Payment Method",
     "allPrizesStatusTitle": "All Prizes Status",
     "noPrizesDefinedInRaffle": "No prizes have been configured for this raffle.",
     "prizeWonByDetails": "Won by: {{winnerName}} (Number: {{winningNumber}}, Phone: {{winnerPhone}})",
@@ -261,7 +256,6 @@
     "displayLabelWinnerForPrize": "Winner for: {{prizeDescription}}",
     "displayLabelDrawingForPrize": "Drawing for: {{prizeDescription}}",
     "displayLabelGeneral": "Winning Number",
-    "winnerPaymentMethodLabel": "Payment Method",
     "toast": {
         "infoTitle": "Info",
         "infoAllPrizesAwardedOrClosed": "All prizes have been awarded or the raffle is closed.",
@@ -313,6 +307,55 @@
     "en": "English",
     "es": "Spanish",
     "pt": "Portuguese"
+  },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout",
+    "profile": "Profile",
+    "anonymousUser": "User",
+    "loginTitle": "Welcome Back!",
+    "loginSubtitle": "Sign in to continue to Rifa Fácil.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "name@example.com",
+    "passwordLabel": "Password",
+    "loginButton": "Login",
+    "orContinueWith": "Or continue with",
+    "loginWithGoogleButton": "Login with Google",
+    "loginWithAppleButton": "Login with Apple",
+    "noAccountPrompt": "Don't have an account?",
+    "signupLink": "Sign up",
+    "signupTitle": "Create an Account",
+    "signupSubtitle": "Join Rifa Fácil today!",
+    "displayNameLabel": "Full Name",
+    "displayNamePlaceholder": "John Doe",
+    "rutLabel": "RUT (National ID)",
+    "rutPlaceholder": "12345678-9",
+    "confirmPasswordLabel": "Confirm Password",
+    "signupButton": "Sign Up",
+    "alreadyAccountPrompt": "Already have an account?",
+    "loginLink": "Login",
+    "profileTitle": "My Profile",
+    "profileSubtitle": "View and manage your profile information.",
+    "logoutButton": "Logout",
+    "editProfileButton": "Edit Profile",
+    "toast": {
+      "loginSuccessTitle": "Login Successful!",
+      "loginSuccessDescription": "Welcome back, {{email}}!",
+      "signupSuccessTitle": "Signup Successful!",
+      "signupSuccessDescription": "Welcome to Rifa Fácil, {{email}}!",
+      "logoutSuccessTitle": "Logged Out",
+      "providerLoginTitle": "Provider Login",
+      "providerLoginDescription": "Simulating login with {{provider}}. This would trigger the {{provider}} auth flow in a real app."
+    },
+    "validation": {
+      "emailInvalid": "Please enter a valid email address.",
+      "passwordRequired": "Password is required.",
+      "passwordMin": "Password must be at least 6 characters.",
+      "displayNameMin": "Full name must be at least 2 characters.",
+      "rutMin": "RUT must be at least 8 characters.",
+      "rutFormat": "RUT format is invalid (e.g., 12345678-9).",
+      "passwordsNoMatch": "Passwords do not match."
+    }
   }
 }
-    

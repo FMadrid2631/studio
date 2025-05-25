@@ -1,22 +1,44 @@
 
 'use client';
 import Link from 'next/link';
-import { Home, PlusCircle, Ticket } from 'lucide-react';
+import { Home, PlusCircle, Ticket, UserCircle, LogIn, UserPlus, LogOut, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useTranslations } from '@/contexts/LocalizationContext';
-import { LanguageSwitcher } from './LanguageSwitcher'; // Import LanguageSwitcher
+import { LanguageSwitcher } from './LanguageSwitcher';
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export function Navbar() {
   const pathname = usePathname();
-  const { t } = useTranslations(); 
+  const router = useRouter();
+  const { t } = useTranslations();
+  const { currentUser, logout, isLoading } = useAuth();
 
   const navItems = [
     { href: '/', labelKey: 'navbar.home', icon: Home },
     { href: '/configure', labelKey: 'navbar.newRaffle', icon: PlusCircle },
   ];
+
+  const handleLogout = async () => {
+    await logout();
+    // router.push('/'); // Logout function in context already handles redirect
+  };
   
+  const getInitials = (name: string | null | undefined) => {
+    if (!name) return 'U';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+  };
+
   return (
     <nav className="border-b bg-card shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -38,7 +60,59 @@ export function Navbar() {
               </Link>
             </Button>
           ))}
-          <LanguageSwitcher /> 
+          <LanguageSwitcher />
+
+          {isLoading ? (
+            <div className="w-8 h-8 bg-muted rounded-full animate-pulse" />
+          ) : currentUser ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                  <Avatar className="h-9 w-9">
+                    {/* Placeholder for user avatar image - to be implemented if needed */}
+                    {/* <AvatarImage src={currentUser.photoURL || undefined} alt={currentUser.displayName || 'User'} /> */}
+                    <AvatarFallback>{getInitials(currentUser.displayName)}</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {currentUser.displayName || t('auth.anonymousUser')}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {currentUser.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => router.push('/profile')}>
+                  <UserCircle className="mr-2 h-4 w-4" />
+                  <span>{t('auth.profile')}</span>
+                </DropdownMenuItem>
+                {/* Add more items like Settings if needed */}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>{t('auth.logout')}</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Button variant="ghost" asChild>
+                <Link href="/login">
+                  <LogIn className="mr-2 h-4 w-4" /> {t('auth.login')}
+                </Link>
+              </Button>
+              <Button asChild>
+                <Link href="/signup">
+                  <UserPlus className="mr-2 h-4 w-4" /> {t('auth.signup')}
+                </Link>
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </nav>

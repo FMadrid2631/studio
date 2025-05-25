@@ -30,7 +30,6 @@
     }
   },
   "raffleDetailsPage": {
-    "backToAllRaffles": "Voltar para Todas as Rifas",
     "raffleDetailsTitle": "Detalhes da Rifa",
     "drawDateLabel": "Data do Sorteio: {{date}}",
     "pricePerNumberSuffix": "por número",
@@ -45,7 +44,6 @@
     "prizeWonBy": "Ganhado por #{{number}} - {{name}}",
     "raffleNotFoundTitle": "Rifa Não Encontrada",
     "raffleNotFoundDescription": "A rifa que você está procurando não existe ou pode ter sido removida.",
-    "backToHomeButton": "Voltar ao Início",
     "configureButton": "Configurar",
     "configureDisabledTooltip": "A configuração não pode ser alterada após o início das vendas ou se a rifa estiver fechada.",
     "legend": {
@@ -73,8 +71,7 @@
     "shareMessageText": "Confira esta rifa: {{raffleName}}! {{url}}",
     "shareMessageTextShort": "Confira esta rifa: {{raffleName}}!",
     "shareLinkCopiedTitle": "Link Copiado!",
-    "shareLinkCopiedDescription": "Link da rifa ({{url}}) copiado para a área de transferência. Compartilhe no Instagram!",
-    "exportImageButton": "Exportar Detalhes de Disponíveis e Banco"
+    "shareLinkCopiedDescription": "Link da rifa ({{url}}) copiado para a área de transferência. Compartilhe no Instagram!"
   },
   "configurePage": {
     "title": "Criar Nova Rifa"
@@ -227,9 +224,6 @@
     "allSoldOut": "Todos os números foram vendidos ou estão com pagamento pendente!",
     "countSummary": "{{availableCount}} de {{totalCount}} números disponíveis.",
     "noBankDetailsProvided": "Nenhum detalhe bancário foi fornecido para esta rifa.",
-    "exportSuccessTitle": "Exportação Bem-sucedida",
-    "exportErrorTitle": "Erro na Exportação",
-    "exportErrorDescription": "Não foi possível exportar a imagem. Por favor, tente novamente.",
     "exportAllSuccessDescription": "Imagem de números disponíveis e dados bancários exportada com sucesso.",
     "exportDisabledRaffleClosedTooltip": "Exportação não disponível: rifa encerrada."
   },
@@ -252,6 +246,7 @@
     "winnerLabel": "Ganhador(a)",
     "phoneLabel": "Telefone",
     "winningNumberLabelTitle": "Número Ganhador",
+    "winnerPaymentMethodLabel": "Método de Pagamento",
     "allPrizesStatusTitle": "Status de Todos os Prêmios",
     "noPrizesDefinedInRaffle": "Nenhum prêmio foi configurado para esta rifa.",
     "prizeWonByDetails": "Ganhador: {{winnerName}} (Número: {{winningNumber}}, Telefone: {{winnerPhone}})",
@@ -261,7 +256,6 @@
     "displayLabelWinnerForPrize": "Vencedor para: {{prizeDescription}}",
     "displayLabelDrawingForPrize": "Sorteando para: {{prizeDescription}}",
     "displayLabelGeneral": "Número Vencedor",
-    "winnerPaymentMethodLabel": "Método de Pagamento",
     "toast": {
         "infoTitle": "Informação",
         "infoAllPrizesAwardedOrClosed": "Todos os prêmios foram entregues ou a rifa está fechada.",
@@ -313,6 +307,55 @@
     "en": "Inglês (English)",
     "es": "Español (Español)",
     "pt": "Português (Português)"
+  },
+  "auth": {
+    "login": "Entrar",
+    "signup": "Cadastrar",
+    "logout": "Sair",
+    "profile": "Perfil",
+    "anonymousUser": "Usuário",
+    "loginTitle": "Bem-vindo de Volta!",
+    "loginSubtitle": "Faça login para continuar no Rifa Fácil.",
+    "emailLabel": "E-mail",
+    "emailPlaceholder": "nome@exemplo.com",
+    "passwordLabel": "Senha",
+    "loginButton": "Entrar",
+    "orContinueWith": "Ou continue com",
+    "loginWithGoogleButton": "Entrar com Google",
+    "loginWithAppleButton": "Entrar com Apple",
+    "noAccountPrompt": "Não tem uma conta?",
+    "signupLink": "Cadastre-se",
+    "signupTitle": "Criar uma Conta",
+    "signupSubtitle": "Junte-se ao Rifa Fácil hoje mesmo.",
+    "displayNameLabel": "Nome Completo",
+    "displayNamePlaceholder": "João Silva",
+    "rutLabel": "CPF/CNPJ",
+    "rutPlaceholder": "123.456.789-00",
+    "confirmPasswordLabel": "Confirmar Senha",
+    "signupButton": "Cadastrar",
+    "alreadyAccountPrompt": "Já tem uma conta?",
+    "loginLink": "Entrar",
+    "profileTitle": "Meu Perfil",
+    "profileSubtitle": "Veja e gerencie suas informações de perfil.",
+    "logoutButton": "Sair",
+    "editProfileButton": "Editar Perfil",
+    "toast": {
+      "loginSuccessTitle": "Login Bem-sucedido!",
+      "loginSuccessDescription": "Bem-vindo de volta, {{email}}!",
+      "signupSuccessTitle": "Cadastro Bem-sucedido!",
+      "signupSuccessDescription": "Bem-vindo ao Rifa Fácil, {{email}}!",
+      "logoutSuccessTitle": "Sessão Encerrada",
+      "providerLoginTitle": "Login com Provedor",
+      "providerLoginDescription": "Simulando login com {{provider}}. Isso acionaria o fluxo de autenticação de {{provider}} em um aplicativo real."
+    },
+    "validation": {
+      "emailInvalid": "Por favor, insira um endereço de e-mail válido.",
+      "passwordRequired": "A senha é obrigatória.",
+      "passwordMin": "A senha deve ter pelo menos 6 caracteres.",
+      "displayNameMin": "O nome completo deve ter pelo menos 2 caracteres.",
+      "rutMin": "CPF/CNPJ deve ter pelo menos 11 caracteres.",
+      "rutFormat": "Formato de CPF/CNPJ inválido (ex: 123.456.789-00 ou 12.345.678/0001-90).",
+      "passwordsNoMatch": "As senhas não coincidem."
+    }
   }
 }
-    

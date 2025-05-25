@@ -1,4 +1,5 @@
 
+
 export interface Country {
   name: string;
   code: string;
@@ -79,3 +80,23 @@ export type PurchaseFormInput = {
   paymentMethod: 'Cash' | 'Transfer' | 'Pending';
 };
 
+// Authentication related types
+export interface AuthUser {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  rut?: string; // Assuming Chilean RUT
+}
+
+export type LoginFormInput = {
+  email: string;
+  password_login: string; // Renamed to avoid conflict if signup form is on same conceptual page later
+};
+
+export type SignupFormInput = {
+  displayName: string;
+  rut: string;
+  email: string;
+  password_signup: string; // Renamed for clarity
+  confirmPassword?: string; // Optional for now, good practice to add
+};

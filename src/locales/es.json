@@ -30,7 +30,6 @@
     }
   },
   "raffleDetailsPage": {
-    "backToAllRaffles": "Volver a Todas las Rifas",
     "raffleDetailsTitle": "Detalles de la Rifa",
     "drawDateLabel": "Fecha del Sorteo: {{date}}",
     "pricePerNumberSuffix": "por número",
@@ -45,7 +44,6 @@
     "prizeWonBy": "Ganado por #{{number}} - {{name}}",
     "raffleNotFoundTitle": "Rifa No Encontrada",
     "raffleNotFoundDescription": "La rifa que buscas no existe o ha sido eliminada.",
-    "backToHomeButton": "Volver al Inicio",
     "configureButton": "Configurar",
     "configureDisabledTooltip": "La configuración no se puede cambiar después de que hayan comenzado las ventas o la rifa esté cerrada.",
     "legend": {
@@ -73,11 +71,7 @@
     "shareMessageText": "¡Mira esta rifa: {{raffleName}}! {{url}}",
     "shareMessageTextShort": "¡Mira esta rifa: {{raffleName}}!",
     "shareLinkCopiedTitle": "¡Enlace Copiado!",
-    "shareLinkCopiedDescription": "Enlace de la rifa ({{url}}) copiado al portapapeles. ¡Compártelo en Instagram!",
-    "exportImageButton": "Exportar Detalles de Disponibles y Banco",
-    "exportSuccessTitle": "Excelente",
-    "exportErrorTitle": "Error de Exportación",
-    "exportErrorDescription": "No se pudo exportar la imagen. Por favor, inténtalo de nuevo."
+    "shareLinkCopiedDescription": "Enlace de la rifa ({{url}}) copiado al portapapeles. ¡Compártelo en Instagram!"
   },
   "configurePage": {
     "title": "Crear Nueva Rifa"
@@ -238,7 +232,7 @@
     "title": "Realizar Sorteo para \"{{raffleName}}\"",
     "statusAllAwardedOrClosed": "Todos los premios han sido entregados o la rifa está cerrada.",
     "statusReadyToDraw": "Listo para sortear el siguiente premio: {{prizeDescription}}.",
-    "statusNoMorePrizes": "No hay más premios para sortear en esta ronda.",
+    "statusNoMorePrizes": "No hay más premios para sortear en esta rodada.",
     "errorNoEligibleNumbers": "No hay números comprados elegibles disponibles para sortear.",
     "errorDrawFailed": "El sorteo no devolvió ningún número ganador.",
     "errorDrawFailedNoNumberReturned": "El sorteo no devolvió un número ganador. Revisa el estado de la rifa y los números disponibles.",
@@ -252,6 +246,7 @@
     "winnerLabel": "Ganador(a)",
     "phoneLabel": "Teléfono",
     "winningNumberLabelTitle": "Número Ganador",
+    "winnerPaymentMethodLabel": "Método de Pago",
     "allPrizesStatusTitle": "Estado de Todos los Premios",
     "noPrizesDefinedInRaffle": "No se han configurado premios para esta rifa.",
     "prizeWonByDetails": "Ganado por: {{winnerName}} (Número: {{winningNumber}}, Teléfono: {{winnerPhone}})",
@@ -261,7 +256,6 @@
     "displayLabelWinnerForPrize": "Ganador para: {{prizeDescription}}",
     "displayLabelDrawingForPrize": "Sorteando para: {{prizeDescription}}",
     "displayLabelGeneral": "Número Ganador",
-    "winnerPaymentMethodLabel": "Método de Pago",
     "toast": {
         "infoTitle": "Información",
         "infoAllPrizesAwardedOrClosed": "Todos los premios han sido entregados o la rifa está cerrada.",
@@ -313,6 +307,55 @@
     "en": "Inglés (English)",
     "es": "Español (Español)",
     "pt": "Portugués (Português)"
+  },
+  "auth": {
+    "login": "Iniciar Sesión",
+    "signup": "Registrarse",
+    "logout": "Cerrar Sesión",
+    "profile": "Perfil",
+    "anonymousUser": "Usuario",
+    "loginTitle": "¡Bienvenido de Nuevo!",
+    "loginSubtitle": "Inicia sesión para continuar en Rifa Fácil.",
+    "emailLabel": "Correo Electrónico",
+    "emailPlaceholder": "nombre@ejemplo.com",
+    "passwordLabel": "Contraseña",
+    "loginButton": "Iniciar Sesión",
+    "orContinueWith": "O continuar con",
+    "loginWithGoogleButton": "Iniciar Sesión con Google",
+    "loginWithAppleButton": "Iniciar Sesión con Apple",
+    "noAccountPrompt": "¿No tienes una cuenta?",
+    "signupLink": "Regístrate",
+    "signupTitle": "Crear una Cuenta",
+    "signupSubtitle": "Únete a Rifa Fácil hoy mismo.",
+    "displayNameLabel": "Nombre Completo",
+    "displayNamePlaceholder": "Juan Pérez",
+    "rutLabel": "RUT (Cédula de Identidad)",
+    "rutPlaceholder": "12345678-9",
+    "confirmPasswordLabel": "Confirmar Contraseña",
+    "signupButton": "Registrarse",
+    "alreadyAccountPrompt": "¿Ya tienes una cuenta?",
+    "loginLink": "Iniciar Sesión",
+    "profileTitle": "Mi Perfil",
+    "profileSubtitle": "Ver y gestionar la información de tu perfil.",
+    "logoutButton": "Cerrar Sesión",
+    "editProfileButton": "Editar Perfil",
+    "toast": {
+      "loginSuccessTitle": "¡Inicio de Sesión Exitoso!",
+      "loginSuccessDescription": "¡Bienvenido de nuevo, {{email}}!",
+      "signupSuccessTitle": "¡Registro Exitoso!",
+      "signupSuccessDescription": "¡Bienvenido a Rifa Fácil, {{email}}!",
+      "logoutSuccessTitle": "Sesión Cerrada",
+      "providerLoginTitle": "Inicio de Sesión con Proveedor",
+      "providerLoginDescription": "Simulando inicio de sesión con {{provider}}. Esto activaría el flujo de autenticación de {{provider}} en una aplicación real."
+    },
+    "validation": {
+      "emailInvalid": "Por favor, ingresa una dirección de correo electrónico válida.",
+      "passwordRequired": "La contraseña es obligatoria.",
+      "passwordMin": "La contraseña debe tener al menos 6 caracteres.",
+      "displayNameMin": "El nombre completo debe tener al menos 2 caracteres.",
+      "rutMin": "El RUT debe tener al menos 8 caracteres.",
+      "rutFormat": "El formato del RUT es inválido (ej: 12345678-9).",
+      "passwordsNoMatch": "Las contraseñas no coinciden."
+    }
   }
 }
-    
