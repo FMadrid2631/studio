@@ -5,9 +5,8 @@ import Link from 'next/link';
 import { useRaffles } from '@/contexts/RaffleContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, Eye, Edit, ListChecks, Trophy, DollarSign, Loader2 } from 'lucide-react';
+import { PlusCircle, Eye, Edit, ListChecks, Trophy, DollarSign, Loader2, Trash2, AlertTriangle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-// Image component is removed as it's no longer used in this file
 import { useTranslations } from '@/contexts/LocalizationContext';
 import { format } from 'date-fns';
 import { getLocaleFromString } from '@/lib/date-fns-locales';
@@ -23,20 +22,27 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useToast } from '@/hooks/use-toast';
 
 
 export default function HomePage() {
-  const { raffles, isLoading } = useRaffles();
+  const { raffles, isLoading, deleteRaffle } = useRaffles();
   const { t, locale, changeLocaleForRaffle } = useTranslations();
+  const { toast } = useToast();
 
   const [isProfitDialogOpen, setIsProfitDialogOpen] = useState(false);
   const [profitDetails, setProfitDetails] = useState<{
     totalSales: number;
     totalPrizeValue: number;
     netProfit: number;
-    totalPendingSales: number; // Added for pending payments
+    totalPendingSales: number;
   } | null>(null);
   const [currentRaffleForProfit, setCurrentRaffleForProfit] = useState<Raffle | null>(null);
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [raffleToDeleteId, setRaffleToDeleteId] = useState<string | null>(null);
+  const [raffleNameToDelete, setRaffleNameToDelete] = useState<string>('');
+
 
   useEffect(() => {
     changeLocaleForRaffle(undefined);
@@ -86,6 +92,33 @@ export default function HomePage() {
     setIsProfitDialogOpen(true);
   };
 
+  const handleDeleteClick = (raffle: Raffle) => {
+    setRaffleToDeleteId(raffle.id);
+    setRaffleNameToDelete(raffle.name);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteRaffle = () => {
+    if (raffleToDeleteId) {
+      const success = deleteRaffle(raffleToDeleteId);
+      if (success) {
+        toast({
+          title: t('homePage.deleteDialog.successTitle'),
+          description: t('homePage.deleteDialog.successDescription', { raffleName: raffleNameToDelete }),
+        });
+      } else {
+        toast({
+          title: t('homePage.deleteDialog.errorTitle'),
+          description: t('homePage.deleteDialog.errorDescription', { raffleName: raffleNameToDelete }),
+          variant: 'destructive',
+        });
+      }
+      setIsDeleteDialogOpen(false);
+      setRaffleToDeleteId(null);
+      setRaffleNameToDelete('');
+    }
+  };
+
   return (
     <div className="space-y-8">
       <section className="text-center py-12 bg-gradient-to-r from-primary/10 via-background to-accent/10 rounded-lg shadow-md">
@@ -105,12 +138,14 @@ export default function HomePage() {
             <CardDescription>{t('homePage.noRafflesDescription')}</CardDescription>
           </CardHeader>
           <CardContent>
-            {/* Image placeholder removed as per request */}
+            {/* Image placeholder removed */}
           </CardContent>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {raffles.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((raffle) => (
+          {raffles.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((raffle) => {
+            const canDelete = !raffle.numbers.some(n => n.status !== 'Available') && raffle.status !== 'Closed';
+            return (
             <Card key={raffle.id} className="flex flex-col hover:shadow-xl transition-shadow duration-300">
               <CardHeader>
                 <div className="flex justify-between items-start">
@@ -128,7 +163,7 @@ export default function HomePage() {
                 <p className="text-sm text-muted-foreground">{t('homePage.labels.prizes', { count: raffle.prizes.length })}</p>
                 <p className="text-sm text-muted-foreground">{t('homePage.labels.drawDate', { date: format(new Date(raffle.drawDate), 'PPP', { locale: dateLocale }) })}</p>
               </CardContent>
-              <CardFooter className="grid grid-cols-2 gap-2">
+              <CardFooter className="grid grid-cols-2 md:grid-cols-3 gap-2">
                 <Button variant="outline" asChild className="w-full">
                   <Link href={`/raffles/${raffle.id}`}>
                     <Eye className="mr-2 h-4 w-4" /> {t('homePage.viewGridButton')}
@@ -155,12 +190,22 @@ export default function HomePage() {
                     <Trophy className="mr-2 h-4 w-4" /> {t('homePage.drawButton')}
                   </Link>
                 </Button>
-                <Button variant="outline" className="w-full col-span-2 sm:col-span-1" onClick={() => calculateAndShowProfitForRaffle(raffle)}>
+                <Button variant="outline" className="w-full" onClick={() => calculateAndShowProfitForRaffle(raffle)}>
                   <DollarSign className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.viewProfitButton')}
+                </Button>
+                <Button 
+                    variant="outline" 
+                    className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/50"
+                    onClick={() => handleDeleteClick(raffle)} 
+                    disabled={!canDelete}
+                    title={!canDelete ? t('homePage.deleteDialog.disabledTooltip') : t('homePage.deleteDialog.deleteButton')}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" /> {t('homePage.deleteDialog.deleteButton')}
                 </Button>
               </CardFooter>
             </Card>
-          ))}
+            ); // Corrected: semicolon removed from previous ")};"
+          })} {/* Corrected: Added closing for map function and JSX expression */}
         </div>
       )}
 
@@ -197,6 +242,32 @@ export default function HomePage() {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogAction onClick={() => setIsProfitDialogOpen(false)}>{t('raffleDetailsPage.profitDialog.closeButton')}</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
+
+      {isDeleteDialogOpen && (
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center">
+                <AlertTriangle className="mr-2 h-6 w-6 text-destructive" />
+                {t('homePage.deleteDialog.title')}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {t('homePage.deleteDialog.description', { raffleName: raffleNameToDelete })}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setIsDeleteDialogOpen(false)}>
+                {t('homePage.deleteDialog.cancelButton')}
+              </AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={confirmDeleteRaffle} 
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                {t('homePage.deleteDialog.confirmButton')}
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

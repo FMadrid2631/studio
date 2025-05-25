@@ -27,6 +27,18 @@
         "country": "País: {{countryName}}",
         "prizes": "Premios: {{count}}",
         "drawDate": "Fecha del Sorteo: {{date}}"
+    },
+    "deleteDialog": {
+      "deleteButton": "Eliminar",
+      "title": "Confirmar Eliminación",
+      "description": "¿Estás seguro de que quieres eliminar la rifa \"{{raffleName}}\"? Esta acción no se puede deshacer.",
+      "confirmButton": "Confirmar Eliminación",
+      "cancelButton": "Cancelar",
+      "successTitle": "Rifa Eliminada",
+      "successDescription": "La rifa \"{{raffleName}}\" ha sido eliminada exitosamente.",
+      "errorTitle": "Error al Eliminar",
+      "errorDescription": "No se pudo eliminar la rifa \"{{raffleName}}\". Podría tener números vendidos o ya está cerrada.",
+      "disabledTooltip": "No se puede eliminar: la rifa tiene números vendidos o está cerrada."
     }
   },
   "raffleDetailsPage": {
@@ -374,3 +386,4 @@
     }
   }
 }
+

@@ -33,6 +33,7 @@ interface RaffleContextType {
   ) => void;
   closeRaffle: (raffleId: string) => void;
   updatePendingPayment: (raffleId: string, numberId: number, newPaymentMethod: 'Cash' | 'Transfer') => boolean;
+  deleteRaffle: (raffleId: string) => boolean;
 }
 
 const RaffleContext = createContext<RaffleContextType | undefined>(undefined);
@@ -62,27 +63,47 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
 
     let madeChanges = false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Normalize today's date to compare only dates
+
     const checkedRaffles = initialRaffles.map(raffle => {
       let currentRaffle = { ...raffle };
+      let statusChanged = false;
+
+      // Condition 1: All prizes awarded
       if (currentRaffle.status === 'Open' && currentRaffle.prizes && currentRaffle.prizes.length > 0) {
         const allPrizesAwarded = currentRaffle.prizes.every(p => !!p.winningNumber);
         if (allPrizesAwarded) {
-          madeChanges = true;
           currentRaffle.status = 'Closed';
+          statusChanged = true;
         }
       }
+
+      // Condition 2: Draw date has passed
+      const drawDate = new Date(currentRaffle.drawDate);
+      drawDate.setHours(0,0,0,0); // Normalize draw date
+      if (currentRaffle.status === 'Open' && drawDate < today) {
+        currentRaffle.status = 'Closed';
+        statusChanged = true;
+      }
+      
+      if (statusChanged) {
+        madeChanges = true;
+      }
+
+      // Populate winnerPaymentMethod if missing (existing logic)
       if (currentRaffle.prizes) {
         const prizesUpdated = currentRaffle.prizes.map(p => {
           if (p.winningNumber && !p.winnerPaymentMethod) {
             const winningRaffleNumber = currentRaffle.numbers.find(rn => rn.id === p.winningNumber && rn.status === 'Purchased');
             if (winningRaffleNumber && winningRaffleNumber.paymentMethod) {
-              madeChanges = true;
+              madeChanges = true; // This might trigger save even if status didn't change, which is fine
               return { ...p, winnerPaymentMethod: winningRaffleNumber.paymentMethod };
             }
           }
           return p;
         });
-        if (prizesUpdated.some((p, i) => p !== currentRaffle.prizes[i])) { // Check if prizes actually changed
+        if (prizesUpdated.some((p, i) => JSON.stringify(p) !== JSON.stringify(currentRaffle.prizes[i]))) {
           madeChanges = true;
           currentRaffle.prizes = prizesUpdated;
         }
@@ -212,7 +233,7 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         drawDate: existingRaffle.prizes[index]?.drawDate,
         winnerPaymentMethod: existingRaffle.prizes[index]?.winnerPaymentMethod,
       })),
-      numbers: existingRaffle.numbers,
+      numbers: existingRaffle.numbers, // Numbers are not editable directly here
       bankDetails: bankDetails,
     };
 
@@ -288,7 +309,7 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           ...num,
           status: 'Purchased',
           paymentMethod: newPaymentMethod,
-          purchaseDate: new Date().toISOString(), // Update purchase date to reflect confirmation
+          purchaseDate: new Date().toISOString(), 
         };
       }
       return num;
@@ -301,9 +322,27 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return false;
   };
 
+  const deleteRaffle = (raffleId: string): boolean => {
+    const raffleToDelete = getRaffleById(raffleId);
+    if (!raffleToDelete) {
+      console.warn(`Raffle with id ${raffleId} not found for deletion.`);
+      return false;
+    }
+
+    const hasSoldNumbers = raffleToDelete.numbers.some(n => n.status !== 'Available');
+    if (hasSoldNumbers) {
+      console.warn(`Cannot delete raffle ${raffleId}: it has sold or pending numbers.`);
+      return false;
+    }
+
+    const updatedRaffles = raffles.filter(r => r.id !== raffleId);
+    saveRaffles(updatedRaffles);
+    return true;
+  };
+
 
   return (
-    <RaffleContext.Provider value={{ raffles, isLoading, addRaffle, getRaffleById, updateRaffle, editRaffle, purchaseNumbers, recordPrizeWinner, closeRaffle, updatePendingPayment }}>
+    <RaffleContext.Provider value={{ raffles, isLoading, addRaffle, getRaffleById, updateRaffle, editRaffle, purchaseNumbers, recordPrizeWinner, closeRaffle, updatePendingPayment, deleteRaffle }}>
       {children}
     </RaffleContext.Provider>
   );
@@ -316,3 +355,4 @@ export const useRaffles = (): RaffleContextType => {
   }
   return context;
 };
+

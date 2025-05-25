@@ -27,6 +27,18 @@
         "country": "País: {{countryName}}",
         "prizes": "Prêmios: {{count}}",
         "drawDate": "Data do Sorteio: {{date}}"
+    },
+    "deleteDialog": {
+      "deleteButton": "Excluir",
+      "title": "Confirmar Exclusão",
+      "description": "Tem certeza de que deseja excluir a rifa \"{{raffleName}}\"? Esta ação não pode ser desfeita.",
+      "confirmButton": "Confirmar Exclusão",
+      "cancelButton": "Cancelar",
+      "successTitle": "Rifa Excluída",
+      "successDescription": "A rifa \"{{raffleName}}\" foi excluída com sucesso.",
+      "errorTitle": "Falha na Exclusão",
+      "errorDescription": "Não foi possível excluir a rifa \"{{raffleName}}\". Pode ter números vendidos ou já está fechada.",
+      "disabledTooltip": "Não é possível excluir: a rifa tem números vendidos ou está fechada."
     }
   },
   "raffleDetailsPage": {
@@ -374,3 +386,4 @@
     }
   }
 }
+

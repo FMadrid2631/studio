@@ -27,6 +27,18 @@
         "country": "Country: {{countryName}}",
         "prizes": "Prizes: {{count}}",
         "drawDate": "Draw Date: {{date}}"
+    },
+    "deleteDialog": {
+      "deleteButton": "Delete",
+      "title": "Confirm Deletion",
+      "description": "Are you sure you want to delete the raffle \"{{raffleName}}\"? This action cannot be undone.",
+      "confirmButton": "Confirm Delete",
+      "cancelButton": "Cancel",
+      "successTitle": "Raffle Deleted",
+      "successDescription": "The raffle \"{{raffleName}}\" has been successfully deleted.",
+      "errorTitle": "Deletion Failed",
+      "errorDescription": "Could not delete raffle \"{{raffleName}}\". It might have sold numbers or is already closed.",
+      "disabledTooltip": "Cannot delete: raffle has sold numbers or is closed."
     }
   },
   "raffleDetailsPage": {
@@ -123,7 +135,7 @@
       "accountType": "E.g., Savings, Checking",
       "accountTypeHint": "E.g., Savings Account, Checking Account.",
       "identificationNumber": "E.g., National ID, SSN, EIN",
-      "identificationNumberHint": "E.g., RUT, CUIT, CPF, National ID of the account holder.",
+      "identificationNumberHint": "E.g., National ID, SSN, EIN of the account holder.",
       "transferInstructions": "E.g., Include raffle name in transfer reference. You can also ask buyers to include their selected numbers."
     },
     "buttons": {
@@ -374,3 +386,4 @@
     }
   }
 }
+
