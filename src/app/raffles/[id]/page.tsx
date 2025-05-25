@@ -6,7 +6,7 @@ import { useRaffles } from '@/contexts/RaffleContext';
 import { RaffleGrid } from '@/components/raffle/RaffleGrid';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Edit, Settings, Trophy, DollarSign, ListChecks, Download } from 'lucide-react';
+import { Edit, Settings, Trophy, DollarSign, ListChecks, Share2, CreditCard } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -18,19 +18,27 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import {
   AlertDialog,
   AlertDialogAction,
+  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
+import type { RaffleNumber } from '@/types';
+
 
 export default function RafflePage() {
   const params = useParams();
   const raffleId = params.id as string;
-  const { getRaffleById, isLoading } = useRaffles();
+  const { getRaffleById, isLoading, updatePendingPayment } = useRaffles();
   const router = useRouter();
   const { t, locale, changeLocaleForRaffle } = useTranslations();
+  const { toast } = useToast();
 
   const raffle = getRaffleById(raffleId);
 
@@ -42,9 +50,20 @@ export default function RafflePage() {
     totalPendingSales: number;
   } | null>(null);
 
+  const [isUpdatePaymentDialogOpen, setIsUpdatePaymentDialogOpen] = useState(false);
+  const [selectedNumberForPaymentUpdate, setSelectedNumberForPaymentUpdate] = useState<RaffleNumber | null>(null);
+  const [newPaymentMethod, setNewPaymentMethod] = useState<'Cash' | 'Transfer' | undefined>(undefined);
+
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [shareUrl, setShareUrl] = useState('');
+
+
   useEffect(() => {
     if (raffle) {
       changeLocaleForRaffle(raffle.country.code);
+      if (typeof window !== 'undefined') {
+        setShareUrl(window.location.origin + `/raffles/${raffle.id}`);
+      }
     }
   }, [raffle, changeLocaleForRaffle]);
 
@@ -59,7 +78,6 @@ export default function RafflePage() {
         <Image src="https://placehold.co/300x200.png" alt={t('raffleDetailsPage.raffleNotFoundTitle')} width={300} height={200} className="mx-auto rounded-md shadow-md mb-4" data-ai-hint="error notfound" />
         <h2 className="text-2xl font-semibold mb-4">{t('raffleDetailsPage.raffleNotFoundTitle')}</h2>
         <p className="text-muted-foreground mb-6">{t('raffleDetailsPage.raffleNotFoundDescription')}</p>
-        {/* Button to go home was here, removed as per request */}
       </div>
     );
   }
@@ -74,8 +92,41 @@ export default function RafflePage() {
   };
 
   const handleNumberClick = (numberId: number) => {
-    router.push(`/raffles/${raffleId}/purchase?selectedNumber=${numberId}`);
+    if (!raffle) return;
+    const clickedNumber = raffle.numbers.find(n => n.id === numberId);
+    if (!clickedNumber) return;
+
+    if (clickedNumber.status === 'Available' && raffle.status === 'Open') {
+      router.push(`/raffles/${raffle.id}/purchase?selectedNumber=${numberId}`);
+    } else if (clickedNumber.status === 'PendingPayment' && raffle.status === 'Open') {
+      setSelectedNumberForPaymentUpdate(clickedNumber);
+      setNewPaymentMethod(undefined); // Reset selection
+      setIsUpdatePaymentDialogOpen(true);
+    }
+    // If 'Purchased' or raffle is 'Closed', do nothing on click in the grid for now
   };
+  
+  const handleConfirmPaymentUpdate = () => {
+    if (!raffle || !selectedNumberForPaymentUpdate || !newPaymentMethod) return;
+
+    const success = updatePendingPayment(raffle.id, selectedNumberForPaymentUpdate.id, newPaymentMethod);
+    if (success) {
+      toast({
+        title: t('raffleDetailsPage.updatePayment.successTitle'),
+        description: t('raffleDetailsPage.updatePayment.successDescription', { numberId: selectedNumberForPaymentUpdate.id, method: t(`paymentMethodLabels.${newPaymentMethod}`) })
+      });
+    } else {
+      toast({
+        title: t('raffleDetailsPage.updatePayment.errorTitle'),
+        description: t('raffleDetailsPage.updatePayment.errorDescription'),
+        variant: 'destructive'
+      });
+    }
+    setIsUpdatePaymentDialogOpen(false);
+    setSelectedNumberForPaymentUpdate(null);
+    setNewPaymentMethod(undefined);
+  };
+
 
   const purchasedCount = raffle.numbers.filter(n => n.status === 'Purchased' || n.status === 'PendingPayment').length;
   const progress = raffle.totalNumbers > 0 ? (purchasedCount / raffle.totalNumbers) * 100 : 0;
@@ -115,6 +166,47 @@ export default function RafflePage() {
     });
     setIsProfitDialogOpen(true);
   };
+
+  const handleSocialShare = (platform: 'whatsapp' | 'facebook' | 'x' | 'instagram') => {
+    if (!raffle || !shareUrl) return;
+
+    const raffleName = raffle.name;
+    const encodedUrl = encodeURIComponent(shareUrl);
+    // Use a generic text for sharing that doesn't imply the raffle is open or closed
+    const text = t('raffleDetailsPage.shareMessageText', { raffleName: raffleName, url: shareUrl });
+    const encodedText = encodeURIComponent(text);
+
+    let platformUrl = '';
+
+    switch (platform) {
+      case 'whatsapp':
+        platformUrl = `https://wa.me/?text=${encodedText}`;
+        break;
+      case 'facebook':
+        platformUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+        break;
+      case 'x':
+        platformUrl = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodeURIComponent(t('raffleDetailsPage.shareMessageTextShort', {raffleName: raffleName}))}`;
+        break;
+      case 'instagram':
+        navigator.clipboard.writeText(shareUrl).then(() => {
+          toast({
+            title: t('raffleDetailsPage.shareLinkCopiedTitle'),
+            description: t('raffleDetailsPage.shareLinkCopiedDescription', {url: shareUrl}),
+          });
+        }).catch(err => {
+          console.error('Failed to copy link: ', err);
+          toast({
+            title: t('purchaseForm.toast.copiedErrorTitle'), // Assuming generic copy error toasts
+            description: t('purchaseForm.toast.copiedErrorDescription'),
+            variant: 'destructive',
+          });
+        });
+        return; 
+    }
+    window.open(platformUrl, '_blank', 'noopener,noreferrer');
+  };
+
 
   return (
     <TooltipProvider>
@@ -183,10 +275,10 @@ export default function RafflePage() {
                 </Link>
               </Button>
               <Button variant="outline" asChild className="w-full">
-                <Link href={`/raffles/${raffle.id}/available`}>
-                  <ListChecks className="mr-2 h-4 w-4" />
-                  {t('homePage.availableButton')}
-                </Link>
+                 <Link href={`/raffles/${raffle.id}/available`}>
+                    <ListChecks className="mr-2 h-4 w-4" />
+                    {t('homePage.availableButton')}
+                 </Link>
               </Button>
               <Button variant="default" asChild disabled={raffle.status === 'Closed'} className="w-full">
                 <Link href={`/raffles/${raffle.id}/draw`}>
@@ -203,7 +295,7 @@ export default function RafflePage() {
         </Card>
 
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-6" ref={gridRef}>
             <RaffleGrid
               numbers={raffle.numbers}
               currencySymbol={raffle.country.currencySymbol}
@@ -263,12 +355,70 @@ export default function RafflePage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-xl flex items-center">
-              <ListChecks className="mr-2 h-5 w-5 text-primary" /> {/* Replaced Share2 with ListChecks for generic share title */}
+              <Share2 className="mr-2 h-5 w-5 text-primary" />
               {t('raffleDetailsPage.shareSectionTitle')}
             </CardTitle>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
-            {/* Share buttons remain here */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleSocialShare('whatsapp')}
+                  disabled={raffle.status === 'Closed' || !shareUrl}
+                  aria-label={t('raffleDetailsPage.shareOnWhatsApp')}
+                >
+                  <MessageSquare className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('raffleDetailsPage.shareOnWhatsApp')}</TooltipContent>
+            </Tooltip>
+
+             <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleSocialShare('facebook')}
+                  disabled={raffle.status === 'Closed' || !shareUrl}
+                  aria-label={t('raffleDetailsPage.shareOnFacebook')}
+                >
+                  <Facebook className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('raffleDetailsPage.shareOnFacebook')}</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleSocialShare('x')}
+                  disabled={raffle.status === 'Closed' || !shareUrl}
+                  aria-label={t('raffleDetailsPage.shareOnX')}
+                >
+                  <Twitter className="h-5 w-5" /> {/* Replace with X/Twitter icon if available */}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('raffleDetailsPage.shareOnX')}</TooltipContent>
+            </Tooltip>
+            
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleSocialShare('instagram')}
+                  disabled={raffle.status === 'Closed' || !shareUrl}
+                  aria-label={t('raffleDetailsPage.shareOnInstagram')}
+                >
+                  <Instagram className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('raffleDetailsPage.shareOnInstagramTooltip')}</TooltipContent>
+            </Tooltip>
           </CardContent>
         </Card>
 
@@ -305,6 +455,48 @@ export default function RafflePage() {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogAction onClick={() => setIsProfitDialogOpen(false)}>{t('raffleDetailsPage.profitDialog.closeButton')}</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
+
+        {selectedNumberForPaymentUpdate && (
+          <AlertDialog open={isUpdatePaymentDialogOpen} onOpenChange={setIsUpdatePaymentDialogOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  {t('raffleDetailsPage.updatePayment.dialogTitle', { numberId: selectedNumberForPaymentUpdate.id })}
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  {t('raffleDetailsPage.updatePayment.dialogDescription', { 
+                    buyerName: selectedNumberForPaymentUpdate.buyerName || 'N/A', 
+                    buyerPhone: selectedNumberForPaymentUpdate.buyerPhone || 'N/A' 
+                  })}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <div className="space-y-4 py-4">
+                <div>
+                  <Label htmlFor="paymentMethodUpdate">{t('purchaseForm.labels.paymentMethod')}</Label>
+                  <Select onValueChange={(value: 'Cash' | 'Transfer') => setNewPaymentMethod(value)} value={newPaymentMethod}>
+                    <SelectTrigger id="paymentMethodUpdate">
+                      <SelectValue placeholder={t('purchaseForm.placeholders.selectPaymentMethod')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Cash">{t('paymentMethodLabels.Cash')}</SelectItem>
+                      <SelectItem value="Transfer">{t('paymentMethodLabels.Transfer')}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <AlertDialogFooter>
+                <AlertDialogCancel onClick={() => {
+                  setIsUpdatePaymentDialogOpen(false);
+                  setSelectedNumberForPaymentUpdate(null);
+                  setNewPaymentMethod(undefined);
+                }}>{t('raffleDetailsPage.updatePayment.cancelButton')}</AlertDialogCancel>
+                <AlertDialogAction onClick={handleConfirmPaymentUpdate} disabled={!newPaymentMethod}>
+                  {t('raffleDetailsPage.updatePayment.confirmButton')}
+                </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>

@@ -71,7 +71,21 @@
     "shareMessageText": "Confira esta rifa: {{raffleName}}! {{url}}",
     "shareMessageTextShort": "Confira esta rifa: {{raffleName}}!",
     "shareLinkCopiedTitle": "Link Copiado!",
-    "shareLinkCopiedDescription": "Link da rifa ({{url}}) copiado para a área de transferência. Compartilhe no Instagram!"
+    "shareLinkCopiedDescription": "Link da rifa ({{url}}) copiado para a área de transferência. Compartilhe no Instagram!",
+    "exportImageButton": "Exportar Detalhes de Disponíveis e Banco",
+    "exportSuccessTitle": "Excelente!",
+    "exportErrorTitle": "Erro de Exportação",
+    "exportErrorDescription": "Não foi possível exportar a imagem. Por favor, tente novamente.",
+    "updatePayment": {
+      "dialogTitle": "Atualizar Pagamento para Número #{{numberId}}",
+      "dialogDescription": "Confirmar método de pagamento para {{buyerName}} (Telefone: {{buyerPhone}}).",
+      "confirmButton": "Confirmar Pagamento",
+      "cancelButton": "Cancelar",
+      "successTitle": "Pagamento Atualizado",
+      "successDescription": "Pagamento para o número #{{numberId}} atualizado para {{method}}.",
+      "errorTitle": "Falha ao Atualizar",
+      "errorDescription": "Não foi possível atualizar o pagamento. O número pode não estar mais pendente."
+    }
   },
   "configurePage": {
     "title": "Criar Nova Rifa"
@@ -225,6 +239,7 @@
     "countSummary": "{{availableCount}} de {{totalCount}} números disponíveis.",
     "noBankDetailsProvided": "Nenhum detalhe bancário foi fornecido para esta rifa.",
     "exportAllSuccessDescription": "Imagem de números disponíveis e dados bancários exportada com sucesso.",
+    "exportAvailableSuccessDescription": "Imagem de números disponíveis e dados bancários exportada com sucesso.",
     "exportDisabledRaffleClosedTooltip": "Exportação não disponível: rifa encerrada."
   },
   "drawPage": {

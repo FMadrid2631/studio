@@ -11,7 +11,7 @@ interface RaffleContextType {
   raffles: Raffle[];
   isLoading: boolean;
   addRaffle: (raffleData: Omit<Raffle, 'id' | 'createdAt' | 'numbers' | 'status' | 'prizes' | 'bankDetails'> & {
-    prizes: { description: string; referenceValue?: number }[]; // Changed from numberOfPrizes and prizeDescriptions
+    prizes: { description: string; referenceValue?: number }[];
     bankName?: string;
     accountHolderName?: string;
     accountNumber?: string;
@@ -29,9 +29,10 @@ interface RaffleContextType {
     winningNumber: number, 
     winnerName: string, 
     winnerPhone: string,
-    winnerPaymentMethod?: 'Cash' | 'Transfer' | 'Pending' // Added winnerPaymentMethod
+    winnerPaymentMethod?: 'Cash' | 'Transfer' | 'Pending'
   ) => void;
   closeRaffle: (raffleId: string) => void;
+  updatePendingPayment: (raffleId: string, numberId: number, newPaymentMethod: 'Cash' | 'Transfer') => boolean;
 }
 
 const RaffleContext = createContext<RaffleContextType | undefined>(undefined);
@@ -62,20 +63,18 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     let madeChanges = false;
     const checkedRaffles = initialRaffles.map(raffle => {
-      if (raffle.status === 'Open' && raffle.prizes && raffle.prizes.length > 0) {
-        const allPrizesAwarded = raffle.prizes.every(p => !!p.winningNumber);
+      let currentRaffle = { ...raffle };
+      if (currentRaffle.status === 'Open' && currentRaffle.prizes && currentRaffle.prizes.length > 0) {
+        const allPrizesAwarded = currentRaffle.prizes.every(p => !!p.winningNumber);
         if (allPrizesAwarded) {
           madeChanges = true;
-          return { ...raffle, status: 'Closed' as 'Closed' };
+          currentRaffle.status = 'Closed';
         }
       }
-      // Ensure winnerPaymentMethod exists for prizes that have winners but might be from old data
-      if (raffle.prizes) {
-        const prizesUpdated = raffle.prizes.map(p => {
+      if (currentRaffle.prizes) {
+        const prizesUpdated = currentRaffle.prizes.map(p => {
           if (p.winningNumber && !p.winnerPaymentMethod) {
-            // Attempt to find the winning number details to populate payment method
-            // This is a fallback for old data. New data will set it directly.
-            const winningRaffleNumber = raffle.numbers.find(rn => rn.id === p.winningNumber && rn.status === 'Purchased');
+            const winningRaffleNumber = currentRaffle.numbers.find(rn => rn.id === p.winningNumber && rn.status === 'Purchased');
             if (winningRaffleNumber && winningRaffleNumber.paymentMethod) {
               madeChanges = true;
               return { ...p, winnerPaymentMethod: winningRaffleNumber.paymentMethod };
@@ -83,11 +82,12 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           }
           return p;
         });
-        if (madeChanges) { // if any prize was updated
-          return { ...raffle, prizes: prizesUpdated };
+        if (prizesUpdated.some((p, i) => p !== currentRaffle.prizes[i])) { // Check if prizes actually changed
+          madeChanges = true;
+          currentRaffle.prizes = prizesUpdated;
         }
       }
-      return raffle;
+      return currentRaffle;
     });
 
     if (madeChanges) {
@@ -147,8 +147,8 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         id: crypto.randomUUID(),
         description: p.description,
         order: index + 1,
-        referenceValue: p.referenceValue === undefined ? 0 : p.referenceValue,
-        drawDate: undefined, // Explicitly set drawDate as undefined initially
+        referenceValue: p.referenceValue === undefined || p.referenceValue === null || isNaN(Number(p.referenceValue)) ? 0 : Number(p.referenceValue),
+        drawDate: undefined,
       })),
       bankDetails: bankDetails,
     };
@@ -205,12 +205,12 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         id: existingRaffle.prizes[index]?.id || crypto.randomUUID(),
         description: p.description,
         order: index + 1,
-        referenceValue: p.referenceValue === undefined ? 0 : p.referenceValue,
+        referenceValue: p.referenceValue === undefined || p.referenceValue === null || isNaN(Number(p.referenceValue)) ? 0 : Number(p.referenceValue),
         winningNumber: existingRaffle.prizes[index]?.winningNumber,
         winnerName: existingRaffle.prizes[index]?.winnerName,
         winnerPhone: existingRaffle.prizes[index]?.winnerPhone,
         drawDate: existingRaffle.prizes[index]?.drawDate,
-        winnerPaymentMethod: existingRaffle.prizes[index]?.winnerPaymentMethod, // Preserve existing payment method if any
+        winnerPaymentMethod: existingRaffle.prizes[index]?.winnerPaymentMethod,
       })),
       numbers: existingRaffle.numbers,
       bankDetails: bankDetails,
@@ -276,9 +276,34 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     updateRaffle({ ...raffle, status: 'Closed' });
   };
 
+  const updatePendingPayment = (raffleId: string, numberId: number, newPaymentMethod: 'Cash' | 'Transfer'): boolean => {
+    const raffle = getRaffleById(raffleId);
+    if (!raffle) return false;
+
+    let numberUpdated = false;
+    const updatedNumbers = raffle.numbers.map(num => {
+      if (num.id === numberId && num.status === 'PendingPayment') {
+        numberUpdated = true;
+        return {
+          ...num,
+          status: 'Purchased',
+          paymentMethod: newPaymentMethod,
+          purchaseDate: new Date().toISOString(), // Update purchase date to reflect confirmation
+        };
+      }
+      return num;
+    });
+
+    if (numberUpdated) {
+      updateRaffle({ ...raffle, numbers: updatedNumbers });
+      return true;
+    }
+    return false;
+  };
+
 
   return (
-    <RaffleContext.Provider value={{ raffles, isLoading, addRaffle, getRaffleById, updateRaffle, editRaffle, purchaseNumbers, recordPrizeWinner, closeRaffle }}>
+    <RaffleContext.Provider value={{ raffles, isLoading, addRaffle, getRaffleById, updateRaffle, editRaffle, purchaseNumbers, recordPrizeWinner, closeRaffle, updatePendingPayment }}>
       {children}
     </RaffleContext.Provider>
   );

@@ -71,7 +71,21 @@
     "shareMessageText": "Check out this raffle: {{raffleName}}! {{url}}",
     "shareMessageTextShort": "Check out this raffle: {{raffleName}}!",
     "shareLinkCopiedTitle": "Link Copied!",
-    "shareLinkCopiedDescription": "Raffle link ({{url}}) copied to clipboard. Share it on Instagram!"
+    "shareLinkCopiedDescription": "Raffle link ({{url}}) copied to clipboard. Share it on Instagram!",
+    "exportImageButton": "Export Available Details & Bank Info",
+    "exportSuccessTitle": "Excellent!",
+    "exportErrorTitle": "Export Error",
+    "exportErrorDescription": "Could not export the image. Please try again.",
+    "updatePayment": {
+      "dialogTitle": "Update Payment for Number #{{numberId}}",
+      "dialogDescription": "Confirm payment method for {{buyerName}} (Phone: {{buyerPhone}}).",
+      "confirmButton": "Confirm Payment",
+      "cancelButton": "Cancel",
+      "successTitle": "Payment Updated",
+      "successDescription": "Payment for number #{{numberId}} updated to {{method}}.",
+      "errorTitle": "Update Failed",
+      "errorDescription": "Could not update payment. The number might no longer be pending."
+    }
   },
   "configurePage": {
     "title": "Create New Raffle"
@@ -154,7 +168,7 @@
     "cannotEditDescriptionClosed": "This raffle cannot be edited because it is closed."
   },
   "purchaseForm": {
-    "title": "Purchase Numbers",
+    "title": "Purchase numbers",
     "description": "Select your numbers and fill in your details.",
     "labels": {
       "fullName": "Full Name",
@@ -225,6 +239,7 @@
     "countSummary": "{{availableCount}} of {{totalCount}} numbers available.",
     "noBankDetailsProvided": "No bank details have been provided for this raffle.",
     "exportAllSuccessDescription": "Image of available numbers and bank details exported successfully.",
+    "exportAvailableSuccessDescription": "Image of available numbers and bank details exported successfully.",
     "exportDisabledRaffleClosedTooltip": "Export not available: raffle is closed."
   },
   "drawPage": {
@@ -329,7 +344,7 @@
     "signupSubtitle": "Join Rifa Fácil today!",
     "displayNameLabel": "Full Name",
     "displayNamePlaceholder": "John Doe",
-    "rutLabel": "RUT (National ID)",
+    "rutLabel": "National ID",
     "rutPlaceholder": "12345678-9",
     "confirmPasswordLabel": "Confirm Password",
     "signupButton": "Sign Up",
@@ -353,8 +368,8 @@
       "passwordRequired": "Password is required.",
       "passwordMin": "Password must be at least 6 characters.",
       "displayNameMin": "Full name must be at least 2 characters.",
-      "rutMin": "RUT must be at least 8 characters.",
-      "rutFormat": "RUT format is invalid (e.g., 12345678-9).",
+      "rutMin": "National ID must be at least 8 characters.",
+      "rutFormat": "National ID format is invalid (e.g., 12345678-9).",
       "passwordsNoMatch": "Passwords do not match."
     }
   }
