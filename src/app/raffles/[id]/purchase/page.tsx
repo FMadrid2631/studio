@@ -6,7 +6,7 @@ import { useRaffles } from '@/contexts/RaffleContext';
 import { PurchaseForm } from '@/components/raffle/PurchaseForm';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, MessageSquare, Facebook, Instagram, Twitter, Share2 } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Facebook, Instagram, Twitter, Share2, Banknote, Info, Copy, CheckCircle, AlertCircle } from 'lucide-react';
 import Image from 'next/image';
 import { useTranslations } from '@/contexts/LocalizationContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -83,7 +83,6 @@ export default function PurchasePage() {
       <div className="text-center py-10">
         <Image src="https://placehold.co/300x200.png" alt={t('raffleDetailsPage.raffleNotFoundTitle')} width={300} height={200} className="mx-auto rounded-md shadow-md mb-4" data-ai-hint="error notfound"/>
         <h2 className="text-2xl font-semibold mb-4">{t('raffleDetailsPage.raffleNotFoundTitle')}</h2>
-        {/* Button to go home was here, removed as per request */}
       </div>
     );
   }
@@ -183,3 +182,5 @@ export default function PurchasePage() {
     </TooltipProvider>
   );
 }
+
+    
