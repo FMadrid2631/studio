@@ -3,8 +3,6 @@
 
 import type React from 'react';
 import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
-// import { usePathname, useParams } from 'next/navigation'; // No longer needed here
-// import { useRaffles } from './RaffleContext'; // No longer needed here
 import { getLocaleFromCountryCode, type SupportedLocale, SUPPORTED_LOCALES } from '@/lib/locale-utils';
 
 // Import locale files directly
@@ -31,21 +29,19 @@ const translationsData: Record<SupportedLocale, any> = {
 };
 
 export const LocalizationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [locale, setLocaleState] = useState<SupportedLocale>(() => {
-    if (typeof window !== 'undefined') {
-      const storedLocale = localStorage.getItem(LOCAL_STORAGE_LOCALE_KEY) as SupportedLocale;
-      if (storedLocale && SUPPORTED_LOCALES.includes(storedLocale)) {
-        return storedLocale;
-      }
-    }
-    return 'en'; // Default to English
-  });
+  // Initialize with a fixed default locale for consistent server/client initial render
+  const [locale, setLocaleState] = useState<SupportedLocale>('en');
   
-  const [loadedTranslations, setLoadedTranslations] = useState<Record<string, any>>(() => translationsData[locale] || translationsData.en);
+  const [loadedTranslations, setLoadedTranslations] = useState<Record<string, any>>(() => translationsData.en);
 
-  // const pathname = usePathname(); // Removed
-  // const params = useParams(); // Removed
-  // const { getRaffleById } = useRaffles(); // Removed
+  // Effect to load locale from localStorage on client-side after mount
+  useEffect(() => {
+    const storedLocale = localStorage.getItem(LOCAL_STORAGE_LOCALE_KEY) as SupportedLocale;
+    if (storedLocale && SUPPORTED_LOCALES.includes(storedLocale) && storedLocale !== locale) {
+      setLocaleState(storedLocale);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run once on mount
 
   const persistLocale = (newLocale: SupportedLocale) => {
     if (SUPPORTED_LOCALES.includes(newLocale)) {
@@ -59,19 +55,15 @@ export const LocalizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     if (countryCode) {
       newLocaleKey = getLocaleFromCountryCode(countryCode);
       if (!translationsData[newLocaleKey]) {
-        newLocaleKey = 'en'; // Fallback if locale for country not supported
+        newLocaleKey = 'en'; 
       }
     } else {
-      // Fallback to localStorage or 'en' if no country code (e.g., on global pages)
       const storedLocale = localStorage.getItem(LOCAL_STORAGE_LOCALE_KEY) as SupportedLocale;
       newLocaleKey = (storedLocale && SUPPORTED_LOCALES.includes(storedLocale)) ? storedLocale : 'en';
     }
     persistLocale(newLocaleKey);
-  }, []); // Empty dependency array ensures persistLocale refers to the correct one
+  }, []); 
   
-  // Removed the useEffect that depended on pathname, params, getRaffleById, locale
-  // as its logic was commented out and page-level effects are more explicit.
-
   useEffect(() => {
     setLoadedTranslations(translationsData[locale] || translationsData.en);
     if (typeof document !== 'undefined') {
@@ -85,7 +77,7 @@ export const LocalizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     for (const k of keys) {
       result = result?.[k];
       if (result === undefined) {
-        let fallbackResult = translationsData.en; // Fallback to English
+        let fallbackResult = translationsData.en; 
         for (const fk of keys) {
           fallbackResult = fallbackResult?.[fk];
           if (fallbackResult === undefined) return key; 
