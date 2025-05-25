@@ -6,7 +6,7 @@ import { useRaffles } from '@/contexts/RaffleContext';
 import { RaffleGrid } from '@/components/raffle/RaffleGrid';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Edit, Settings, Trophy, DollarSign, ListChecks, Share2, MessageSquare, Facebook, Instagram, Twitter } from 'lucide-react';
+import { Edit, Settings, Trophy, DollarSign, ListChecks, Share2, MessageSquare, Facebook, Instagram, Twitter, Download } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -197,7 +197,7 @@ export default function RafflePage() {
         }).catch(err => {
           console.error('Failed to copy link: ', err);
           toast({
-            title: t('purchaseForm.toast.copiedErrorTitle'), // Assuming generic copy error toasts
+            title: t('purchaseForm.toast.copiedErrorTitle'), 
             description: t('purchaseForm.toast.copiedErrorDescription'),
             variant: 'destructive',
           });
@@ -286,7 +286,7 @@ export default function RafflePage() {
                   {t('raffleDetailsPage.conductDrawButton')}
                 </Link>
               </Button>
-              <Button variant="default" onClick={calculateAndShowProfit} className="w-full col-span-full sm:col-span-2 md:col-span-4">
+              <Button variant="default" onClick={calculateAndShowProfit} className="w-full col-span-full">
                 <DollarSign className="mr-2 h-4 w-4" />
                 {t('raffleDetailsPage.viewProfitButton')}
               </Button>
@@ -399,7 +399,7 @@ export default function RafflePage() {
                   disabled={raffle.status === 'Closed' || !shareUrl}
                   aria-label={t('raffleDetailsPage.shareOnX')}
                 >
-                  <Twitter className="h-5 w-5" /> {/* Replace with X/Twitter icon if available */}
+                  <Twitter className="h-5 w-5" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>{t('raffleDetailsPage.shareOnX')}</TooltipContent>
