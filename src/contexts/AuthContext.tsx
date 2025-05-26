@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslations } from './LocalizationContext'; 
 
+const ADMIN_EMAIL = 'fernando.madrid21@hotmail.com';
+
 interface AuthContextType {
   currentUser: AuthUser | null;
   isLoading: boolean;
@@ -33,7 +35,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const storedUser = localStorage.getItem('mockAuthUser');
     if (storedUser) {
       try {
-        setCurrentUser(JSON.parse(storedUser));
+        const parsedUser = JSON.parse(storedUser) as AuthUser;
+        // Ensure role is set for older stored users
+        if (!parsedUser.role) {
+          parsedUser.role = parsedUser.email?.toLowerCase() === ADMIN_EMAIL ? 'admin' : 'user';
+        }
+        setCurrentUser(parsedUser);
       } catch (e) {
         localStorage.removeItem('mockAuthUser');
       }
@@ -44,11 +51,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = useCallback(async (data: LoginFormInput) => {
     setIsLoading(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
+    const userRole = data.email.toLowerCase() === ADMIN_EMAIL ? 'admin' : 'user';
     const mockUser: AuthUser = {
       uid: 'mock-uid-' + Math.random().toString(36).substring(7),
       email: data.email,
-      displayName: 'Usuario Ejemplo', 
-      rut: '12345678-9' 
+      displayName: userRole === 'admin' ? 'Admin User' : 'Usuario Ejemplo', 
+      rut: userRole === 'admin' ? '11111111-1' : '12345678-9',
+      role: userRole
     };
     setCurrentUser(mockUser);
     localStorage.setItem('mockAuthUser', JSON.stringify(mockUser));
@@ -60,11 +69,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const signup = useCallback(async (data: SignupFormInput) => {
     setIsLoading(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
+    const userRole = data.email.toLowerCase() === ADMIN_EMAIL ? 'admin' : 'user';
     const mockUser: AuthUser = {
       uid: 'mock-uid-' + Math.random().toString(36).substring(7),
       email: data.email,
       displayName: data.displayName,
       rut: data.rut,
+      role: userRole,
     };
     setCurrentUser(mockUser);
     localStorage.setItem('mockAuthUser', JSON.stringify(mockUser));
@@ -84,26 +95,40 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, [router, toast, t]);
 
   const loginWithGoogle = useCallback(async () => {
-    toast({ title: t('auth.toast.providerLoginTitle'), description: t('auth.toast.providerLoginDescription', { provider: 'Google' }) });
+    setIsLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Simulate a Google login, check if it should be admin
+    const googleEmail = 'googleuser@example.com'; // Example, could be dynamic if real OAuth
+    const userRole = googleEmail.toLowerCase() === ADMIN_EMAIL ? 'admin' : 'user';
     const mockUser: AuthUser = {
       uid: 'mock-google-uid-' + Math.random().toString(36).substring(7),
-      email: 'googleuser@example.com',
-      displayName: 'Google User',
+      email: googleEmail,
+      displayName: userRole === 'admin' ? 'Admin Google User' : 'Google User',
+      role: userRole,
     };
     setCurrentUser(mockUser);
     localStorage.setItem('mockAuthUser', JSON.stringify(mockUser));
+    setIsLoading(false);
+    toast({ title: t('auth.toast.providerLoginTitle'), description: t('auth.toast.providerLoginDescription', { provider: 'Google' }) });
     router.push('/');
   }, [router, toast, t]);
 
   const loginWithApple = useCallback(async () => {
-    toast({ title: t('auth.toast.providerLoginTitle'), description: t('auth.toast.providerLoginDescription', { provider: 'Apple' }) });
-     const mockUser: AuthUser = {
+    setIsLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Simulate an Apple login
+    const appleEmail = 'appleuser@example.com';
+    const userRole = appleEmail.toLowerCase() === ADMIN_EMAIL ? 'admin' : 'user';
+    const mockUser: AuthUser = {
       uid: 'mock-apple-uid-' + Math.random().toString(36).substring(7),
-      email: 'appleuser@example.com',
-      displayName: 'Apple User',
+      email: appleEmail,
+      displayName: userRole === 'admin' ? 'Admin Apple User' : 'Apple User',
+      role: userRole,
     };
     setCurrentUser(mockUser);
     localStorage.setItem('mockAuthUser', JSON.stringify(mockUser));
+    setIsLoading(false);
+    toast({ title: t('auth.toast.providerLoginTitle'), description: t('auth.toast.providerLoginDescription', { provider: 'Apple' }) });
     router.push('/');
   }, [router, toast, t]);
 
@@ -119,6 +144,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       ...currentUser,
       displayName: data.displayName,
       rut: data.rut,
+      // Role is not changed during profile update
     };
     setCurrentUser(updatedUser);
     localStorage.setItem('mockAuthUser', JSON.stringify(updatedUser));
@@ -142,3 +168,4 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
+

@@ -90,6 +90,7 @@ export interface AuthUser {
   email: string | null;
   displayName: string | null;
   rut?: string; // Assuming Chilean RUT
+  role?: 'admin' | 'user'; // User role
 }
 
 export type LoginFormInput = {
