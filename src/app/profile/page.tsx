@@ -7,7 +7,7 @@ import { useTranslations } from '@/contexts/LocalizationContext';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { Loader2, UserCircle, Edit3, Save, X, ShieldCheck, User } from 'lucide-react'; // Added ShieldCheck, User
+import { Loader2, UserCircle, Edit3, Save, X, ShieldCheck, User, CheckCircle, AlertCircle, XCircle, Clock } from 'lucide-react';
 import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -15,7 +15,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { EditProfileFormInput } from '@/types';
-import { Badge } from '@/components/ui/badge'; // Added Badge for role display
+import { Badge } from '@/components/ui/badge';
 
 const createEditProfileFormSchema = (t: Function) => z.object({
   displayName: z.string().min(2, { message: t('auth.validation.displayNameMin') }),
@@ -43,7 +43,7 @@ export default function ProfilePage() {
     if (!isLoading && !currentUser) {
       router.replace('/login');
     }
-    if (currentUser && !form.formState.isDirty) { // Reset form when currentUser changes and not editing
+    if (currentUser && !form.formState.isDirty) { 
       form.reset({
         displayName: currentUser.displayName || '',
         rut: currentUser.rut || '',
@@ -67,7 +67,7 @@ export default function ProfilePage() {
   };
 
   const handleCancelEdit = () => {
-    form.reset({ // Reset form to original values
+    form.reset({ 
         displayName: currentUser.displayName || '',
         rut: currentUser.rut || '',
     });
@@ -78,6 +78,19 @@ export default function ProfilePage() {
     ? { text: t('auth.roleAdmin'), icon: <ShieldCheck className="mr-1 h-4 w-4 text-primary" />, variant: 'default' as const } 
     : { text: t('auth.roleUser'), icon: <User className="mr-1 h-4 w-4 text-muted-foreground" />, variant: 'secondary' as const };
 
+  const userStatusDisplay = () => {
+    switch (currentUser.status) {
+      case 'active':
+        return { text: t('admin.userStatus.active'), icon: <CheckCircle className="mr-1 h-4 w-4 text-green-600" />, variant: 'default' as const, className: 'bg-green-100 text-green-700 border-green-300' };
+      case 'pending':
+        return { text: t('admin.userStatus.pending'), icon: <Clock className="mr-1 h-4 w-4 text-yellow-600" />, variant: 'secondary' as const, className: 'bg-yellow-100 text-yellow-700 border-yellow-300' };
+      case 'inactive':
+        return { text: t('admin.userStatus.inactive'), icon: <XCircle className="mr-1 h-4 w-4 text-red-600" />, variant: 'destructive' as const, className: 'bg-red-100 text-red-700 border-red-300' };
+      default:
+        return { text: t('shared.notAvailable'), icon: <AlertCircle className="mr-1 h-4 w-4" />, variant: 'outline' as const };
+    }
+  };
+  const statusInfo = userStatusDisplay();
 
   return (
     <div className="flex justify-center items-start pt-10 min-h-[calc(100vh-10rem)]">
@@ -139,7 +152,7 @@ export default function ProfilePage() {
             </Form>
           ) : (
             <>
-              <div className="space-y-4"> {/* Increased spacing a bit */}
+              <div className="space-y-4">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">{t('auth.displayNameLabel')}</p>
                   <p className="text-lg">{currentUser.displayName || t('shared.notAvailable')}</p>
@@ -161,8 +174,17 @@ export default function ProfilePage() {
                     {userRoleDisplay.text}
                   </Badge>
                 </div>
+                {currentUser.status && (
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">{t('auth.statusLabel')}</p>
+                    <Badge variant={statusInfo.variant} className={`text-base px-3 py-1 ${statusInfo.className}`}>
+                      {statusInfo.icon}
+                      {statusInfo.text}
+                    </Badge>
+                  </div>
+                )}
               </div>
-              <Button variant="default" className="w-full mt-8" onClick={() => setIsEditing(true)}> {/* Increased top margin */}
+              <Button variant="default" className="w-full mt-8" onClick={() => setIsEditing(true)}>
                 <Edit3 className="mr-2 h-4 w-4" />
                 {t('auth.editProfileButton')}
               </Button>
