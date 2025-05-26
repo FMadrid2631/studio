@@ -2,7 +2,7 @@
 'use client';
 
 import type React from 'react';
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode, useRef } from 'react';
 import type { AuthUser, LoginFormInput, SignupFormInput, EditProfileFormInput, ChangePasswordFormInput } from '@/types';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -34,16 +34,18 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
-  const [authIsLoading, setAuthIsLoading] = useState(true); // Renamed from isLoading to avoid conflict
+  const [authIsLoading, setAuthIsLoading] = useState(true);
   const [allUsers, setAllUsers] = useState<AuthUser[]>([]);
   const router = useRouter();
   const { toast } = useToast();
   const { t } = useTranslations();
+  const initialLoadComplete = useRef(false);
 
-  // Load allUsers from localStorage on initial mount
+
+  // Effect for loading allUsers (runs once)
   useEffect(() => {
-    setAuthIsLoading(true);
     let loadedUsers: AuthUser[] = [];
+    let madeChanges = false;
     if (typeof window !== 'undefined') {
       const storedAllUsersJson = localStorage.getItem(ALL_USERS_STORAGE_KEY);
       if (storedAllUsersJson) {
@@ -51,13 +53,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const parsedStoredUsers = JSON.parse(storedAllUsersJson) as Partial<AuthUser>[];
           loadedUsers = parsedStoredUsers.map(user => {
             const isActualAdminByEmail = user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+            let statusChanged = false;
+            let currentStatus = user.status || (isActualAdminByEmail ? 'active' : 'pending');
+            let currentRole = user.role || (isActualAdminByEmail ? 'admin' : 'user');
+
+            if (user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+                if (currentRole !== 'admin') { currentRole = 'admin'; statusChanged = true; }
+                if (currentStatus !== 'active') { currentStatus = 'active'; statusChanged = true; }
+            }
+            if(statusChanged) madeChanges = true;
+
             return {
               uid: user.uid || `mock-uid-${user.email || Math.random()}-${Date.now()}`,
               email: user.email || 'unknown@example.com',
               displayName: user.displayName || (isActualAdminByEmail ? 'Admin User' : ''),
               rut: user.rut,
-              role: user.role || (isActualAdminByEmail ? 'admin' : 'user'),
-              status: user.status || (isActualAdminByEmail ? 'active' : 'pending'),
+              role: currentRole,
+              status: currentStatus,
               registrationDate: user.registrationDate || new Date(0).toISOString(),
               countryCode: user.countryCode,
               phoneNumber: user.phoneNumber,
@@ -70,20 +82,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     }
     setAllUsers(loadedUsers);
-    // setAuthIsLoading(false); // Defer this until currentUser is also attempted
+    if (madeChanges && typeof window !== 'undefined') {
+      localStorage.setItem(ALL_USERS_STORAGE_KEY, JSON.stringify(loadedUsers));
+    }
   }, []);
 
-  // Load currentUser from localStorage and reconcile with allUsers
+  // Effect for loading currentUser and setting global loading state (depends on allUsers being loaded)
   useEffect(() => {
-    // This effect runs after allUsers might have been populated from its own localStorage load
-    // and also if allUsers array changes.
-    if (authIsLoading && allUsers.length === 0 && localStorage.getItem(ALL_USERS_STORAGE_KEY)) {
-      // If allUsers is still empty but there was something in storage,
-      // it means the allUsers effect might not have completed its first run.
-      // We wait for allUsers to potentially populate.
-      // This condition is a bit complex, ideally, initial loading is handled more centrally.
-      // For now, let's proceed but be mindful.
-    }
+    if (initialLoadComplete.current) return; // Only run this logic once for initial load
 
     let userToSet: AuthUser | null = null;
     if (typeof window !== 'undefined') {
@@ -92,12 +98,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         try {
           const parsedUser = JSON.parse(storedUserJson) as Partial<AuthUser>;
           if (parsedUser.uid && parsedUser.email) {
-            // Attempt to find the most complete version from allUsers
-            const userFromAllUsersList = allUsers.find(u => u.uid === parsedUser.uid);
-            if (userFromAllUsersList) {
-              userToSet = userFromAllUsersList; // Use the version from allUsers for consistency
+            let reconciledUser = allUsers.find(u => u.uid === parsedUser.uid);
+            if (reconciledUser) {
+              userToSet = { ...reconciledUser }; // Ensure we use the full object from allUsers
             } else {
-              // Fallback to constructing from parsedUser if not in allUsers (should be rare for a logged-in user)
+              // Fallback if not in allUsers (e.g. allUsers was cleared but currentUser wasn't)
               const isActualAdminByEmail = parsedUser.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
               userToSet = {
                 uid: parsedUser.uid,
@@ -112,10 +117,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 internalCode: parsedUser.internalCode || generateInternalCode(),
               } as AuthUser;
             }
-             // Ensure admin role is correctly set if email matches, overriding stored role if necessary
-             if (userToSet && userToSet.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() && userToSet.role !== 'admin') {
-              userToSet.role = 'admin';
-              userToSet.status = 'active'; // Admins are active by default
+
+            // Ensure admin role/status for the admin email, overriding if necessary
+            if (userToSet && userToSet.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+              if (userToSet.role !== 'admin') userToSet.role = 'admin';
+              if (userToSet.status !== 'active') userToSet.status = 'active';
             }
           }
         } catch (e) {
@@ -124,19 +130,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     }
     setCurrentUser(userToSet);
-    setAuthIsLoading(false); // Auth loading is complete after both allUsers and currentUser attempts
-  }, [allUsers]); // Depend on allUsers to re-evaluate currentUser if allUsers changes
-
-  // Persist allUsers to localStorage
-  useEffect(() => {
-    if (!authIsLoading && typeof window !== 'undefined') {
-      localStorage.setItem(ALL_USERS_STORAGE_KEY, JSON.stringify(allUsers));
-    }
-  }, [allUsers, authIsLoading]);
+    setAuthIsLoading(false); // Signal that initial auth state is resolved
+    initialLoadComplete.current = true;
+  }, [allUsers]); // Run when allUsers is populated/updated.
 
   // Persist currentUser to localStorage
   useEffect(() => {
-    if (!authIsLoading && typeof window !== 'undefined') {
+    if (!authIsLoading && typeof window !== 'undefined') { // authIsLoading check to prevent writing during initial load race
       if (currentUser) {
         localStorage.setItem(CURRENT_USER_STORAGE_KEY, JSON.stringify(currentUser));
       } else {
@@ -145,31 +145,36 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, [currentUser, authIsLoading]);
 
+  // Persist allUsers to localStorage
+  useEffect(() => {
+    if (!authIsLoading && typeof window !== 'undefined') { // authIsLoading check
+      localStorage.setItem(ALL_USERS_STORAGE_KEY, JSON.stringify(allUsers));
+    }
+  }, [allUsers, authIsLoading]);
+
 
   const login = useCallback(async (data: LoginFormInput) => {
-    setAuthIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Local loading for button, not global authIsLoading
+    // await new Promise(resolve => setTimeout(resolve, 1000));
 
     const userEmailLower = data.email.toLowerCase();
-    let userToLogin = allUsers.find(u => u.email === userEmailLower);
+    let userInAllUsers = allUsers.find(u => u.email === userEmailLower);
     
-    if (userToLogin) {
-      // Ensure the user object from allUsers is complete
-      const isActualAdminByEmail = userToLogin.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+    if (userInAllUsers) {
       const completeUser: AuthUser = {
-        ...userToLogin,
-        role: userToLogin.role || (isActualAdminByEmail ? 'admin' : 'user'),
-        status: userToLogin.status || (isActualAdminByEmail ? 'active' : 'pending'),
-        registrationDate: userToLogin.registrationDate || new Date(0).toISOString(),
-        internalCode: userToLogin.internalCode || generateInternalCode(),
-        // displayName, rut, countryCode, phoneNumber should be there if user came from signup
+        ...userInAllUsers,
+        role: userInAllUsers.role || (userInAllUsers.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? 'admin' : 'user'),
+        status: userInAllUsers.status || (userInAllUsers.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? 'active' : 'pending'),
+        registrationDate: userInAllUsers.registrationDate || new Date(0).toISOString(),
+        internalCode: userInAllUsers.internalCode || generateInternalCode(),
       };
       setCurrentUser(completeUser);
-      // If the version in allUsers was less complete, update it (though primary load should handle this)
+      // Ensure allUsers list is also up-to-date with this potentially more complete user object
       setAllUsers(prev => prev.map(u => u.uid === completeUser.uid ? completeUser : u));
       toast({ title: t('auth.toast.loginSuccessTitle'), description: t('auth.toast.loginSuccessDescription', { email: data.email }) });
       router.push('/');
     } else if (userEmailLower === ADMIN_EMAIL.toLowerCase()) {
+      // First time login for admin if not in allUsers
       const adminUser: AuthUser = {
         uid: 'mock-uid-' + userEmailLower,
         email: userEmailLower,
@@ -182,30 +187,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         phoneNumber: '123456789',
         internalCode: generateInternalCode(),
       };
+      setCurrentUser(adminUser);
       setAllUsers(prev => {
           const existingAdminIndex = prev.findIndex(u => u.email === adminUser.email);
           if (existingAdminIndex !== -1) {
               const updated = [...prev];
-              updated[existingAdminIndex] = adminUser; // Replace if admin "logs in" first time
+              updated[existingAdminIndex] = adminUser;
               return updated;
           }
           return [...prev, adminUser];
       });
-      setCurrentUser(adminUser);
       toast({ title: t('auth.toast.loginSuccessTitle'), description: t('auth.toast.loginSuccessDescription', { email: data.email }) });
       router.push('/');
     } else {
       toast({ title: t('auth.toast.loginErrorTitle'), description: t('auth.toast.loginErrorDescription'), variant: 'destructive' });
     }
-    setAuthIsLoading(false);
   }, [allUsers, router, t, toast]);
 
   const signup = useCallback(async (data: SignupFormInput) => {
-    setAuthIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
     const userEmailLower = data.email.toLowerCase();
-    
     const userRole = userEmailLower === ADMIN_EMAIL.toLowerCase() ? 'admin' : 'user';
     const newUserStatus = userRole === 'admin' ? 'active' : 'pending';
 
@@ -225,13 +225,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setAllUsers(prevAllUsers => {
         const existingUserIndex = prevAllUsers.findIndex(u => u.email === newUser.email);
         if (existingUserIndex !== -1) {
-            // If user with this email exists, replace their data entirely with new signup data
             const updatedUsers = [...prevAllUsers];
             updatedUsers[existingUserIndex] = newUser; 
             return updatedUsers;
         }
-        // If user (by email) doesn't exist, add them.
-        // Also handle case where UID might collide if not truly unique, though less likely with mock UIDs.
         const existingUserByUIDIndex = prevAllUsers.findIndex(u => u.uid === newUser.uid);
         if (existingUserByUIDIndex !== -1) {
             const updatedUsers = [...prevAllUsers];
@@ -242,7 +239,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
 
     setCurrentUser(newUser);
-    setAuthIsLoading(false);
 
     const toastDescriptionKey = newUserStatus === 'pending' ? 'auth.toast.signupPendingActivationDescription' : 'auth.toast.signupSuccessDescription';
     toast({ title: t('auth.toast.signupSuccessTitle'), description: t(toastDescriptionKey, { email: data.email }) });
@@ -250,10 +246,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, [router, t, toast]);
 
   const logout = useCallback(async () => {
-    setAuthIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 500));
     setCurrentUser(null);
-    setAuthIsLoading(false);
+    // localStorage.removeItem(CURRENT_USER_STORAGE_KEY); // Handled by useEffect for currentUser
     toast({ title: t('auth.toast.logoutSuccessTitle') });
     router.push('/');
   }, [router, toast, t]);
@@ -269,6 +263,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             rut: isActualAdmin ? '11111111-1' : '00000000-0', 
             email: googleEmail,
             password_signup: 'password', 
+            confirmPassword: 'password',
             countryCode: 'US',
             phoneNumber: '5551234'
         };
@@ -289,6 +284,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             rut: isActualAdmin ? '11111111-1' : '00000000-1', 
             email: appleEmail,
             password_signup: 'password',
+            confirmPassword: 'password',
             countryCode: 'US',
             phoneNumber: '5555678'
         };
@@ -303,9 +299,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       toast({ title: t('auth.toast.updateProfileErrorTitle'), description: t('auth.toast.updateProfileErrorNotLoggedIn'), variant: 'destructive' });
       return false;
     }
-    setAuthIsLoading(true); // Consider if this global loading is too disruptive for profile updates
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
+    
     const updatedUser = {
       ...currentUser,
       displayName: data.displayName,
@@ -316,7 +310,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       prevAllUsers.map(u => u.uid === currentUser.uid ? updatedUser : u)
     );
 
-    setAuthIsLoading(false);
     toast({ title: t('auth.toast.updateProfileSuccessTitle'), description: t('auth.toast.updateProfileSuccessDescription') });
     return true;
   }, [currentUser, t, toast]);
@@ -326,8 +319,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       toast({ title: t('auth.toast.changePasswordErrorTitle'), description: t('auth.toast.updateProfileErrorNotLoggedIn'), variant: 'destructive' });
       return false;
     }
-    // console.log("Simulating password change for user:", currentUser.email);
-    // console.log("New password (mock):", data.newPassword_profile);
     await new Promise(resolve => setTimeout(resolve, 700));
     toast({ title: t('auth.toast.changePasswordSuccessTitle'), description: t('auth.toast.changePasswordSuccessDescription') });
     return true;
@@ -344,15 +335,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setAllUsers(prevAllUsers =>
       prevAllUsers.map(user => {
         if (user.uid === userId && user.status !== newStatus) {
+          if (currentUser.uid === userId && user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() && newStatus !== 'active') {
+             toast({ title: t('admin.toast.statusUpdateErrorTitle'), description: "Administrators cannot change their own status to non-active.", variant: 'destructive' });
+             return user;
+          }
           userWasUpdated = true;
           updatedUserName = user.displayName || userId;
-          // If admin is updating their own status via this admin tool (shouldn't happen via UI but defensive)
-          if (currentUser.uid === userId && user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() && newStatus !== 'active') {
-             // Prevent admin from deactivating themselves
-             toast({ title: t('admin.toast.statusUpdateErrorTitle'), description: "Administrators cannot change their own status to non-active.", variant: 'destructive' });
-             userWasUpdated = false; // Revert update flag
-             return user; // Return original user
-          }
           return { ...user, status: newStatus };
         }
         return user;
@@ -360,18 +348,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     );
 
     if (userWasUpdated) {
-      // If the admin updated the status of the currently logged-in user (and it wasn't the admin themselves)
       if (currentUser.uid === userId && currentUser.email?.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) { 
         setCurrentUser(prev => prev ? { ...prev, status: newStatus } : null);
       }
       toast({ title: t('admin.toast.statusUpdateSuccessTitle'), description: t('admin.toast.statusUpdateSuccessDescription', { userName: updatedUserName, newStatus: t(`admin.userStatus.${newStatus}`) }) });
       return true;
     } else {
-      const targetUserExists = allUsers.some(u => u.uid === userId);
-      if (!targetUserExists) {
+      // Check if it failed because user tried to update admin self to non-active
+      const targetUser = allUsers.find(u => u.uid === userId);
+      if (!(targetUser && currentUser.uid === userId && targetUser.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() && newStatus !== 'active')) {
         toast({ title: t('admin.toast.statusUpdateErrorTitle'), description: t('admin.toast.statusUpdateErrorUserNotFound'), variant: 'destructive' });
       }
-      // If userWasUpdated is false but targetUserExists, it might be because admin tried to deactivate self.
       return false;
     }
   }, [currentUser, allUsers, t, toast]);
@@ -415,5 +402,3 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
-
-    
