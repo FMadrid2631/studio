@@ -86,7 +86,7 @@
     "shareMessageTextShort": "¡Mira esta rifa: {{raffleName}}!",
     "shareLinkCopiedTitle": "¡Enlace Copiado!",
     "shareLinkCopiedDescription": "Enlace de la rifa ({{url}}) copiado al portapapeles. ¡Compártelo en Instagram!",
-    "exportImageButton": "Exportar Imagen",
+    "exportImageButton": "Exportar Detalles de Disponibles y Banco",
     "exportErrorTitle": "Error al Exportar",
     "exportErrorDescription": "No se pudo exportar la imagen. Por favor, inténtalo de nuevo.",
     "exportSuccessTitle": "Excelente",
@@ -402,7 +402,8 @@
       "dialogTitle": "Confirmar Eliminación de Usuario",
       "dialogDescription": "¿Estás seguro de que quieres eliminar al usuario \"{{userName}}\"? Esta acción no se puede deshacer.",
       "confirmButton": "Confirmar Eliminación",
-      "cancelButton": "Cancelar"
+      "cancelButton": "Cancelar",
+      "deleteUserItemText": "Eliminar Usuario"
     },
     "actions": {
       "title": "Acciones",
@@ -472,9 +473,18 @@
     "editProfileTitle": "Editar Perfil",
     "editProfileSubtitle": "Actualiza los datos de tu perfil a continuación.",
     "editProfileButton": "Editar Perfil",
+    "changePasswordButton": "Cambiar Contraseña",
     "saveChangesButton": "Guardar Cambios",
     "cancelButton": "Cancelar",
     "logoutButton": "Cerrar Sesión",
+    "changePasswordDialog": {
+      "title": "Cambiar Contraseña",
+      "description": "Ingresa tu contraseña actual y una nueva contraseña a continuación.",
+      "currentPasswordLabel": "Contraseña Actual",
+      "newPasswordLabel": "Nueva Contraseña",
+      "confirmNewPasswordLabel": "Confirmar Nueva Contraseña",
+      "submitButton": "Cambiar Contraseña"
+    },
     "toast": {
       "loginSuccessTitle": "¡Inicio de Sesión Exitoso!",
       "loginSuccessDescription": "¡Bienvenido de nuevo, {{email}}!",
@@ -488,6 +498,9 @@
       "updateProfileSuccessDescription": "La información de tu perfil ha sido actualizada exitosamente.",
       "updateProfileErrorTitle": "Error al Actualizar",
       "updateProfileErrorNotLoggedIn": "Debes iniciar sesión para actualizar tu perfil.",
+      "changePasswordSuccessTitle": "Contraseña Cambiada",
+      "changePasswordSuccessDescription": "Tu contraseña ha sido cambiada exitosamente. (Simulado)",
+      "changePasswordErrorTitle": "Error al Cambiar Contraseña",
       "signupErrorTitle": "Error en el Registro",
       "signupErrorEmailExists": "Este correo electrónico ya está registrado.",
       "loginErrorTitle": "Error de Inicio de Sesión",
@@ -496,6 +509,7 @@
     "validation": {
       "emailInvalid": "Por favor, ingresa una dirección de correo electrónico válida.",
       "passwordRequired": "La contraseña es obligatoria.",
+      "currentPasswordRequired": "La contraseña actual es obligatoria.",
       "passwordMin": "La contraseña debe tener al menos 6 caracteres.",
       "displayNameMin": "El nombre completo debe tener al menos 2 caracteres.",
       "rutMin": "El RUT debe tener al menos 8 caracteres.",

@@ -116,3 +116,9 @@ export type EditProfileFormInput = {
   displayName: string;
   rut: string;
 };
+
+export type ChangePasswordFormInput = {
+  currentPassword_profile: string;
+  newPassword_profile: string;
+  confirmNewPassword_profile: string;
+};

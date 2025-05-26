@@ -7,15 +7,26 @@ import { useTranslations } from '@/contexts/LocalizationContext';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { Loader2, UserCircle, Edit3, Save, X, ShieldCheck, User, CheckCircle, AlertCircle, XCircle, Clock } from 'lucide-react';
+import { Loader2, UserCircle, Edit3, Save, X, ShieldCheck, User, CheckCircle, AlertCircle, XCircle, Clock, Lock } from 'lucide-react';
 import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import type { EditProfileFormInput } from '@/types';
+import type { EditProfileFormInput, ChangePasswordFormInput } from '@/types';
 import { Badge } from '@/components/ui/badge';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const createEditProfileFormSchema = (t: Function) => z.object({
   displayName: z.string().min(2, { message: t('auth.validation.displayNameMin') }),
@@ -23,15 +34,27 @@ const createEditProfileFormSchema = (t: Function) => z.object({
              .regex(/^[0-9]+-[0-9kK]$/, { message: t('auth.validation.rutFormat') }),
 });
 
+const createChangePasswordFormSchema = (t: Function) => z.object({
+  currentPassword_profile: z.string().min(1, { message: t('auth.validation.currentPasswordRequired') }), // In real app, min(6)
+  newPassword_profile: z.string().min(6, { message: t('auth.validation.passwordMin') }),
+  confirmNewPassword_profile: z.string().min(6, { message: t('auth.validation.passwordMin') })
+}).refine(data => data.newPassword_profile === data.confirmNewPassword_profile, {
+  message: t('auth.validation.passwordsNoMatch'),
+  path: ["confirmNewPassword_profile"],
+});
+
+
 export default function ProfilePage() {
-  const { currentUser, isLoading, logout, updateUserProfile } = useAuth();
+  const { currentUser, isLoading, logout, updateUserProfile, changePassword } = useAuth();
   const { t } = useTranslations();
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
+  const [isChangePasswordDialogOpen, setIsChangePasswordDialogOpen] = useState(false);
 
   const editProfileFormSchema = createEditProfileFormSchema(t);
+  const changePasswordFormSchema = createChangePasswordFormSchema(t);
 
-  const form = useForm<EditProfileFormInput>({
+  const editForm = useForm<EditProfileFormInput>({
     resolver: zodResolver(editProfileFormSchema),
     defaultValues: {
       displayName: currentUser?.displayName || '',
@@ -39,17 +62,26 @@ export default function ProfilePage() {
     },
   });
 
+  const passwordForm = useForm<ChangePasswordFormInput>({
+    resolver: zodResolver(changePasswordFormSchema),
+    defaultValues: {
+      currentPassword_profile: '',
+      newPassword_profile: '',
+      confirmNewPassword_profile: '',
+    },
+  });
+
   useEffect(() => {
     if (!isLoading && !currentUser) {
       router.replace('/login');
     }
-    if (currentUser && !form.formState.isDirty) { 
-      form.reset({
+    if (currentUser && !editForm.formState.isDirty && isEditing) { 
+      editForm.reset({
         displayName: currentUser.displayName || '',
         rut: currentUser.rut || '',
       });
     }
-  }, [currentUser, isLoading, router, form]);
+  }, [currentUser, isLoading, router, editForm, isEditing]);
 
   if (isLoading || !currentUser) {
     return (
@@ -59,15 +91,23 @@ export default function ProfilePage() {
     );
   }
 
-  const onSubmit = async (data: EditProfileFormInput) => {
+  const onSubmitEditProfile = async (data: EditProfileFormInput) => {
     const success = await updateUserProfile(data);
     if (success) {
       setIsEditing(false);
     }
   };
 
+  const onSubmitChangePassword = async (data: ChangePasswordFormInput) => {
+    const success = await changePassword(data);
+    if (success) {
+      setIsChangePasswordDialogOpen(false);
+      passwordForm.reset();
+    }
+  };
+
   const handleCancelEdit = () => {
-    form.reset({ 
+    editForm.reset({ 
         displayName: currentUser.displayName || '',
         rut: currentUser.rut || '',
     });
@@ -106,14 +146,14 @@ export default function ProfilePage() {
         </CardHeader>
         <CardContent className="space-y-6">
           {isEditing ? (
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <Form {...editForm}>
+              <form onSubmit={editForm.handleSubmit(onSubmitEditProfile)} className="space-y-4">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">{t('auth.emailLabel')}</p>
-                  <p className="text-lg py-2 px-3 border border-input rounded-md bg-muted/50 text-muted-foreground">{currentUser.email}</p>
+                  <p className="text-lg py-2 px-3 border border-input bg-input-background rounded-md text-muted-foreground">{currentUser.email}</p>
                 </div>
                 <FormField
-                  control={form.control}
+                  control={editForm.control}
                   name="displayName"
                   render={({ field }) => (
                     <FormItem>
@@ -126,7 +166,7 @@ export default function ProfilePage() {
                   )}
                 />
                 <FormField
-                  control={form.control}
+                  control={editForm.control}
                   name="rut"
                   render={({ field }) => (
                     <FormItem>
@@ -143,8 +183,8 @@ export default function ProfilePage() {
                     <X className="mr-2 h-4 w-4" />
                     {t('auth.cancelButton')}
                   </Button>
-                  <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                    {form.formState.isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                  <Button type="submit" className="w-full" disabled={editForm.formState.isSubmitting}>
+                    {editForm.formState.isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                     {t('auth.saveChangesButton')}
                   </Button>
                 </div>
@@ -184,15 +224,83 @@ export default function ProfilePage() {
                   </div>
                 )}
               </div>
-              <Button variant="default" className="w-full mt-8" onClick={() => setIsEditing(true)}>
-                <Edit3 className="mr-2 h-4 w-4" />
-                {t('auth.editProfileButton')}
-              </Button>
+              <div className="space-y-2 mt-8">
+                <Button variant="default" className="w-full" onClick={() => setIsEditing(true)}>
+                  <Edit3 className="mr-2 h-4 w-4" />
+                  {t('auth.editProfileButton')}
+                </Button>
+                 <AlertDialog open={isChangePasswordDialogOpen} onOpenChange={setIsChangePasswordDialogOpen}>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" className="w-full">
+                      <Lock className="mr-2 h-4 w-4" />
+                      {t('auth.changePasswordButton')}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>{t('auth.changePasswordDialog.title')}</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {t('auth.changePasswordDialog.description')}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <Form {...passwordForm}>
+                      <form onSubmit={passwordForm.handleSubmit(onSubmitChangePassword)} className="space-y-4">
+                        <FormField
+                          control={passwordForm.control}
+                          name="currentPassword_profile"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>{t('auth.changePasswordDialog.currentPasswordLabel')}</FormLabel>
+                              <FormControl>
+                                <Input type="password" placeholder="••••••••" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={passwordForm.control}
+                          name="newPassword_profile"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>{t('auth.changePasswordDialog.newPasswordLabel')}</FormLabel>
+                              <FormControl>
+                                <Input type="password" placeholder="••••••••" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={passwordForm.control}
+                          name="confirmNewPassword_profile"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>{t('auth.changePasswordDialog.confirmNewPasswordLabel')}</FormLabel>
+                              <FormControl>
+                                <Input type="password" placeholder="••••••••" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <AlertDialogFooter className="pt-4">
+                          <AlertDialogCancel onClick={() => passwordForm.reset()}>{t('auth.cancelButton')}</AlertDialogCancel>
+                          <AlertDialogAction type="submit" disabled={passwordForm.formState.isSubmitting}>
+                             {passwordForm.formState.isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                            {t('auth.changePasswordDialog.submitButton')}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </form>
+                    </Form>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </>
           )}
         </CardContent>
         {!isEditing && (
-          <CardFooter className="flex-col space-y-2 pt-4">
+          <CardFooter className="flex-col space-y-2 pt-6 border-t mt-6">
              <Button variant="outline" className="w-full" onClick={logout}>
                {t('auth.logoutButton')}
              </Button>

@@ -38,7 +38,7 @@
       "successTitle": "Raffle Deleted",
       "successDescription": "The raffle \"{{raffleName}}\" has been successfully deleted.",
       "errorTitle": "Deletion Failed",
-      "errorDescription": "Could not delete raffle \"{{raffleName}}\". Only open raffles with no sales or closed raffles can be deleted.",
+      "errorDescription": "Could not delete raffle \"{{raffleName}}\".",
       "disabledTooltip": "Cannot delete: this raffle is open and has sold/pending numbers."
     },
     "accountPendingActivationTooltip": "Your account is pending activation. You cannot create raffles until it is active."
@@ -86,7 +86,7 @@
     "shareMessageTextShort": "Check out this raffle: {{raffleName}}!",
     "shareLinkCopiedTitle": "Link Copied!",
     "shareLinkCopiedDescription": "Raffle link ({{url}}) copied to clipboard. Share it on Instagram!",
-    "exportImageButton": "Export Image",
+    "exportImageButton": "Export Available Details & Bank Info",
     "exportErrorTitle": "Export Failed",
     "exportErrorDescription": "Could not export the image. Please try again.",
     "exportSuccessTitle": "Excellent",
@@ -402,7 +402,8 @@
       "dialogTitle": "Confirm User Deletion",
       "dialogDescription": "Are you sure you want to delete the user \"{{userName}}\"? This action cannot be undone.",
       "confirmButton": "Confirm Delete",
-      "cancelButton": "Cancel"
+      "cancelButton": "Cancel",
+      "deleteUserItemText": "Delete User"
     },
     "actions": {
       "title": "Actions",
@@ -472,9 +473,18 @@
     "editProfileTitle": "Edit Profile",
     "editProfileSubtitle": "Update your profile details below.",
     "editProfileButton": "Edit Profile",
+    "changePasswordButton": "Change Password",
     "saveChangesButton": "Save Changes",
     "cancelButton": "Cancel",
     "logoutButton": "Logout",
+    "changePasswordDialog": {
+      "title": "Change Password",
+      "description": "Enter your current password and a new password below.",
+      "currentPasswordLabel": "Current Password",
+      "newPasswordLabel": "New Password",
+      "confirmNewPasswordLabel": "Confirm New Password",
+      "submitButton": "Change Password"
+    },
     "toast": {
       "loginSuccessTitle": "Login Successful!",
       "loginSuccessDescription": "Welcome back, {{email}}!",
@@ -488,6 +498,9 @@
       "updateProfileSuccessDescription": "Your profile information has been successfully updated.",
       "updateProfileErrorTitle": "Update Failed",
       "updateProfileErrorNotLoggedIn": "You must be logged in to update your profile.",
+      "changePasswordSuccessTitle": "Password Changed",
+      "changePasswordSuccessDescription": "Your password has been successfully changed. (Simulated)",
+      "changePasswordErrorTitle": "Password Change Failed",
       "signupErrorTitle": "Signup Failed",
       "signupErrorEmailExists": "This email is already registered.",
       "loginErrorTitle": "Login Failed",
@@ -496,6 +509,7 @@
     "validation": {
       "emailInvalid": "Please enter a valid email address.",
       "passwordRequired": "Password is required.",
+      "currentPasswordRequired": "Current password is required.",
       "passwordMin": "Password must be at least 6 characters.",
       "displayNameMin": "Full name must be at least 2 characters.",
       "rutMin": "National ID must be at least 8 characters.",

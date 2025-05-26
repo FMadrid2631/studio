@@ -3,7 +3,7 @@
 
 import type React from 'react';
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import type { AuthUser, LoginFormInput, SignupFormInput, EditProfileFormInput } from '@/types';
+import type { AuthUser, LoginFormInput, SignupFormInput, EditProfileFormInput, ChangePasswordFormInput } from '@/types';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslations } from './LocalizationContext'; 
@@ -20,6 +20,7 @@ interface AuthContextType {
   loginWithGoogle: () => Promise<void>;
   loginWithApple: () => Promise<void>;
   updateUserProfile: (data: EditProfileFormInput) => Promise<boolean>;
+  changePassword: (data: ChangePasswordFormInput) => Promise<boolean>;
   updateUserStatus: (userId: string, newStatus: AuthUser['status']) => Promise<boolean>;
   deleteUser: (userIdToDelete: string) => Promise<boolean>;
   getUserById: (userId: string) => AuthUser | undefined;
@@ -56,6 +57,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     }
     
+    let usersChangedDuringMigration = false;
     const migratedUsers = loadedAllUsers.map(user => {
       let needsUpdate = false;
       const isActualAdminByEmail = user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
@@ -80,11 +82,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         updatedUser.registrationDate = new Date(0).toISOString();
         needsUpdate = true;
       }
-      return needsUpdate ? updatedUser : user;
+      if(needsUpdate) usersChangedDuringMigration = true;
+      return updatedUser;
     });
 
     setAllUsers(migratedUsers);
-    if (JSON.stringify(migratedUsers) !== JSON.stringify(loadedAllUsers)) {
+    if (usersChangedDuringMigration || (loadedAllUsers.length === 0 && migratedUsers.length > 0) || (loadedAllUsers.length > 0 && migratedUsers.length === 0 && !localStorage.getItem('rifaFacilApp_allUsers'))) {
         saveAllUsers(migratedUsers); 
     }
 
@@ -134,7 +137,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setCurrentUser(user as AuthUser); 
           if (needsUpdateInStorage) {
             localStorage.setItem('mockAuthUser', JSON.stringify(user));
-            // Ensure allUsers is also updated if the current user's details were corrected
             const userInAllUsersIndex = migratedUsers.findIndex(u => u.uid === user.uid);
             if (userInAllUsersIndex > -1) {
                 migratedUsers[userInAllUsersIndex] = user as AuthUser;
@@ -199,7 +201,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
              const updatedAll = allUsers.map(u => u.uid === completeUser.uid ? completeUser : u);
              saveAllUsers(updatedAll);
            }
-         } else if (!isNewAdminLogin) { 
+         } else if (!isNewAdminLogin && !allUsers.find(u => u.uid === completeUser.uid)) { 
             saveAllUsers([...allUsers, completeUser]);
          }
       }
@@ -332,6 +334,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return true;
   }, [currentUser, toast, t, allUsers, saveAllUsers]);
 
+  const changePassword = useCallback(async (data: ChangePasswordFormInput): Promise<boolean> => {
+    if (!currentUser) {
+      toast({ title: t('auth.toast.changePasswordErrorTitle'), description: t('auth.toast.updateProfileErrorNotLoggedIn'), variant: 'destructive' });
+      return false;
+    }
+    // In a real app, you'd call Firebase Auth or your backend here.
+    // For this mock, we'll just simulate success.
+    // We don't actually verify currentPassword or store the new one.
+    console.log("Simulating password change for user:", currentUser.email);
+    console.log("New password (mock):", data.newPassword_profile);
+    
+    await new Promise(resolve => setTimeout(resolve, 700)); 
+
+    toast({ title: t('auth.toast.changePasswordSuccessTitle'), description: t('auth.toast.changePasswordSuccessDescription') });
+    return true;
+  }, [currentUser, toast, t]);
+
   const updateUserStatus = useCallback(async (userId: string, newStatus: AuthUser['status']): Promise<boolean> => {
     if (currentUser?.role !== 'admin') {
       toast({ title: t('admin.toast.statusUpdateErrorTitle'), description: t('admin.toast.statusUpdateErrorNotAdmin', {defaultValue: "Only admins can change user status."}), variant: 'destructive' });
@@ -349,8 +368,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (userUpdated) {
       saveAllUsers(updatedAllUsers);
       if (currentUser.uid === userId) {
-        // This should not happen if admin cannot change own status from the UI
-        // But if it does, update currentUser
         const updatedCurrentUser = { ...currentUser, status: newStatus };
         setCurrentUser(updatedCurrentUser);
         if (typeof window !== 'undefined') localStorage.setItem('mockAuthUser', JSON.stringify(updatedCurrentUser));
@@ -394,7 +411,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 
   return (
-    <AuthContext.Provider value={{ currentUser, isLoading, allUsers, login, signup, logout, loginWithGoogle, loginWithApple, updateUserProfile, updateUserStatus, deleteUser, getUserById }}>
+    <AuthContext.Provider value={{ currentUser, isLoading, allUsers, login, signup, logout, loginWithGoogle, loginWithApple, updateUserProfile, changePassword, updateUserStatus, deleteUser, getUserById }}>
       {children}
     </AuthContext.Provider>
   );

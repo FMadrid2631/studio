@@ -86,7 +86,7 @@
     "shareMessageTextShort": "Confira esta rifa: {{raffleName}}!",
     "shareLinkCopiedTitle": "Link Copiado!",
     "shareLinkCopiedDescription": "Link da rifa ({{url}}) copiado para a área de transferência. Compartilhe no Instagram!",
-    "exportImageButton": "Exportar Imagem",
+    "exportImageButton": "Exportar Detalhes de Disponíveis e Banco",
     "exportErrorTitle": "Falha ao Exportar",
     "exportErrorDescription": "Não foi possível exportar a imagem. Por favor, tente novamente.",
     "exportSuccessTitle": "Excelente",
@@ -402,7 +402,8 @@
       "dialogTitle": "Confirmar Exclusão de Usuário",
       "dialogDescription": "Tem certeza de que deseja excluir o usuário \"{{userName}}\"? Esta ação não pode ser desfeita.",
       "confirmButton": "Confirmar Exclusão",
-      "cancelButton": "Cancelar"
+      "cancelButton": "Cancelar",
+      "deleteUserItemText": "Excluir Usuário"
     },
     "actions": {
       "title": "Ações",
@@ -472,9 +473,18 @@
     "editProfileTitle": "Editar Perfil",
     "editProfileSubtitle": "Atualize os dados do seu perfil abaixo.",
     "editProfileButton": "Editar Perfil",
+    "changePasswordButton": "Alterar Senha",
     "saveChangesButton": "Salvar Alterações",
     "cancelButton": "Cancelar",
     "logoutButton": "Sair",
+    "changePasswordDialog": {
+      "title": "Alterar Senha",
+      "description": "Digite sua senha atual e uma nova senha abaixo.",
+      "currentPasswordLabel": "Senha Atual",
+      "newPasswordLabel": "Nova Senha",
+      "confirmNewPasswordLabel": "Confirmar Nova Senha",
+      "submitButton": "Alterar Senha"
+    },
     "toast": {
       "loginSuccessTitle": "Login Bem-sucedido!",
       "loginSuccessDescription": "Bem-vindo de volta, {{email}}!",
@@ -488,6 +498,9 @@
       "updateProfileSuccessDescription": "As suas informações de perfil foram atualizadas com sucesso.",
       "updateProfileErrorTitle": "Falha ao Atualizar",
       "updateProfileErrorNotLoggedIn": "Você deve estar logado para atualizar seu perfil.",
+      "changePasswordSuccessTitle": "Senha Alterada",
+      "changePasswordSuccessDescription": "Sua senha foi alterada com sucesso. (Simulado)",
+      "changePasswordErrorTitle": "Falha ao Alterar Senha",
       "signupErrorTitle": "Falha no Cadastro",
       "signupErrorEmailExists": "Este e-mail já está cadastrado.",
       "loginErrorTitle": "Falha no Login",
@@ -496,6 +509,7 @@
     "validation": {
       "emailInvalid": "Por favor, insira um endereço de e-mail válido.",
       "passwordRequired": "A senha é obrigatória.",
+      "currentPasswordRequired": "A senha atual é obrigatória.",
       "passwordMin": "A senha deve ter pelo menos 6 caracteres.",
       "displayNameMin": "O nome completo deve ter pelo menos 2 caracteres.",
       "rutMin": "CPF/CNPJ deve ter pelo menos 11 caracteres.",
