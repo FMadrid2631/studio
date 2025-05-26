@@ -6,7 +6,7 @@ import { useRaffles } from '@/contexts/RaffleContext';
 import { RaffleGrid } from '@/components/raffle/RaffleGrid';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Edit, Settings, Trophy, DollarSign, ListChecks, Share2, MessageSquare, Facebook, Instagram, Twitter, UserCog, Undo2 } from 'lucide-react';
+import { Edit, Settings, Trophy, DollarSign, ListChecks, Share2, MessageSquare, Facebook, Instagram, Twitter, UserCog, Undo2, Download, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -356,9 +356,37 @@ export default function RafflePage() {
               </div>
             </div>
             <div className="mt-4 grid grid-cols-3 gap-3">
+              {/* Row 1 */}
+              <Button variant="outline" asChild disabled={raffle.status === 'Closed'} className="w-full">
+                <Link href={`/raffles/${raffle.id}/purchase`}>
+                  <Edit /> {t('raffleDetailsPage.purchaseNumbersButton')}
+                </Link>
+              </Button>
+              <Button variant="outline" asChild className="w-full">
+                 <Link href={`/raffles/${raffle.id}/available`}>
+                    <ListChecks />
+                    {t('homePage.availableButton')}
+                 </Link>
+              </Button>
+              <Button variant="default" asChild disabled={raffle.status === 'Closed'} className="w-full">
+                <Link href={`/raffles/${raffle.id}/draw`}>
+                  <Trophy />
+                  {t('raffleDetailsPage.conductDrawButton')}
+                </Link>
+              </Button>
+
+              {/* Row 2 */}
+              <Button variant="outline" onClick={handleOpenCancelPurchaseDialog} disabled={raffle.status === 'Closed'} className="w-full">
+                <Undo2 />
+                {t('raffleDetailsPage.cancelPurchase.buttonText')}
+              </Button>
+              <Button variant="default" onClick={calculateAndShowProfit} className="w-full">
+                <DollarSign />
+                {t('raffleDetailsPage.viewProfitButton')}
+              </Button>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="w-full">
+                  <div className="w-full"> 
                   {canEditConfiguration ? (
                     <Button variant="outline" asChild className="w-full">
                       <Link href={`/raffles/${raffle.id}/edit`}>
@@ -380,31 +408,6 @@ export default function RafflePage() {
                   </TooltipContent>
                 )}
               </Tooltip>
-              <Button variant="outline" asChild disabled={raffle.status === 'Closed'} className="w-full">
-                <Link href={`/raffles/${raffle.id}/purchase`}>
-                  <Edit /> {t('raffleDetailsPage.purchaseNumbersButton')}
-                </Link>
-              </Button>
-              <Button variant="outline" asChild className="w-full">
-                 <Link href={`/raffles/${raffle.id}/available`}>
-                    <ListChecks />
-                    {t('homePage.availableButton')}
-                 </Link>
-              </Button>
-              <Button variant="default" asChild disabled={raffle.status === 'Closed'} className="w-full">
-                <Link href={`/raffles/${raffle.id}/draw`}>
-                  <Trophy />
-                  {t('raffleDetailsPage.conductDrawButton')}
-                </Link>
-              </Button>
-              <Button variant="outline" onClick={handleOpenCancelPurchaseDialog} disabled={raffle.status === 'Closed'} className="w-full">
-                <Undo2 />
-                {t('raffleDetailsPage.cancelPurchase.buttonText')}
-              </Button>
-              <Button variant="default" onClick={calculateAndShowProfit} className="w-full">
-                <DollarSign />
-                {t('raffleDetailsPage.viewProfitButton')}
-              </Button>
             </div>
           </CardContent>
         </Card>
@@ -710,6 +713,7 @@ export default function RafflePage() {
     
 
     
+
 
 
 
