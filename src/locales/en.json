@@ -15,7 +15,7 @@
     "createNewRaffleButton": "Create New Raffle",
     "noRafflesTitle": "No Raffles Yet",
     "noRafflesDescription": "Get started by creating your first raffle!",
-    "viewGridButton": "View",
+    "viewGridButton": "Ver",
     "purchaseButton": "Purchase",
     "availableButton": "Available",
     "drawButton": "Draw",
@@ -109,6 +109,22 @@
       "successDescription": "Buyer for number #{{numberId}} updated to {{buyerName}}.",
       "errorTitle": "Update Failed",
       "errorDescription": "Could not update buyer details. Please ensure the number is purchased and try again."
+    },
+    "cancelPurchase": {
+      "buttonText": "Cancel Purchase",
+      "dialogTitle": "Cancel Number Purchase",
+      "dialogDescription": "Enter the number whose purchase you want to cancel. This will make the number available again.",
+      "numberInputLabel": "Number to Cancel",
+      "numberInputPlaceholder": "Enter number ID",
+      "confirmButton": "Confirm Cancellation",
+      "cancelButton": "Cancel",
+      "successTitle": "Purchase Cancelled",
+      "successDescription": "Purchase for number #{{numberId}} has been cancelled. It is now available.",
+      "errorTitle": "Cancellation Failed",
+      "errorInvalidNumber": "Invalid number. Please enter a valid number within the raffle range.",
+      "errorAlreadyAvailable": "Number #{{numberId}} is already available.",
+      "errorRaffleClosed": "Cannot cancel purchase: The raffle is closed.",
+      "errorGeneric": "Could not cancel the purchase. Please try again."
     }
   },
   "configurePage": {
@@ -398,3 +414,4 @@
     }
   }
 }
+

@@ -6,7 +6,7 @@ import { useRaffles } from '@/contexts/RaffleContext';
 import { RaffleGrid } from '@/components/raffle/RaffleGrid';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Edit, Settings, Trophy, DollarSign, ListChecks, Share2, MessageSquare, Facebook, Instagram, Twitter, Download, UserCog } from 'lucide-react';
+import { Edit, Settings, Trophy, DollarSign, ListChecks, Share2, MessageSquare, Facebook, Instagram, Twitter, Download, UserCog, Undo2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -30,7 +30,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import type { RaffleNumber, EditBuyerFormInput } from '@/types';
+import type { RaffleNumber, EditBuyerFormInput, Raffle as RaffleType } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -45,7 +45,7 @@ const createEditBuyerFormSchema = (t: Function) => z.object({
 export default function RafflePage() {
   const params = useParams();
   const raffleId = params.id as string;
-  const { getRaffleById, isLoading, updatePendingPayment, updateBuyerDetails } = useRaffles();
+  const { getRaffleById, isLoading, updatePendingPayment, updateBuyerDetails, cancelNumberPurchase } = useRaffles();
   const router = useRouter();
   const { t, locale, changeLocaleForRaffle } = useTranslations();
   const { toast } = useToast();
@@ -66,6 +66,10 @@ export default function RafflePage() {
 
   const [isEditBuyerDialogOpen, setIsEditBuyerDialogOpen] = useState(false);
   const [numberToEditBuyer, setNumberToEditBuyer] = useState<RaffleNumber | null>(null);
+
+  const [isCancelPurchaseDialogOpen, setIsCancelPurchaseDialogOpen] = useState(false);
+  const [numberToCancelInput, setNumberToCancelInput] = useState('');
+
 
   const gridRef = useRef<HTMLDivElement>(null);
   const [shareUrl, setShareUrl] = useState('');
@@ -123,19 +127,20 @@ export default function RafflePage() {
   };
 
   const handleNumberClick = (numberId: number) => {
-    if (!raffle) return;
+    if (!raffle || raffle.status === 'Closed') return; // No actions if raffle is closed
+
     const clickedNumber = raffle.numbers.find(n => n.id === numberId);
     if (!clickedNumber) return;
 
-    if (clickedNumber.status === 'Available' && raffle.status === 'Open') {
+    if (clickedNumber.status === 'Available') {
       router.push(`/raffles/${raffle.id}/purchase?selectedNumber=${numberId}`);
-    } else if (clickedNumber.status === 'PendingPayment' && raffle.status === 'Open') {
+    } else if (clickedNumber.status === 'PendingPayment') {
       setSelectedNumberForPaymentUpdate(clickedNumber);
       setNewPaymentMethod(undefined); 
       setIsUpdatePaymentDialogOpen(true);
-    } else if (clickedNumber.status === 'Purchased' && raffle.status === 'Open') {
+    } else if (clickedNumber.status === 'Purchased') {
       setNumberToEditBuyer(clickedNumber);
-      editBuyerForm.reset({ // Pre-fill form
+      editBuyerForm.reset({ 
         newBuyerName: clickedNumber.buyerName || '',
         newBuyerPhone: clickedNumber.buyerPhone || '',
       });
@@ -183,6 +188,55 @@ export default function RafflePage() {
     setNumberToEditBuyer(null);
   };
 
+  const handleOpenCancelPurchaseDialog = () => {
+    if (raffle.status === 'Closed') {
+        toast({ title: t('raffleDetailsPage.cancelPurchase.errorTitle'), description: t('raffleDetailsPage.cancelPurchase.errorRaffleClosed'), variant: 'destructive'});
+        return;
+    }
+    setNumberToCancelInput('');
+    setIsCancelPurchaseDialogOpen(true);
+  };
+
+  const handleConfirmCancellation = () => {
+    if (!raffle || !numberToCancelInput) return;
+    const numId = parseInt(numberToCancelInput, 10);
+
+    if (isNaN(numId) || numId <= 0 || numId > raffle.totalNumbers) {
+      toast({ title: t('raffleDetailsPage.cancelPurchase.errorTitle'), description: t('raffleDetailsPage.cancelPurchase.errorInvalidNumber'), variant: 'destructive' });
+      return;
+    }
+
+    const numberToAnimate = raffle.numbers.find(n => n.id === numId);
+    if (!numberToAnimate) {
+        // Should not happen if numId is within totalNumbers, but good check
+        toast({ title: t('raffleDetailsPage.cancelPurchase.errorTitle'), description: t('raffleDetailsPage.cancelPurchase.errorInvalidNumber'), variant: 'destructive' });
+        return;
+    }
+
+    if (numberToAnimate.status === 'Available') {
+        toast({ title: t('raffleDetailsPage.cancelPurchase.errorTitle'), description: t('raffleDetailsPage.cancelPurchase.errorAlreadyAvailable', { numberId: numId }), variant: 'destructive' });
+        setIsCancelPurchaseDialogOpen(false);
+        setNumberToCancelInput('');
+        return;
+    }
+    
+    const success = cancelNumberPurchase(raffle.id, numId);
+    if (success) {
+      toast({
+        title: t('raffleDetailsPage.cancelPurchase.successTitle'),
+        description: t('raffleDetailsPage.cancelPurchase.successDescription', { numberId: numId }),
+      });
+    } else {
+      toast({
+        title: t('raffleDetailsPage.cancelPurchase.errorTitle'),
+        description: t('raffleDetailsPage.cancelPurchase.errorGeneric'),
+        variant: 'destructive',
+      });
+    }
+    setIsCancelPurchaseDialogOpen(false);
+    setNumberToCancelInput('');
+  };
+
 
   const purchasedCount = raffle.numbers.filter(n => n.status === 'Purchased' || n.status === 'PendingPayment').length;
   const progress = raffle.totalNumbers > 0 ? (purchasedCount / raffle.totalNumbers) * 100 : 0;
@@ -228,7 +282,6 @@ export default function RafflePage() {
 
     const raffleName = raffle.name;
     const encodedUrl = encodeURIComponent(shareUrl);
-    // Use a generic text for sharing that doesn't imply the raffle is open or closed
     const text = t('raffleDetailsPage.shareMessageText', { raffleName: raffleName, url: shareUrl });
     const encodedText = encodeURIComponent(text);
 
@@ -302,7 +355,7 @@ export default function RafflePage() {
                 <div className="bg-primary h-2.5 rounded-full" style={{ width: `${progress}%` }}></div>
               </div>
             </div>
-            <div className="mt-4 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-3">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="w-full">
@@ -342,7 +395,11 @@ export default function RafflePage() {
                   {t('raffleDetailsPage.conductDrawButton')}
                 </Link>
               </Button>
-              <Button variant="default" onClick={calculateAndShowProfit} className="w-full col-span-full md:col-span-4">
+              <Button variant="outline" onClick={handleOpenCancelPurchaseDialog} disabled={raffle.status === 'Closed'} className="w-full">
+                <Undo2 className="mr-2 h-4 w-4" />
+                {t('raffleDetailsPage.cancelPurchase.buttonText')}
+              </Button>
+              <Button variant="default" onClick={calculateAndShowProfit} className="w-full md:col-span-3">
                 <DollarSign className="mr-2 h-4 w-4" />
                 {t('raffleDetailsPage.viewProfitButton')}
               </Button>
@@ -525,8 +582,8 @@ export default function RafflePage() {
                 </AlertDialogTitle>
                 <AlertDialogDescription>
                   {t('raffleDetailsPage.updatePayment.dialogDescription', { 
-                    buyerName: selectedNumberForPaymentUpdate.buyerName || 'N/A', 
-                    buyerPhone: selectedNumberForPaymentUpdate.buyerPhone || 'N/A' 
+                    buyerName: selectedNumberForPaymentUpdate.buyerName || t('shared.notAvailable'), 
+                    buyerPhone: selectedNumberForPaymentUpdate.buyerPhone || t('shared.notAvailable') 
                   })}
                 </AlertDialogDescription>
               </AlertDialogHeader>
@@ -615,6 +672,35 @@ export default function RafflePage() {
           </AlertDialog>
         )}
 
+        <AlertDialog open={isCancelPurchaseDialogOpen} onOpenChange={setIsCancelPurchaseDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t('raffleDetailsPage.cancelPurchase.dialogTitle')}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {t('raffleDetailsPage.cancelPurchase.dialogDescription')}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="py-4">
+              <Label htmlFor="numberToCancelInputId">{t('raffleDetailsPage.cancelPurchase.numberInputLabel')}</Label>
+              <Input
+                id="numberToCancelInputId"
+                type="number"
+                value={numberToCancelInput}
+                onChange={(e) => setNumberToCancelInput(e.target.value)}
+                placeholder={t('raffleDetailsPage.cancelPurchase.numberInputPlaceholder')}
+              />
+            </div>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setIsCancelPurchaseDialogOpen(false)}>
+                {t('raffleDetailsPage.cancelPurchase.cancelButton')}
+              </AlertDialogCancel>
+              <AlertDialogAction onClick={handleConfirmCancellation} disabled={!numberToCancelInput}>
+                {t('raffleDetailsPage.cancelPurchase.confirmButton')}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
       </div>
     </TooltipProvider>
   );
@@ -622,3 +708,4 @@ export default function RafflePage() {
     
 
     
+

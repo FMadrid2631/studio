@@ -109,6 +109,22 @@
       "successDescription": "El comprador del número #{{numberId}} ha sido actualizado a {{buyerName}}.",
       "errorTitle": "Error al Actualizar",
       "errorDescription": "No se pudieron actualizar los datos del comprador. Asegúrate de que el número esté pagado e inténtalo de nuevo."
+    },
+    "cancelPurchase": {
+      "buttonText": "Anular Compra",
+      "dialogTitle": "Anular Compra de Número",
+      "dialogDescription": "Ingrese el número cuya compra desea anular. Esto hará que el número vuelva a estar disponible.",
+      "numberInputLabel": "Número a Anular",
+      "numberInputPlaceholder": "Ingrese el ID del número",
+      "confirmButton": "Confirmar Anulación",
+      "cancelButton": "Cancelar",
+      "successTitle": "Compra Anulada",
+      "successDescription": "La compra del número #{{numberId}} ha sido anulada. Ahora está disponible.",
+      "errorTitle": "Error en Anulación",
+      "errorInvalidNumber": "Número inválido. Por favor, ingrese un número válido dentro del rango de la rifa.",
+      "errorAlreadyAvailable": "El número #{{numberId}} ya está disponible.",
+      "errorRaffleClosed": "No se puede anular la compra: La rifa está cerrada.",
+      "errorGeneric": "No se pudo anular la compra. Por favor, inténtelo de nuevo."
     }
   },
   "configurePage": {
@@ -398,3 +414,4 @@
     }
   }
 }
+
