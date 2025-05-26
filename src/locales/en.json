@@ -38,7 +38,7 @@
       "successTitle": "Raffle Deleted",
       "successDescription": "The raffle \"{{raffleName}}\" has been successfully deleted.",
       "errorTitle": "Deletion Failed",
-      "errorDescription": "Could not delete raffle \"{{raffleName}}\". It might be open and have sales, or another issue occurred.",
+      "errorDescription": "Could not delete raffle \"{{raffleName}}\".",
       "disabledTooltip": "Cannot delete: this raffle is open and has sold/pending numbers."
     },
     "accountPendingActivationTooltip": "Your account is pending activation. You cannot create raffles until it is active."
@@ -382,8 +382,8 @@
       "actions": "Actions",
       "phone": "Phone",
       "country": "Country",
-      "internalCode": "Internal Code",
-      "role": "Role"
+      "internalCode": "Code",
+      "role": "Profile"
     },
     "userStatus": {
       "active": "Active",
@@ -469,7 +469,7 @@
     "countryPlaceholder": "Select your country",
     "phoneNumberLabel": "Phone Number",
     "phoneNumberPlaceholder": "+1234567890",
-    "roleLabel": "Role",
+    "roleLabel": "Profile",
     "roleUser": "User",
     "roleAdmin": "Administrator",
     "statusLabel": "Status",
@@ -487,6 +487,7 @@
     "cancelButton": "Cancel",
     "logoutButton": "Logout",
     "internalCodeLabel": "Internal Code",
+    "adminEmailValue": "fernando.madrid21@hotmail.com",
     "changePasswordDialog": {
       "title": "Change Password",
       "description": "Enter your current password and a new password below.",

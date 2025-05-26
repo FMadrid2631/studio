@@ -38,7 +38,7 @@
       "successTitle": "Rifa Eliminada",
       "successDescription": "La rifa \"{{raffleName}}\" ha sido eliminada exitosamente.",
       "errorTitle": "Error al Eliminar",
-      "errorDescription": "No se pudo eliminar la rifa \"{{raffleName}}\". Puede estar abierta y tener ventas, o ocurrió otro problema.",
+      "errorDescription": "No se pudo eliminar la rifa \"{{raffleName}}\".",
       "disabledTooltip": "No se puede eliminar: esta rifa está abierta y tiene números vendidos/pendientes."
     },
     "accountPendingActivationTooltip": "Tu cuenta está pendiente de activación. No puedes crear rifas hasta que esté activa."
@@ -86,7 +86,7 @@
     "shareMessageTextShort": "¡Mira esta rifa: {{raffleName}}!",
     "shareLinkCopiedTitle": "¡Enlace Copiado!",
     "shareLinkCopiedDescription": "Enlace de la rifa ({{url}}) copiado al portapapeles. ¡Compártelo en Instagram!",
-    "exportImageButton": "Exportar Detalles de Disponibles y Banco",
+    "exportImageButton": "Exportar Disponibles y Banco",
     "exportErrorTitle": "Error al Exportar",
     "exportErrorDescription": "No se pudo exportar la imagen. Por favor, inténtalo de nuevo.",
     "exportSuccessTitle": "Excelente",
@@ -382,8 +382,8 @@
       "actions": "Acciones",
       "phone": "Teléfono",
       "country": "País",
-      "internalCode": "Código Interno",
-      "role": "Rol"
+      "internalCode": "Código",
+      "role": "Perfil"
     },
     "userStatus": {
       "active": "Activo",
@@ -469,7 +469,7 @@
     "countryPlaceholder": "Selecciona tu país",
     "phoneNumberLabel": "Número de Teléfono",
     "phoneNumberPlaceholder": "+56912345678",
-    "roleLabel": "Rol",
+    "roleLabel": "Perfil",
     "roleUser": "Usuario",
     "roleAdmin": "Administrador",
     "statusLabel": "Estado",
@@ -478,7 +478,7 @@
     "alreadyAccountPrompt": "¿Ya tienes una cuenta?",
     "loginLink": "Iniciar Sesión",
     "profileTitle": "Mi Perfil",
-    "profileSubtitle": "Ver y gestionar la información de tu perfil.",
+    "profileSubtitle": "View and manage your profile information.",
     "editProfileTitle": "Editar Perfil",
     "editProfileSubtitle": "Actualiza los datos de tu perfil a continuación.",
     "editProfileButton": "Editar Perfil",
@@ -487,6 +487,7 @@
     "cancelButton": "Cancelar",
     "logoutButton": "Cerrar Sesión",
     "internalCodeLabel": "Código Interno",
+    "adminEmailValue": "fernando.madrid21@hotmail.com",
     "changePasswordDialog": {
       "title": "Cambiar Contraseña",
       "description": "Ingresa tu contraseña actual y una nueva contraseña a continuación.",

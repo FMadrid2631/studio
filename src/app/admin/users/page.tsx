@@ -82,41 +82,41 @@ export default function AdminUsersPage() {
     switch (status) {
       case 'active':
         return (
-          <Badge variant="default" className="bg-green-500 hover:bg-green-600 text-white">
+          <Badge variant="default" className="bg-green-500 hover:bg-green-600 text-white whitespace-nowrap">
             <CheckCircle className="mr-1 h-3.5 w-3.5" />
             {t('admin.userStatus.active')}
           </Badge>
         );
       case 'pending':
         return (
-          <Badge variant="secondary" className="bg-yellow-400 hover:bg-yellow-500 text-black">
+          <Badge variant="secondary" className="bg-yellow-400 hover:bg-yellow-500 text-black whitespace-nowrap">
             <Clock className="mr-1 h-3.5 w-3.5" />
             {t('admin.userStatus.pending')}
           </Badge>
         );
       case 'inactive':
         return (
-          <Badge variant="destructive" className="bg-gray-500 hover:bg-gray-600">
+          <Badge variant="destructive" className="bg-gray-500 hover:bg-gray-600 whitespace-nowrap">
             <XCircle className="mr-1 h-3.5 w-3.5" />
             {t('admin.userStatus.inactive')}
           </Badge>
         );
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="outline" className="whitespace-nowrap">{status}</Badge>;
     }
   };
 
   const getRoleDisplay = (role?: 'admin' | 'user') => {
     if (role === 'admin') {
       return (
-        <Badge variant="default" className="text-xs">
+        <Badge variant="default" className="text-xs whitespace-nowrap">
           <ShieldCheck className="mr-1 h-3.5 w-3.5" />
           {t('auth.roleAdmin')}
         </Badge>
       );
     }
     return (
-      <Badge variant="secondary" className="text-xs">
+      <Badge variant="secondary" className="text-xs whitespace-nowrap">
         <UserIcon className="mr-1 h-3.5 w-3.5" />
         {t('auth.roleUser')}
       </Badge>
@@ -181,17 +181,17 @@ export default function AdminUsersPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t('admin.tableHeaders.actions')}</TableHead>
-                  <TableHead className="text-center">{t('admin.tableHeaders.status')}</TableHead>
-                  <TableHead>{t('admin.tableHeaders.name')}</TableHead>
-                  <TableHead>{t('admin.tableHeaders.email')}</TableHead>
-                  <TableHead>{t('admin.tableHeaders.rut')}</TableHead>
-                  <TableHead>{t('admin.tableHeaders.phone')}</TableHead>
-                  <TableHead>{t('admin.tableHeaders.country')}</TableHead>
-                  <TableHead>{t('admin.tableHeaders.internalCode')}</TableHead>
-                  <TableHead>{t('admin.tableHeaders.role')}</TableHead>
-                  <TableHead>{t('admin.tableHeaders.registrationDate')}</TableHead>
-                  <TableHead className="text-right"><span className="sr-only">{t('admin.deleteUser.deleteUserItemText')}</span></TableHead>
+                  <TableHead className="whitespace-nowrap">{t('admin.tableHeaders.actions')}</TableHead>
+                  <TableHead className="text-center whitespace-nowrap">{t('admin.tableHeaders.status')}</TableHead>
+                  <TableHead className="whitespace-nowrap">{t('admin.tableHeaders.name')}</TableHead>
+                  <TableHead className="whitespace-nowrap">{t('admin.tableHeaders.email')}</TableHead>
+                  <TableHead className="whitespace-nowrap">{t('admin.tableHeaders.rut')}</TableHead>
+                  <TableHead className="whitespace-nowrap">{t('admin.tableHeaders.phone')}</TableHead>
+                  <TableHead className="whitespace-nowrap">{t('admin.tableHeaders.country')}</TableHead>
+                  <TableHead className="whitespace-nowrap">{t('admin.tableHeaders.internalCode')}</TableHead>
+                  <TableHead className="whitespace-nowrap">{t('admin.tableHeaders.role')}</TableHead>
+                  <TableHead className="whitespace-nowrap">{t('admin.tableHeaders.registrationDate')}</TableHead>
+                  <TableHead className="text-right whitespace-nowrap"><span className="sr-only">{t('admin.deleteUser.deleteUserItemText')}</span></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -199,7 +199,7 @@ export default function AdminUsersPage() {
                   const countryName = user.countryCode ? COUNTRIES.find(c => c.code === user.countryCode)?.name : t('shared.notAvailable');
                   return (
                   <TableRow key={user.uid}>
-                    <TableCell>
+                    <TableCell className="whitespace-nowrap">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -208,10 +208,7 @@ export default function AdminUsersPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          {/* <DropdownMenuLabel>{t('admin.actions.title')}</DropdownMenuLabel> 
-                            The label "Actions" might be redundant if the trigger is just an icon.
-                            Also removing the specific "Change Status to:" label.
-                          */}
+                          {/* <DropdownMenuLabel>{t('admin.actions.title')}</DropdownMenuLabel> */}
                           <DropdownMenuItem 
                             onClick={() => handleStatusChange(user.uid, 'active')}
                             disabled={user.uid === currentUser.uid && user.email?.toLowerCase() === t('auth.adminEmailValue').toLowerCase()}
@@ -233,18 +230,18 @@ export default function AdminUsersPage() {
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
-                    <TableCell className="text-center">{getStatusBadge(user.status)}</TableCell>
-                    <TableCell className="font-medium">{user.displayName || t('shared.notAvailable')}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.rut || t('shared.notAvailable')}</TableCell>
-                    <TableCell>{user.phoneNumber || t('shared.notAvailable')}</TableCell>
-                    <TableCell>{countryName}</TableCell>
-                    <TableCell className="font-mono text-xs">{user.internalCode || t('shared.notAvailable')}</TableCell>
-                    <TableCell>{getRoleDisplay(user.role)}</TableCell>
-                    <TableCell>
+                    <TableCell className="text-center whitespace-nowrap">{getStatusBadge(user.status)}</TableCell>
+                    <TableCell className="font-medium whitespace-nowrap">{user.displayName || t('shared.notAvailable')}</TableCell>
+                    <TableCell className="whitespace-nowrap">{user.email}</TableCell>
+                    <TableCell className="whitespace-nowrap">{user.rut || t('shared.notAvailable')}</TableCell>
+                    <TableCell className="whitespace-nowrap">{user.phoneNumber || t('shared.notAvailable')}</TableCell>
+                    <TableCell className="whitespace-nowrap">{countryName}</TableCell>
+                    <TableCell className="font-mono text-xs whitespace-nowrap">{user.internalCode || t('shared.notAvailable')}</TableCell>
+                    <TableCell className="whitespace-nowrap">{getRoleDisplay(user.role)}</TableCell>
+                    <TableCell className="whitespace-nowrap">
                       {user.registrationDate ? format(new Date(user.registrationDate), 'PPpp', { locale: dateLocale }) : t('shared.notAvailable')}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right whitespace-nowrap">
                       <Button
                         variant="ghost"
                         size="icon"

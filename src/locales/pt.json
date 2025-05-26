@@ -38,7 +38,7 @@
       "successTitle": "Rifa Excluída",
       "successDescription": "A rifa \"{{raffleName}}\" foi excluída com sucesso.",
       "errorTitle": "Falha na Exclusão",
-      "errorDescription": "Não foi possível excluir a rifa \"{{raffleName}}\". Pode estar aberta e ter vendas, ou ocorreu outro problema.",
+      "errorDescription": "Não foi possível excluir a rifa \"{{raffleName}}\".",
       "disabledTooltip": "Não é possível excluir: esta rifa está aberta e tem números vendidos/pendentes."
     },
     "accountPendingActivationTooltip": "Sua conta está pendente de ativação. Você não pode criar rifas até que ela seja ativada."
@@ -382,8 +382,8 @@
       "actions": "Ações",
       "phone": "Telefone",
       "country": "País",
-      "internalCode": "Código Interno",
-      "role": "Função"
+      "internalCode": "Código",
+      "role": "Perfil"
     },
     "userStatus": {
       "active": "Ativo",
@@ -469,7 +469,7 @@
     "countryPlaceholder": "Selecione seu país",
     "phoneNumberLabel": "Número de Telefone",
     "phoneNumberPlaceholder": "+5511912345678",
-    "roleLabel": "Função",
+    "roleLabel": "Perfil",
     "roleUser": "Usuário",
     "roleAdmin": "Administrador",
     "statusLabel": "Status",
@@ -487,6 +487,7 @@
     "cancelButton": "Cancelar",
     "logoutButton": "Sair",
     "internalCodeLabel": "Código Interno",
+    "adminEmailValue": "fernando.madrid21@hotmail.com",
     "changePasswordDialog": {
       "title": "Alterar Senha",
       "description": "Digite sua senha atual e uma nova senha abaixo.",
