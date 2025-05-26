@@ -20,6 +20,7 @@ interface RaffleDrawProps {
 
 export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
   const { getRaffleById, recordPrizeWinner, closeRaffle, isLoading: isRaffleContextLoading } = useRaffles();
+  // Use getRaffleById to ensure we always have the latest state from the context
   const raffle = getRaffleById(initialRaffle.id) || initialRaffle;
   const { t, locale } = useTranslations();
   const { toast } = useToast();
@@ -28,10 +29,21 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
   const [drawError, setDrawError] = useState<string | null>(null);
   const [lastDrawnWinners, setLastDrawnWinners] = useState<Prize[]>([]);
   
-  const prizesToAward = useMemo(() => raffle.prizes.filter(p => !p.winningNumber), [raffle.prizes]);
-  const allPrizesAwardedOrRaffleClosed = prizesToAward.length === 0 || raffle.status === 'Closed';
+  const prizesToAward = useMemo(() => {
+    if (!raffle || !raffle.prizes) return [];
+    return raffle.prizes.filter(p => !p.winningNumber);
+  }, [raffle]);
 
-  const initialDisplay = useMemo(() => '0'.repeat(String(raffle.totalNumbers > 0 ? raffle.totalNumbers : 1).length), [raffle.totalNumbers]);
+  const allPrizesAwardedOrRaffleClosed = useMemo(() => {
+    if (!raffle || !raffle.prizes) return true; // If no raffle or prizes, consider it "closed" for drawing
+    return raffle.status === 'Closed' || (raffle.prizes.length > 0 && raffle.prizes.every(p => !!p.winningNumber));
+  }, [raffle]);
+
+  const initialDisplay = useMemo(() => {
+    const numDigits = String(raffle?.totalNumbers > 0 ? raffle.totalNumbers : 1).length;
+    return '0'.repeat(numDigits);
+  }, [raffle?.totalNumbers]);
+
   const [animatedDisplayNumber, setAnimatedDisplayNumber] = useState<string>(initialDisplay);
   const [activePrizeForLabel, setActivePrizeForLabel] = useState<Prize | null>(null);
 
@@ -42,33 +54,54 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
     return t(`paymentMethodLabels.${method}`);
   };
 
+  // Effect to handle the 10-second display of a winner
   useEffect(() => {
     let displayTimer: NodeJS.Timeout;
 
     if (lastDrawnWinners.length > 0 && lastDrawnWinners[0].winningNumber) {
       const justWonPrize = lastDrawnWinners[0];
-      const winningNumStr = String(justWonPrize.winningNumber).padStart(String(raffle.totalNumbers > 0 ? raffle.totalNumbers : 1).length, '0');
+      const winningNumStr = String(justWonPrize.winningNumber).padStart(String(raffle?.totalNumbers > 0 ? raffle.totalNumbers : 1).length, '0');
       
       setAnimatedDisplayNumber(winningNumStr);
       setActivePrizeForLabel(justWonPrize);
 
       displayTimer = setTimeout(() => {
         setAnimatedDisplayNumber(initialDisplay);
-        setActivePrizeForLabel(null);
-      }, 10000); 
-    } else if (lastDrawnWinners.length === 0) { 
+        setActivePrizeForLabel(null); 
+      }, 10000);
+    } else if (lastDrawnWinners.length === 0) {
       setAnimatedDisplayNumber(initialDisplay);
       setActivePrizeForLabel(null);
     }
-
     return () => clearTimeout(displayTimer);
-  }, [lastDrawnWinners, raffle.totalNumbers, initialDisplay]);
+  }, [lastDrawnWinners, raffle?.totalNumbers, initialDisplay]);
+
+  // Effect to check for raffle completion and close it
+  useEffect(() => {
+    if (!raffle || raffle.status === 'Closed' || !raffle.prizes) {
+      return;
+    }
+    // Check if all prizes are awarded based on the current raffle state from context
+    const allPrizesNowAwarded = raffle.prizes.length > 0 && raffle.prizes.every(p => !!p.winningNumber);
+
+    if (allPrizesNowAwarded) {
+      closeRaffle(raffle.id); // This updates context, which in turn updates localStorage
+      toast({
+        title: t('drawPage.toast.raffleCompleteTitle'),
+        description: t('drawPage.toast.raffleCompleteDescription'),
+        duration: 5000
+      });
+    }
+  }, [raffle, raffle.id, raffle.status, raffle.prizes, closeRaffle, t, toast]);
+
 
   const getDynamicDisplayLabel = () => {
     if (activePrizeForLabel) { 
       return t('drawPage.displayLabelWinnerForPrize', { prizeDescription: activePrizeForLabel.description });
     }
-    const nextPrize = [...prizesToAward].sort((a, b) => b.order - a.order)[0];
+    // Determine next prize to draw based on descending order
+    const nextPrizesToAwardSorted = [...prizesToAward].sort((a, b) => b.order - a.order);
+    const nextPrize = nextPrizesToAwardSorted[0];
     if (nextPrize) {
       return t('drawPage.displayLabelDrawingForPrize', { prizeDescription: nextPrize.description });
     }
@@ -81,8 +114,8 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
       return;
     }
 
-    const currentPrizesToAwardSorted = [...prizesToAward].sort((a, b) => b.order - a.order);
-    const currentPrizeToAward = currentPrizesToAwardSorted[0];
+    const currentPrizesToAwardSortedDesc = [...prizesToAward].sort((a, b) => b.order - a.order);
+    const currentPrizeToAward = currentPrizesToAwardSortedDesc[0];
 
     if (!currentPrizeToAward) {
         toast({ title: t('drawPage.toast.infoTitle'), description: t('drawPage.toast.infoNoMorePrizesThisRound'), variant: 'default' });
@@ -120,6 +153,7 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
         const winnerDetails = purchasedNumbers.find(n => n.id === winningNumberId); 
 
         if (winnerDetails && winnerDetails.buyerName && winnerDetails.buyerPhone && winnerDetails.paymentMethod) {
+          // recordPrizeWinner will update the context. The useEffect above will handle closing the raffle if all prizes are awarded.
           recordPrizeWinner(raffle.id, currentPrizeToAward.order, winningNumberId, winnerDetails.buyerName, winnerDetails.buyerPhone, winnerDetails.paymentMethod);
           
           const awardedPrizeDetails: Prize = { 
@@ -133,20 +167,9 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
           setLastDrawnWinners([awardedPrizeDetails]); 
           toast({ 
             title: t('drawPage.toast.winnerDrawnTitle'), 
-            description: t('drawPage.toast.winnerDrawnDescription', { winningNumber: String(winningNumberId).padStart(String(raffle.totalNumbers > 0 ? raffle.totalNumbers : 1).length, '0'), prizeDescription: currentPrizeToAward.description, winnerName: winnerDetails.buyerName })
+            description: t('drawPage.toast.winnerDrawnDescription', { winningNumber: String(winningNumberId).padStart(String(raffle?.totalNumbers > 0 ? raffle.totalNumbers : 1).length, '0'), prizeDescription: currentPrizeToAward.description, winnerName: winnerDetails.buyerName })
           });
 
-          const updatedRaffleState = getRaffleById(raffle.id); 
-          if (updatedRaffleState && updatedRaffleState.prizes.every(p => !!p.winningNumber)) {
-            if (updatedRaffleState.status !== 'Closed') { 
-              closeRaffle(raffle.id);
-              toast({ 
-                title: t('drawPage.toast.raffleCompleteTitle'), 
-                description: t('drawPage.toast.raffleCompleteDescription'), 
-                duration: 5000 
-              });
-            }
-          }
         } else {
           setDrawError(t('drawPage.errorUnexpected')); 
           console.error("Winner details or payment method not found for drawn number:", winningNumberId);
@@ -169,8 +192,8 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
      return <div className="flex justify-center items-center min-h-[20rem]"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
   }
 
-  const nextPrizeToAwardForButtonSorted = [...prizesToAward].sort((a, b) => b.order - a.order);
-  const nextPrizeToAwardForButton = nextPrizeToAwardForButtonSorted[0];
+  const nextPrizeToAwardForButtonSortedDesc = [...prizesToAward].sort((a, b) => b.order - a.order);
+  const nextPrizeToAwardForButton = nextPrizeToAwardForButtonSortedDesc[0];
   const buttonDrawLabel = nextPrizeToAwardForButton?.description || t('drawPage.buttonDrawNext');
   
   return (
@@ -231,7 +254,7 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
                 <CardContent className="space-y-1">
                   <p><strong>{t('drawPage.winnerLabel')}:</strong> {prize.winnerName}</p>
                   <p><strong>{t('drawPage.phoneLabel')}:</strong> {prize.winnerPhone}</p>
-                  <p><strong>{t('drawPage.winningNumberLabelTitle')}:</strong> <span className="text-primary font-bold text-lg">{String(prize.winningNumber).padStart(String(raffle.totalNumbers > 0 ? raffle.totalNumbers : 1).length, '0')}</span></p>
+                  <p><strong>{t('drawPage.winningNumberLabelTitle')}:</strong> <span className="text-primary font-bold text-lg">{String(prize.winningNumber).padStart(String(raffle?.totalNumbers > 0 ? raffle.totalNumbers : 1).length, '0')}</span></p>
                   {prize.winnerPaymentMethod && (
                     <p className="flex items-center">
                       <CreditCard className="mr-1.5 h-4 w-4 text-muted-foreground" />
@@ -256,11 +279,11 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
                 <CardTitle className="text-xl">{t('drawPage.allPrizesStatusTitle')}</CardTitle>
             </CardHeader>
             <CardContent>
-                {raffle.prizes.length === 0 ? (
+                {raffle.prizes && raffle.prizes.length === 0 ? (
                     <p className="text-muted-foreground">{t('drawPage.noPrizesDefinedInRaffle')}</p>
                 ) : (
                     <ul className="space-y-3">
-                        {raffle.prizes.sort((a,b) => a.order - b.order).map(prize => (
+                        {raffle.prizes && raffle.prizes.sort((a,b) => a.order - b.order).map(prize => (
                             <li key={prize.id} className="p-3 border rounded-md bg-muted/20">
                                 <div className="flex justify-between items-start">
                                   <div>
@@ -272,7 +295,7 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
                                     <p className="text-sm text-green-600">
                                       {t('drawPage.prizeWonByDetails', {
                                         winnerName: prize.winnerName, 
-                                        winningNumber: String(prize.winningNumber).padStart(String(raffle.totalNumbers > 0 ? raffle.totalNumbers : 1).length, '0'), 
+                                        winningNumber: String(prize.winningNumber).padStart(String(raffle?.totalNumbers > 0 ? raffle.totalNumbers : 1).length, '0'), 
                                         winnerPhone: prize.winnerPhone
                                       })}
                                     </p>
@@ -301,11 +324,11 @@ export function RaffleDraw({ raffle: initialRaffle }: RaffleDrawProps) {
 
       </CardContent>
       { !allPrizesAwardedOrRaffleClosed && 
-        (nextPrizeToAwardForButtonSorted.length > 1) && 
+        (nextPrizeToAwardForButtonSortedDesc.length > 1) && 
         (
          <CardFooter className="flex-col items-center gap-2">
             <p className="text-sm text-muted-foreground">
-              {t('drawPage.morePrizesHint', { count: nextPrizeToAwardForButtonSorted.length -1 })}
+              {t('drawPage.morePrizesHint', { count: nextPrizeToAwardForButtonSortedDesc.length -1 })}
             </p>
          </CardFooter>
       )}
