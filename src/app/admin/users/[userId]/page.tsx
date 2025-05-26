@@ -17,7 +17,7 @@ import { COUNTRIES } from '@/lib/countries';
 export default function AdminViewUserProfilePage() {
   const params = useParams();
   const userId = params.userId as string;
-  const { currentUser, isLoading: authLoading, getUserById } = useAuth();
+  const { currentUser, isLoading: authLoading, allUsers } = useAuth(); // Directly get allUsers
   const { t, locale } = useTranslations();
   const router = useRouter();
   const [viewUser, setViewUser] = useState<AuthUser | null | undefined>(undefined); // undefined for loading, null for not found
@@ -25,7 +25,7 @@ export default function AdminViewUserProfilePage() {
 
   useEffect(() => {
     if (authLoading) {
-      setViewUser(undefined); 
+      setViewUser(undefined);
       return;
     }
 
@@ -35,12 +35,18 @@ export default function AdminViewUserProfilePage() {
     }
 
     if (userId) {
-      const user = getUserById(userId);
-      setViewUser(user || null); 
+      if (allUsers.length > 0) { // Ensure allUsers is populated before trying to find
+        const user = allUsers.find(u => u.uid === userId);
+        setViewUser(user || null);
+      } else if (!authLoading) { 
+        // allUsers is empty, and we are not loading anymore, so user cannot be found
+        setViewUser(null);
+      }
+      // If allUsers is empty and authLoading is true, the first condition (if (authLoading)) handles it.
     } else {
-      setViewUser(null);
+      setViewUser(null); // No userId param
     }
-  }, [userId, currentUser, authLoading, getUserById, router]);
+  }, [userId, currentUser, authLoading, router, allUsers]); // Depend directly on allUsers
 
 
   if (authLoading || viewUser === undefined) {
@@ -51,7 +57,7 @@ export default function AdminViewUserProfilePage() {
     );
   }
 
-  if (!viewUser) { 
+  if (!viewUser) {
     return (
       <Card className="max-w-lg mx-auto text-center shadow-lg">
         <CardHeader>
