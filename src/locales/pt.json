@@ -38,7 +38,7 @@
       "successTitle": "Rifa Excluída",
       "successDescription": "A rifa \"{{raffleName}}\" foi excluída com sucesso.",
       "errorTitle": "Falha na Exclusão",
-      "errorDescription": "Não foi possível excluir a rifa \"{{raffleName}}\".",
+      "errorDescription": "Não foi possível excluir a rifa \"{{raffleName}}\". Apenas rifas abertas sem vendas ou rifas fechadas podem ser excluídas.",
       "disabledTooltip": "Não é possível excluir: esta rifa está aberta e tem números vendidos/pendentes."
     },
     "accountPendingActivationTooltip": "Sua conta está pendente de ativação. Você não pode criar rifas até que ela seja ativada."
@@ -405,6 +405,11 @@
       "dialogDescription": "Tem certeza de que deseja excluir o usuário \"{{userName}}\"? Esta ação não pode ser desfeita.",
       "confirmButton": "Confirmar Exclusão",
       "cancelButton": "Cancelar"
+    },
+    "actions": {
+      "title": "Ações",
+      "changeStatusTo": "Alterar Status Para:",
+      "deleteUserItemText": "Excluir Usuário"
     }
   },
   "shared": {
@@ -495,3 +500,4 @@
     }
   }
 }
+

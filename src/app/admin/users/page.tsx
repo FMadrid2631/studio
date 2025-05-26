@@ -9,8 +9,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Users, AlertTriangle, CheckCircle, XCircle, Clock, Trash2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+} from '@/components/ui/dropdown-menu';
+import { Loader2, Users, AlertTriangle, CheckCircle, XCircle, Clock, MoreVertical } from 'lucide-react';
 import { format } from 'date-fns';
 import { getLocaleFromString } from '@/lib/date-fns-locales';
 import type { AuthUser } from '@/types';
@@ -62,7 +72,6 @@ export default function AdminUsersPage() {
   const confirmDeleteUser = async () => {
     if (userToDeleteId) {
       await deleteUser(userToDeleteId);
-      // Toast is handled within deleteUser in AuthContext
       setIsDeleteDialogOpen(false);
       setUserToDeleteId(null);
       setUserToDeleteName('');
@@ -98,7 +107,6 @@ export default function AdminUsersPage() {
   };
   
   const sortedUsers = [...allUsers].sort((a, b) => new Date(b.registrationDate || 0).getTime() - new Date(a.registrationDate || 0).getTime());
-
 
   return (
     <Card className="shadow-lg">
@@ -141,31 +149,43 @@ export default function AdminUsersPage() {
                       {user.registrationDate ? format(new Date(user.registrationDate), 'PPpp', { locale: dateLocale }) : t('shared.notAvailable')}
                     </TableCell>
                     <TableCell className="text-center">{getStatusBadge(user.status)}</TableCell>
-                    <TableCell className="text-right space-x-2">
-                      <Select
-                        defaultValue={user.status}
-                        onValueChange={(newStatus: AuthUser['status']) => handleStatusChange(user.uid, newStatus)}
-                        disabled={user.uid === currentUser.uid && currentUser.role === 'admin'}
-                      >
-                        <SelectTrigger className="w-[120px] h-8 text-xs inline-flex">
-                          <SelectValue placeholder={t('admin.changeStatusPrompt')} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="active">{t('admin.userStatus.active')}</SelectItem>
-                          <SelectItem value="pending">{t('admin.userStatus.pending')}</SelectItem>
-                          <SelectItem value="inactive">{t('admin.userStatus.inactive')}</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/50"
-                        onClick={() => handleDeleteClick(user)}
-                        disabled={user.uid === currentUser.uid}
-                        title={t('admin.deleteUser.buttonTitle')}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreVertical className="h-4 w-4" />
+                            <span className="sr-only">{t('admin.actions.title')}</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>{t('admin.actions.title')}</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuSub>
+                            <DropdownMenuSubTrigger disabled={user.uid === currentUser.uid}>
+                              {t('admin.actions.changeStatusTo')}
+                            </DropdownMenuSubTrigger>
+                            <DropdownMenuSubContent>
+                              <DropdownMenuItem onClick={() => handleStatusChange(user.uid, 'active')}>
+                                {t('admin.userStatus.active')}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleStatusChange(user.uid, 'pending')}>
+                                {t('admin.userStatus.pending')}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleStatusChange(user.uid, 'inactive')}>
+                                {t('admin.userStatus.inactive')}
+                              </DropdownMenuItem>
+                            </DropdownMenuSubContent>
+                          </DropdownMenuSub>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteClick(user)}
+                            disabled={user.uid === currentUser.uid}
+                            className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+                          >
+                            {t('admin.actions.deleteUserItemText')}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))}

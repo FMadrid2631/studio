@@ -38,7 +38,7 @@
       "successTitle": "Raffle Deleted",
       "successDescription": "The raffle \"{{raffleName}}\" has been successfully deleted.",
       "errorTitle": "Deletion Failed",
-      "errorDescription": "Could not delete raffle \"{{raffleName}}\".",
+      "errorDescription": "Could not delete raffle \"{{raffleName}}\". Only open raffles with no sales or closed raffles can be deleted.",
       "disabledTooltip": "Cannot delete: this raffle is open and has sold/pending numbers."
     },
     "accountPendingActivationTooltip": "Your account is pending activation. You cannot create raffles until it is active."
@@ -405,6 +405,11 @@
       "dialogDescription": "Are you sure you want to delete the user \"{{userName}}\"? This action cannot be undone.",
       "confirmButton": "Confirm Delete",
       "cancelButton": "Cancel"
+    },
+    "actions": {
+      "title": "Actions",
+      "changeStatusTo": "Change Status to:",
+      "deleteUserItemText": "Delete User"
     }
   },
   "shared": {
@@ -495,3 +500,4 @@
     }
   }
 }
+
