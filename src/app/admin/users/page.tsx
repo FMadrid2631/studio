@@ -20,11 +20,11 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 } from '@/components/ui/dropdown-menu';
-import { Loader2, Users, AlertTriangle, CheckCircle, XCircle, Clock, MoreVertical, ShieldCheck, User as UserIcon } from 'lucide-react';
+import { Loader2, Users, AlertTriangle, CheckCircle, XCircle, Clock, MoreVertical, ShieldCheck, User as UserIcon, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { getLocaleFromString } from '@/lib/date-fns-locales';
 import type { AuthUser } from '@/types';
-import { COUNTRIES } from '@/lib/countries'; // Import COUNTRIES
+import { COUNTRIES } from '@/lib/countries';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -159,6 +159,7 @@ export default function AdminUsersPage() {
                   <TableHead>{t('admin.tableHeaders.internalCode')}</TableHead>
                   <TableHead>{t('admin.tableHeaders.role')}</TableHead>
                   <TableHead>{t('admin.tableHeaders.registrationDate')}</TableHead>
+                  <TableHead className="text-right"><span className="sr-only">{t('admin.actions.deleteUserItemText')}</span></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -193,14 +194,6 @@ export default function AdminUsersPage() {
                               </DropdownMenuItem>
                             </DropdownMenuSubContent>
                           </DropdownMenuSub>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => handleDeleteClick(user)}
-                            disabled={user.uid === currentUser.uid}
-                            className="text-destructive focus:bg-destructive/10 focus:text-destructive"
-                          >
-                            {t('admin.actions.deleteUserItemText')}
-                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -214,6 +207,19 @@ export default function AdminUsersPage() {
                     <TableCell>{getRoleDisplay(user.role)}</TableCell>
                     <TableCell>
                       {user.registrationDate ? format(new Date(user.registrationDate), 'PPpp', { locale: dateLocale }) : t('shared.notAvailable')}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDeleteClick(user)}
+                        disabled={user.uid === currentUser.uid}
+                        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        title={t('admin.deleteUser.buttonTitle')}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">{t('admin.deleteUser.buttonTitle')}</span>
+                      </Button>
                     </TableCell>
                   </TableRow>
                 );
