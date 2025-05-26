@@ -359,17 +359,19 @@ export default function RafflePage() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="w-full">
-                    <Button variant="outline" asChild={canEditConfiguration} disabled={!canEditConfiguration} className="w-full">
-                      {canEditConfiguration ? (
-                        <Link href={`/raffles/${raffle.id}/edit`}>
-                          <Settings className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.configureButton')}
-                        </Link>
-                      ) : (
-                        <span>
-                          <Settings className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.configureButton')}
-                        </span>
-                      )}
+                  {canEditConfiguration ? (
+                    <Button variant="outline" asChild className="w-full">
+                      <Link href={`/raffles/${raffle.id}/edit`}>
+                        {t('raffleDetailsPage.configureButton')}
+                        <Settings />
+                      </Link>
                     </Button>
+                  ) : (
+                    <Button variant="outline" disabled className="w-full">
+                      {t('raffleDetailsPage.configureButton')}
+                      <Settings />
+                    </Button>
+                  )}
                   </div>
                 </TooltipTrigger>
                 {!canEditConfiguration && (
@@ -708,4 +710,5 @@ export default function RafflePage() {
     
 
     
+
 
