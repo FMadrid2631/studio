@@ -1,7 +1,7 @@
 
 'use client';
 import Link from 'next/link';
-import { Home, PlusCircle, Ticket, UserCircle, LogIn, UserPlus, LogOut, Settings } from 'lucide-react';
+import { Home, PlusCircle, Ticket, UserCircle, LogIn, UserPlus, LogOut, ShieldCheck } from 'lucide-react'; // Changed Settings to ShieldCheck
 import { Button } from '@/components/ui/button';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -31,7 +31,6 @@ export function Navbar() {
 
   const handleLogout = async () => {
     await logout();
-    // router.push('/'); // Logout function in context already handles redirect
   };
   
   const getInitials = (name: string | null | undefined) => {
@@ -69,8 +68,6 @@ export function Navbar() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                   <Avatar className="h-9 w-9">
-                    {/* Placeholder for user avatar image - to be implemented if needed */}
-                    {/* <AvatarImage src={currentUser.photoURL || undefined} alt={currentUser.displayName || 'User'} /> */}
                     <AvatarFallback>{getInitials(currentUser.displayName)}</AvatarFallback>
                   </Avatar>
                 </Button>
@@ -91,7 +88,12 @@ export function Navbar() {
                   <UserCircle className="mr-2 h-4 w-4" />
                   <span>{t('auth.profile')}</span>
                 </DropdownMenuItem>
-                {/* Add more items like Settings if needed */}
+                {currentUser.role === 'admin' && (
+                  <DropdownMenuItem onClick={() => router.push('/admin/users')}>
+                    <ShieldCheck className="mr-2 h-4 w-4" /> {/* Changed icon to ShieldCheck */}
+                    <span>{t('navbar.adminUsers')}</span>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
@@ -118,3 +120,4 @@ export function Navbar() {
     </nav>
   );
 }
+    

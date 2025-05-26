@@ -34,68 +34,87 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const { t } = useTranslations(); 
 
   const saveAllUsers = useCallback((users: AuthUser[]) => {
-    localStorage.setItem('rifaFacilApp_allUsers', JSON.stringify(users));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('rifaFacilApp_allUsers', JSON.stringify(users));
+    }
     setAllUsers(users);
   }, []);
 
   useEffect(() => {
     setIsLoading(true);
-    // Load all users first
-    const storedAllUsersJson = localStorage.getItem('rifaFacilApp_allUsers');
     let loadedAllUsers: AuthUser[] = [];
-    if (storedAllUsersJson) {
-      try {
-        loadedAllUsers = JSON.parse(storedAllUsersJson);
-      } catch (e) {
-        console.error("Error parsing allUsers from localStorage", e);
+    if (typeof window !== 'undefined') {
+      const storedAllUsersJson = localStorage.getItem('rifaFacilApp_allUsers');
+      if (storedAllUsersJson) {
+        try {
+          loadedAllUsers = JSON.parse(storedAllUsersJson);
+        } catch (e) {
+          console.error("Error parsing allUsers from localStorage", e);
+        }
       }
     }
     setAllUsers(loadedAllUsers);
 
-    // Then load current user and ensure its data is complete
-    const storedUserJson = localStorage.getItem('mockAuthUser');
-    if (storedUserJson) {
-      try {
-        let user = JSON.parse(storedUserJson) as Partial<AuthUser>; // Parse as Partial initially
-        let needsUpdateInStorage = false;
+    if (typeof window !== 'undefined') {
+      const storedUserJson = localStorage.getItem('mockAuthUser');
+      if (storedUserJson) {
+        try {
+          let user = JSON.parse(storedUserJson) as Partial<AuthUser>;
+          let needsUpdateInStorage = false;
 
-        if (!user.uid) { 
-            throw new Error("Stored user is missing UID.");
-        }
+          if (!user.uid || !user.email) { 
+              throw new Error("Stored user is missing UID or email.");
+          }
 
-        // Ensure role
-        if (!user.role) {
-          user.role = user.email?.toLowerCase() === ADMIN_EMAIL ? 'admin' : 'user';
-          needsUpdateInStorage = true;
-        }
-        // Ensure status
-        if (!user.status) {
-          const userFromList = loadedAllUsers.find(u => u.uid === user.uid);
-          user.status = userFromList?.status || (user.role === 'admin' ? 'active' : 'pending');
-          needsUpdateInStorage = true;
-        }
-        // Ensure registrationDate
-        if (!user.registrationDate) {
-          const userFromList = loadedAllUsers.find(u => u.uid === user.uid);
-          user.registrationDate = userFromList?.registrationDate || new Date(0).toISOString(); // Default to epoch
-          needsUpdateInStorage = true;
-        }
-        
-        user.displayName = user.displayName || (user.role === 'admin' ? 'Admin User' : 'Usuario Ejemplo');
-        // rut is optional
+          const isActualAdminByEmail = user.email?.toLowerCase() === ADMIN_EMAIL;
 
-        setCurrentUser(user as AuthUser); 
-        if (needsUpdateInStorage) {
-          localStorage.setItem('mockAuthUser', JSON.stringify(user));
-        }
+          if (isActualAdminByEmail) {
+              if (user.role !== 'admin') {
+                  user.role = 'admin';
+                  needsUpdateInStorage = true;
+              }
+          } else {
+              if (user.role !== 'user') { // Handles undefined or incorrect 'admin' role
+                  user.role = 'user';
+                  needsUpdateInStorage = true;
+              }
+          }
+          
+          if (!user.status) {
+            const userFromList = loadedAllUsers.find(u => u.uid === user.uid);
+            user.status = userFromList?.status || (user.role === 'admin' ? 'active' : 'pending');
+            needsUpdateInStorage = true;
+          }
+          if (!user.registrationDate) {
+            const userFromList = loadedAllUsers.find(u => u.uid === user.uid);
+            user.registrationDate = userFromList?.registrationDate || new Date(0).toISOString();
+            needsUpdateInStorage = true;
+          }
+          
+          user.displayName = user.displayName || (user.role === 'admin' ? 'Admin User' : 'Usuario Ejemplo');
+          // rut is optional
 
-      } catch (e) {
-        console.error("Error processing stored user:", e);
-        localStorage.removeItem('mockAuthUser'); 
+          setCurrentUser(user as AuthUser); 
+          if (needsUpdateInStorage) {
+            localStorage.setItem('mockAuthUser', JSON.stringify(user));
+            // If the current user was updated, reflect this in the allUsers list too
+            const userInAllUsersIndex = loadedAllUsers.findIndex(u => u.uid === user.uid);
+            if (userInAllUsersIndex > -1) {
+                loadedAllUsers[userInAllUsersIndex] = user as AuthUser;
+            } else {
+                loadedAllUsers.push(user as AuthUser);
+            }
+            saveAllUsers([...loadedAllUsers]); // Use spread to ensure new array reference for state update
+          }
+
+        } catch (e) {
+          console.error("Error processing stored user:", e);
+          localStorage.removeItem('mockAuthUser'); 
+        }
       }
     }
     setIsLoading(false);
-  }, []);
+  }, [saveAllUsers]); // Added saveAllUsers to dependency array
 
 
   const login = useCallback(async (data: LoginFormInput) => {
@@ -107,7 +126,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     let isNewAdminLogin = false;
 
     if (!userToLogin && userEmailLower === ADMIN_EMAIL) {
-      // Admin logging in for the first time (or not in allUsers list for some reason)
       userToLogin = {
         uid: 'mock-uid-' + userEmailLower,
         email: userEmailLower,
@@ -121,7 +139,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
 
     if (userToLogin) {
-      // Ensure all fields are present, especially for older entries or direct admin login
       const completeUser: AuthUser = {
         ...userToLogin,
         role: userToLogin.role || (userToLogin.email?.toLowerCase() === ADMIN_EMAIL ? 'admin' : 'user'),
@@ -131,15 +148,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       };
       
       setCurrentUser(completeUser);
-      localStorage.setItem('mockAuthUser', JSON.stringify(completeUser));
+      if (typeof window !== 'undefined') localStorage.setItem('mockAuthUser', JSON.stringify(completeUser));
       
       if (isNewAdminLogin && !allUsers.find(u => u.uid === completeUser.uid)) {
         saveAllUsers([...allUsers, completeUser]);
+      } else if (allUsers.find(u => u.uid === completeUser.uid && (u.role !== completeUser.role || u.status !== completeUser.status))) {
+        // If existing user's role/status in allUsers differs, update it
+        const updatedAll = allUsers.map(u => u.uid === completeUser.uid ? completeUser : u);
+        saveAllUsers(updatedAll);
       }
+
       toast({ title: t('auth.toast.loginSuccessTitle'), description: t('auth.toast.loginSuccessDescription', {email: data.email}) });
       router.push('/');
     } else {
-      // User not found in allUsers and is not admin, simulate a failed login or redirect to signup
       toast({ title: t('auth.toast.loginErrorTitle', {defaultValue: "Login Failed"}), description: t('auth.toast.loginErrorDescription', {defaultValue: "User not found or credentials incorrect."}), variant: 'destructive' });
     }
     setIsLoading(false);
@@ -171,7 +192,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     saveAllUsers([...allUsers, newUser]);
     setCurrentUser(newUser);
-    localStorage.setItem('mockAuthUser', JSON.stringify(newUser));
+    if (typeof window !== 'undefined') localStorage.setItem('mockAuthUser', JSON.stringify(newUser));
     setIsLoading(false);
     
     const toastDescriptionKey = newUserStatus === 'pending' ? 'auth.toast.signupPendingActivationDescription' : 'auth.toast.signupSuccessDescription';
@@ -183,7 +204,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsLoading(true);
     await new Promise(resolve => setTimeout(resolve, 500));
     setCurrentUser(null);
-    localStorage.removeItem('mockAuthUser');
+    if (typeof window !== 'undefined') localStorage.removeItem('mockAuthUser');
     setIsLoading(false);
     toast({ title: t('auth.toast.logoutSuccessTitle') });
     router.push('/'); 
@@ -206,7 +227,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         saveAllUsers([...allUsers, user]);
     }
     setCurrentUser(user);
-    localStorage.setItem('mockAuthUser', JSON.stringify(user));
+    if (typeof window !== 'undefined') localStorage.setItem('mockAuthUser', JSON.stringify(user));
     setIsLoading(false);
     toast({ title: t('auth.toast.providerLoginTitle'), description: t('auth.toast.providerLoginDescription', { provider: 'Google' }) });
     router.push('/');
@@ -229,7 +250,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         saveAllUsers([...allUsers, user]);
     }
     setCurrentUser(user);
-    localStorage.setItem('mockAuthUser', JSON.stringify(user));
+    if (typeof window !== 'undefined') localStorage.setItem('mockAuthUser', JSON.stringify(user));
     setIsLoading(false);
     toast({ title: t('auth.toast.providerLoginTitle'), description: t('auth.toast.providerLoginDescription', { provider: 'Apple' }) });
     router.push('/');
@@ -249,9 +270,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       rut: data.rut,
     };
     setCurrentUser(updatedUser);
-    localStorage.setItem('mockAuthUser', JSON.stringify(updatedUser));
+    if (typeof window !== 'undefined') localStorage.setItem('mockAuthUser', JSON.stringify(updatedUser));
 
-    // Update in allUsers list as well
     const updatedAllUsers = allUsers.map(u => u.uid === currentUser.uid ? updatedUser : u);
     saveAllUsers(updatedAllUsers);
 
@@ -276,11 +296,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     if (userUpdated) {
       saveAllUsers(updatedAllUsers);
-      // If the updated user is the current user, update currentUser state as well
       if (currentUser.uid === userId) {
-        setCurrentUser(prev => prev ? { ...prev, status: newStatus } : null);
-        // Also update mockAuthUser in localStorage for consistency if current user is admin themselves
-        localStorage.setItem('mockAuthUser', JSON.stringify(updatedAllUsers.find(u => u.uid === userId)));
+        const updatedCurrentUser = { ...currentUser, status: newStatus };
+        setCurrentUser(updatedCurrentUser);
+        if (typeof window !== 'undefined') localStorage.setItem('mockAuthUser', JSON.stringify(updatedCurrentUser));
       }
       const targetUser = allUsers.find(u => u.uid === userId);
       toast({ title: t('admin.toast.statusUpdateSuccessTitle'), description: t('admin.toast.statusUpdateSuccessDescription', { userName: targetUser?.displayName || userId, newStatus: t(`admin.userStatus.${newStatus}`)}) });
@@ -307,3 +326,4 @@ export const useAuth = (): AuthContextType => {
   return context;
 };
 
+    
