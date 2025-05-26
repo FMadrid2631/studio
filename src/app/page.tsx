@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRaffles } from '@/contexts/RaffleContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, Eye, Edit, ListChecks, Trophy, DollarSign, Loader2, Trash2, AlertTriangle } from 'lucide-react';
+import { PlusCircle, Eye, Trophy, DollarSign, Loader2, Trash2, AlertTriangle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useTranslations } from '@/contexts/LocalizationContext';
 import { format } from 'date-fns';
@@ -145,7 +145,6 @@ export default function HomePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {raffles.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((raffle) => {
             const hasSoldOrPendingNumbers = raffle.numbers.some(n => n.status !== 'Available');
-            // Can delete if: (Open AND no sales) OR if (Closed)
             const canDelete = (!hasSoldOrPendingNumbers && raffle.status === 'Open') || raffle.status === 'Closed';
             
             return (
@@ -166,26 +165,10 @@ export default function HomePage() {
                 <p className="text-sm text-muted-foreground">{t('homePage.labels.prizes', { count: raffle.prizes.length })}</p>
                 <p className="text-sm text-muted-foreground">{t('homePage.labels.drawDate', { date: format(new Date(raffle.drawDate), 'PPP', { locale: dateLocale }) })}</p>
               </CardContent>
-              <CardFooter className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              <CardFooter className="grid grid-cols-2 gap-2"> {/* Adjusted to grid-cols-2 for 4 buttons */}
                 <Button variant="outline" asChild className="w-full">
                   <Link href={`/raffles/${raffle.id}`}>
                     <Eye className="mr-2 h-4 w-4" /> {t('homePage.viewGridButton')}
-                  </Link>
-                </Button>
-                {raffle.status === 'Closed' ? (
-                  <Button variant="outline" className="w-full" disabled>
-                    <Edit className="mr-2 h-4 w-4" /> {t('homePage.purchaseButton')}
-                  </Button>
-                ) : (
-                  <Button variant="outline" asChild className="w-full">
-                    <Link href={`/raffles/${raffle.id}/purchase`}>
-                      <Edit className="mr-2 h-4 w-4" /> {t('homePage.purchaseButton')}
-                    </Link>
-                  </Button>
-                )}
-                <Button variant="outline" asChild className="w-full">
-                  <Link href={`/raffles/${raffle.id}/available`}>
-                    <ListChecks className="mr-2 h-4 w-4" /> {t('homePage.availableButton')}
                   </Link>
                 </Button>
                 <Button variant="default" asChild className="w-full" disabled={raffle.status === 'Closed'}>
@@ -278,3 +261,4 @@ export default function HomePage() {
     </div>
   );
 }
+
