@@ -386,6 +386,8 @@
       "pending": "Pendiente"
     },
     "changeStatusPrompt": "Cambiar estado a:",
+    "noUsersFound": "No se Encontraron Usuarios",
+    "noUsersFoundDescription": "Aún no hay usuarios registrados en el sistema.",
     "toast": {
       "statusUpdateSuccessTitle": "Estado Actualizado",
       "statusUpdateSuccessDescription": "El estado de {{userName}} ha sido actualizado a {{newStatus}}.",
@@ -472,5 +474,3 @@
     }
   }
 }
-
-    

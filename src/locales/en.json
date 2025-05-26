@@ -386,6 +386,8 @@
       "pending": "Pending"
     },
     "changeStatusPrompt": "Change status to:",
+    "noUsersFound": "No Users Found",
+    "noUsersFoundDescription": "There are no users registered in the system yet.",
     "toast": {
       "statusUpdateSuccessTitle": "Status Updated",
       "statusUpdateSuccessDescription": "Status for {{userName}} updated to {{newStatus}}.",
@@ -451,7 +453,7 @@
       "loginSuccessTitle": "Login Successful!",
       "loginSuccessDescription": "Welcome back, {{email}}!",
       "signupSuccessTitle": "Signup Successful!",
-      "signupSuccessDescription": "Welcome to Rifa Fácil, {{email}}! Your account is pending activation by an administrator.",
+      "signupSuccessDescription": "Welcome to Rifa Fácil, {{email}}!",
       "signupPendingActivationDescription": "Welcome to Rifa Fácil, {{email}}! Your account is pending activation by an administrator.",
       "logoutSuccessTitle": "Logged Out",
       "providerLoginTitle": "Provider Login",
@@ -472,5 +474,3 @@
     }
   }
 }
-
-    
