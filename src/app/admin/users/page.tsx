@@ -20,10 +20,11 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 } from '@/components/ui/dropdown-menu';
-import { Loader2, Users, AlertTriangle, CheckCircle, XCircle, Clock, MoreVertical } from 'lucide-react';
+import { Loader2, Users, AlertTriangle, CheckCircle, XCircle, Clock, MoreVertical, ShieldCheck, User as UserIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { getLocaleFromString } from '@/lib/date-fns-locales';
 import type { AuthUser } from '@/types';
+import { COUNTRIES } from '@/lib/countries'; // Import COUNTRIES
 import {
   AlertDialog,
   AlertDialogAction,
@@ -105,6 +106,23 @@ export default function AdminUsersPage() {
         return <Badge variant="outline">{status}</Badge>;
     }
   };
+
+  const getRoleDisplay = (role?: 'admin' | 'user') => {
+    if (role === 'admin') {
+      return (
+        <Badge variant="default" className="text-xs">
+          <ShieldCheck className="mr-1 h-3.5 w-3.5" />
+          {t('auth.roleAdmin')}
+        </Badge>
+      );
+    }
+    return (
+      <Badge variant="secondary" className="text-xs">
+        <UserIcon className="mr-1 h-3.5 w-3.5" />
+        {t('auth.roleUser')}
+      </Badge>
+    );
+  };
   
   const sortedUsers = [...allUsers].sort((a, b) => new Date(b.registrationDate || 0).getTime() - new Date(a.registrationDate || 0).getTime());
 
@@ -136,11 +154,17 @@ export default function AdminUsersPage() {
                   <TableHead>{t('admin.tableHeaders.name')}</TableHead>
                   <TableHead>{t('admin.tableHeaders.email')}</TableHead>
                   <TableHead>{t('admin.tableHeaders.rut')}</TableHead>
+                  <TableHead>{t('admin.tableHeaders.phone')}</TableHead>
+                  <TableHead>{t('admin.tableHeaders.country')}</TableHead>
+                  <TableHead>{t('admin.tableHeaders.internalCode')}</TableHead>
+                  <TableHead>{t('admin.tableHeaders.role')}</TableHead>
                   <TableHead>{t('admin.tableHeaders.registrationDate')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {sortedUsers.map((user) => (
+                {sortedUsers.map((user) => {
+                  const countryName = user.countryCode ? COUNTRIES.find(c => c.code === user.countryCode)?.name : t('shared.notAvailable');
+                  return (
                   <TableRow key={user.uid}>
                     <TableCell>
                       <DropdownMenu>
@@ -184,11 +208,16 @@ export default function AdminUsersPage() {
                     <TableCell className="font-medium">{user.displayName || t('shared.notAvailable')}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{user.rut || t('shared.notAvailable')}</TableCell>
+                    <TableCell>{user.phoneNumber || t('shared.notAvailable')}</TableCell>
+                    <TableCell>{countryName}</TableCell>
+                    <TableCell className="font-mono text-xs">{user.internalCode || t('shared.notAvailable')}</TableCell>
+                    <TableCell>{getRoleDisplay(user.role)}</TableCell>
                     <TableCell>
                       {user.registrationDate ? format(new Date(user.registrationDate), 'PPpp', { locale: dateLocale }) : t('shared.notAvailable')}
                     </TableCell>
                   </TableRow>
-                ))}
+                );
+              })}
               </TableBody>
             </Table>
           </div>

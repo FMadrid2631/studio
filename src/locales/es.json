@@ -38,7 +38,7 @@
       "successTitle": "Rifa Eliminada",
       "successDescription": "La rifa \"{{raffleName}}\" ha sido eliminada exitosamente.",
       "errorTitle": "Error al Eliminar",
-      "errorDescription": "No se pudo eliminar la rifa \"{{raffleName}}\".",
+      "errorDescription": "No se pudo eliminar la rifa \"{{raffleName}}\". Puede estar abierta y tener ventas, o ocurrió otro problema.",
       "disabledTooltip": "No se puede eliminar: esta rifa está abierta y tiene números vendidos/pendientes."
     },
     "accountPendingActivationTooltip": "Tu cuenta está pendiente de activación. No puedes crear rifas hasta que esté activa."
@@ -86,7 +86,7 @@
     "shareMessageTextShort": "¡Mira esta rifa: {{raffleName}}!",
     "shareLinkCopiedTitle": "¡Enlace Copiado!",
     "shareLinkCopiedDescription": "Enlace de la rifa ({{url}}) copiado al portapapeles. ¡Compártelo en Instagram!",
-    "exportImageButton": "Exportar Imagen",
+    "exportImageButton": "Exportar Detalles de Disponibles y Banco",
     "exportErrorTitle": "Error al Exportar",
     "exportErrorDescription": "No se pudo exportar la imagen. Por favor, inténtalo de nuevo.",
     "exportSuccessTitle": "Excelente",
@@ -375,7 +375,11 @@
       "rut": "RUT/Cédula",
       "registrationDate": "Fecha de Registro",
       "status": "Estado",
-      "actions": "Acciones"
+      "actions": "Acciones",
+      "phone": "Teléfono",
+      "country": "País",
+      "internalCode": "Código Interno",
+      "role": "Rol"
     },
     "userStatus": {
       "active": "Activo",
@@ -408,8 +412,7 @@
     "actions": {
       "title": "Acciones",
       "changeStatusTo": "Cambiar Estado A:",
-      "deleteUserItemText": "Eliminar Usuario",
-      "viewProfile": "Ver Perfil"
+      "deleteUserItemText": "Eliminar Usuario"
     },
     "viewProfile": {
       "pageTitle": "Detalles del Perfil de Usuario",
@@ -522,5 +525,3 @@
     }
   }
 }
-
-    

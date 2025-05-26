@@ -38,7 +38,7 @@
       "successTitle": "Rifa Excluída",
       "successDescription": "A rifa \"{{raffleName}}\" foi excluída com sucesso.",
       "errorTitle": "Falha na Exclusão",
-      "errorDescription": "Não foi possível excluir a rifa \"{{raffleName}}\".",
+      "errorDescription": "Não foi possível excluir a rifa \"{{raffleName}}\". Pode estar aberta e ter vendas, ou ocorreu outro problema.",
       "disabledTooltip": "Não é possível excluir: esta rifa está aberta e tem números vendidos/pendentes."
     },
     "accountPendingActivationTooltip": "Sua conta está pendente de ativação. Você não pode criar rifas até que ela seja ativada."
@@ -375,7 +375,11 @@
       "rut": "CPF/CNPJ",
       "registrationDate": "Data de Registro",
       "status": "Status",
-      "actions": "Ações"
+      "actions": "Ações",
+      "phone": "Telefone",
+      "country": "País",
+      "internalCode": "Código Interno",
+      "role": "Função"
     },
     "userStatus": {
       "active": "Ativo",
@@ -408,8 +412,7 @@
     "actions": {
       "title": "Ações",
       "changeStatusTo": "Alterar Status Para:",
-      "deleteUserItemText": "Excluir Usuário",
-      "viewProfile": "Ver Perfil"
+      "deleteUserItemText": "Excluir Usuário"
     },
      "viewProfile": {
       "pageTitle": "Detalhes do Perfil do Usuário",
@@ -522,5 +525,3 @@
     }
   }
 }
-
-    

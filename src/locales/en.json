@@ -38,7 +38,7 @@
       "successTitle": "Raffle Deleted",
       "successDescription": "The raffle \"{{raffleName}}\" has been successfully deleted.",
       "errorTitle": "Deletion Failed",
-      "errorDescription": "Could not delete raffle \"{{raffleName}}\".",
+      "errorDescription": "Could not delete raffle \"{{raffleName}}\". It might be open and have sales, or another issue occurred.",
       "disabledTooltip": "Cannot delete: this raffle is open and has sold/pending numbers."
     },
     "accountPendingActivationTooltip": "Your account is pending activation. You cannot create raffles until it is active."
@@ -375,7 +375,11 @@
       "rut": "National ID",
       "registrationDate": "Registered On",
       "status": "Status",
-      "actions": "Actions"
+      "actions": "Actions",
+      "phone": "Phone",
+      "country": "Country",
+      "internalCode": "Internal Code",
+      "role": "Role"
     },
     "userStatus": {
       "active": "Active",
@@ -408,8 +412,7 @@
     "actions": {
       "title": "Actions",
       "changeStatusTo": "Change Status to:",
-      "deleteUserItemText": "Delete User",
-      "viewProfile": "View Profile"
+      "deleteUserItemText": "Delete User"
     },
     "viewProfile": {
       "pageTitle": "User Profile Details",
@@ -522,5 +525,3 @@
     }
   }
 }
-
-    
