@@ -38,7 +38,7 @@
       "successTitle": "Raffle Deleted",
       "successDescription": "The raffle \"{{raffleName}}\" has been successfully deleted.",
       "errorTitle": "Deletion Failed",
-      "errorDescription": "Could not delete raffle \"{{raffleName}}\". It might be in use or closed.",
+      "errorDescription": "Could not delete raffle \"{{raffleName}}\".",
       "disabledTooltip": "Cannot delete: this raffle is open and has sold/pending numbers."
     },
     "accountPendingActivationTooltip": "Your account is pending activation by an administrator. You cannot create raffles yet."
@@ -138,11 +138,11 @@
     },
     "accountPending": {
         "title": "Account Pending Approval",
-        "description": "Your account is currently pending approval by an administrator. You cannot create new raffles until your account is activated. Please wait for approval or contact support."
+        "description": "Your account is currently pending approval by an administrator. You cannot create new raffles until your account is activated. For support, contact +56995474200."
     },
     "accountInactive": {
         "title": "Account Inactive",
-        "description": "Your account is currently inactive. You cannot create new raffles. Please contact support if you believe this is an error."
+        "description": "Your account is currently inactive. You cannot create new raffles. Please contact support at +56995474200 if you believe this is an error."
     }
   },
   "configureForm": {

@@ -38,7 +38,7 @@
       "successTitle": "Rifa Excluída",
       "successDescription": "A rifa \"{{raffleName}}\" foi excluída com sucesso.",
       "errorTitle": "Falha na Exclusão",
-      "errorDescription": "Não foi possível excluir a rifa \"{{raffleName}}\". Pode estar em uso ou fechada.",
+      "errorDescription": "Não foi possível excluir a rifa \"{{raffleName}}\".",
       "disabledTooltip": "Não é possível excluir: esta rifa está aberta e tem números vendidos/pendentes."
     },
     "accountPendingActivationTooltip": "Sua conta está pendente de ativação por um administrador. Você ainda não pode criar rifas."
@@ -138,11 +138,11 @@
     },
     "accountPending": {
       "title": "Conta Pendente de Aprovação",
-      "description": "Sua conta está atualmente pendente de aprovação por um administrador. Você não pode criar novas rifas até que sua conta seja ativada. Por favor, aguarde a aprovação ou entre em contato com o suporte."
+      "description": "Sua conta está atualmente pendente de aprovação por um administrador. Você não pode criar novas rifas até que sua conta seja ativada. Para suporte, contate +56995474200."
     },
     "accountInactive": {
       "title": "Conta Inativa",
-      "description": "Sua conta está atualmente inativa. Você não pode criar novas rifas. Por favor, entre em contato com o suporte se você acredita que isso é um erro."
+      "description": "Sua conta está atualmente inativa. Você não pode criar novas rifas. Por favor, contate o suporte em +56995474200 se acreditar que isso é um erro."
     }
   },
   "configureForm": {

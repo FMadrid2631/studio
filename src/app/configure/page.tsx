@@ -44,7 +44,7 @@ export default function ConfigureRafflePage() {
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <Image src="https://placehold.co/300x200.png" alt={t('configurePage.accessDenied.title')} width={300} height={200} className="mx-auto rounded-md shadow-md mb-4" data-ai-hint="access denied sign" />
+                {/* Placeholder image removed */}
                 <p className="text-muted-foreground">{t('configurePage.accessDenied.notLoggedInDescription')}</p>
             </CardContent>
         </Card>
@@ -61,7 +61,7 @@ export default function ConfigureRafflePage() {
             </CardTitle>
         </CardHeader>
         <CardContent>
-            <Image src="https://placehold.co/300x200.png" alt={t('configurePage.accountPending.title')} width={300} height={200} className="mx-auto rounded-md shadow-md mb-4" data-ai-hint="pending approval clock" />
+            {/* Placeholder image removed */}
             <p className="text-muted-foreground">{t('configurePage.accountPending.description')}</p>
         </CardContent>
       </Card>
@@ -78,7 +78,7 @@ export default function ConfigureRafflePage() {
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <Image src="https://placehold.co/300x200.png" alt={t('configurePage.accountInactive.title')} width={300} height={200} className="mx-auto rounded-md shadow-md mb-4" data-ai-hint="inactive stop sign" />
+                {/* Placeholder image removed */}
                 <p className="text-muted-foreground">{t('configurePage.accountInactive.description')}</p>
             </CardContent>
         </Card>

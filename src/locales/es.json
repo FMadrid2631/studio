@@ -38,7 +38,7 @@
       "successTitle": "Rifa Eliminada",
       "successDescription": "La rifa \"{{raffleName}}\" ha sido eliminada exitosamente.",
       "errorTitle": "Error al Eliminar",
-      "errorDescription": "No se pudo eliminar la rifa \"{{raffleName}}\". Podría estar en uso o cerrada.",
+      "errorDescription": "No se pudo eliminar la rifa \"{{raffleName}}\".",
       "disabledTooltip": "No se puede eliminar: esta rifa está abierta y tiene números vendidos/pendientes."
     },
     "accountPendingActivationTooltip": "Tu cuenta está pendiente de activación por un administrador. Aún no puedes crear rifas."
@@ -138,11 +138,11 @@
     },
     "accountPending": {
       "title": "Cuenta Pendiente de Aprobación",
-      "description": "Tu cuenta está actualmente pendiente de aprobación por un administrador. No puedes crear nuevas rifas hasta que tu cuenta sea activada. Por favor, espera la aprobación o contacta a soporte."
+      "description": "Tu cuenta está actualmente pendiente de aprobación por un administrador. No puedes crear nuevas rifas hasta que tu cuenta sea activada. Para soporte, contacta a +56995474200."
     },
     "accountInactive": {
       "title": "Cuenta Inactiva",
-      "description": "Tu cuenta está actualmente inactiva. No puedes crear nuevas rifas. Por favor, contacta a soporte si crees que esto es un error."
+      "description": "Tu cuenta está actualmente inactiva. No puedes crear nuevas rifas. Por favor, contacta a soporte al +56995474200 si crees que esto es un error."
     }
   },
   "configureForm": {
@@ -312,7 +312,7 @@
     "raffleConcludedDescription": "Todos los premios han sido entregados exitosamente. La rifa está oficialmente cerrada. ¡Felicitaciones a todos los ganadores!",
     "buttonDrawFor": "Sortear: {{prizeDescription}}",
     "buttonDrawNext": "Siguiente Premio",
-    "drawOnePrizeHint": "Solo se sorteará un premio por clic.",
+    "drawOnePrizeHint": "Solo se sorteará un premio por clique.",
     "lastDrawWinnersTitle": "🎉 Último(s) Ganador(es) del Sorteo 🎉",
     "winnerLabel": "Ganador(a)",
     "phoneLabel": "Teléfono",
