@@ -34,6 +34,7 @@ interface RaffleContextType {
   closeRaffle: (raffleId: string) => void;
   updatePendingPayment: (raffleId: string, numberId: number, newPaymentMethod: 'Cash' | 'Transfer') => boolean;
   deleteRaffle: (raffleId: string) => boolean;
+  updateBuyerDetails: (raffleId: string, numberId: number, newBuyerName: string, newBuyerPhone: string) => boolean;
 }
 
 const RaffleContext = createContext<RaffleContextType | undefined>(undefined);
@@ -340,9 +341,33 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return true;
   };
 
+  const updateBuyerDetails = (raffleId: string, numberId: number, newBuyerName: string, newBuyerPhone: string): boolean => {
+    const raffle = getRaffleById(raffleId);
+    if (!raffle) return false;
+
+    let buyerUpdated = false;
+    const updatedNumbers = raffle.numbers.map(num => {
+      if (num.id === numberId && num.status === 'Purchased') {
+        buyerUpdated = true;
+        return {
+          ...num,
+          buyerName: newBuyerName,
+          buyerPhone: newBuyerPhone,
+        };
+      }
+      return num;
+    });
+
+    if (buyerUpdated) {
+      updateRaffle({ ...raffle, numbers: updatedNumbers });
+      return true;
+    }
+    return false;
+  };
+
 
   return (
-    <RaffleContext.Provider value={{ raffles, isLoading, addRaffle, getRaffleById, updateRaffle, editRaffle, purchaseNumbers, recordPrizeWinner, closeRaffle, updatePendingPayment, deleteRaffle }}>
+    <RaffleContext.Provider value={{ raffles, isLoading, addRaffle, getRaffleById, updateRaffle, editRaffle, purchaseNumbers, recordPrizeWinner, closeRaffle, updatePendingPayment, deleteRaffle, updateBuyerDetails }}>
       {children}
     </RaffleContext.Provider>
   );

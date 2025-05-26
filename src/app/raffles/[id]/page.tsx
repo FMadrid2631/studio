@@ -6,7 +6,7 @@ import { useRaffles } from '@/contexts/RaffleContext';
 import { RaffleGrid } from '@/components/raffle/RaffleGrid';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Edit, Settings, Trophy, DollarSign, ListChecks, Share2, MessageSquare, Facebook, Instagram, Twitter, Download } from 'lucide-react';
+import { Edit, Settings, Trophy, DollarSign, ListChecks, Share2, MessageSquare, Facebook, Instagram, Twitter, Download, UserCog } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -24,18 +24,27 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import type { RaffleNumber } from '@/types';
+import type { RaffleNumber, EditBuyerFormInput } from '@/types';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+
+
+const createEditBuyerFormSchema = (t: Function) => z.object({
+  newBuyerName: z.string().min(2, { message: t('purchaseForm.validation.nameMin') }),
+  newBuyerPhone: z.string().min(5, { message: t('purchaseForm.validation.phoneMin') }),
+});
 
 
 export default function RafflePage() {
   const params = useParams();
   const raffleId = params.id as string;
-  const { getRaffleById, isLoading, updatePendingPayment } = useRaffles();
+  const { getRaffleById, isLoading, updatePendingPayment, updateBuyerDetails } = useRaffles();
   const router = useRouter();
   const { t, locale, changeLocaleForRaffle } = useTranslations();
   const { toast } = useToast();
@@ -54,8 +63,20 @@ export default function RafflePage() {
   const [selectedNumberForPaymentUpdate, setSelectedNumberForPaymentUpdate] = useState<RaffleNumber | null>(null);
   const [newPaymentMethod, setNewPaymentMethod] = useState<'Cash' | 'Transfer' | undefined>(undefined);
 
+  const [isEditBuyerDialogOpen, setIsEditBuyerDialogOpen] = useState(false);
+  const [numberToEditBuyer, setNumberToEditBuyer] = useState<RaffleNumber | null>(null);
+
   const gridRef = useRef<HTMLDivElement>(null);
   const [shareUrl, setShareUrl] = useState('');
+
+  const editBuyerFormSchema = createEditBuyerFormSchema(t);
+  const editBuyerForm = useForm<EditBuyerFormInput>({
+    resolver: zodResolver(editBuyerFormSchema),
+    defaultValues: {
+      newBuyerName: '',
+      newBuyerPhone: '',
+    },
+  });
 
 
   useEffect(() => {
@@ -66,6 +87,15 @@ export default function RafflePage() {
       }
     }
   }, [raffle, changeLocaleForRaffle]);
+
+  useEffect(() => {
+    if (numberToEditBuyer && isEditBuyerDialogOpen) {
+      editBuyerForm.reset({
+        newBuyerName: numberToEditBuyer.buyerName || '',
+        newBuyerPhone: numberToEditBuyer.buyerPhone || '',
+      });
+    }
+  }, [numberToEditBuyer, isEditBuyerDialogOpen, editBuyerForm]);
 
 
   if (isLoading && !raffle) {
@@ -100,10 +130,16 @@ export default function RafflePage() {
       router.push(`/raffles/${raffle.id}/purchase?selectedNumber=${numberId}`);
     } else if (clickedNumber.status === 'PendingPayment' && raffle.status === 'Open') {
       setSelectedNumberForPaymentUpdate(clickedNumber);
-      setNewPaymentMethod(undefined); // Reset selection
+      setNewPaymentMethod(undefined); 
       setIsUpdatePaymentDialogOpen(true);
+    } else if (clickedNumber.status === 'Purchased' && raffle.status === 'Open') {
+      setNumberToEditBuyer(clickedNumber);
+      editBuyerForm.reset({ // Pre-fill form
+        newBuyerName: clickedNumber.buyerName || '',
+        newBuyerPhone: clickedNumber.buyerPhone || '',
+      });
+      setIsEditBuyerDialogOpen(true);
     }
-    // If 'Purchased' or raffle is 'Closed', do nothing on click in the grid for now
   };
   
   const handleConfirmPaymentUpdate = () => {
@@ -125,6 +161,25 @@ export default function RafflePage() {
     setIsUpdatePaymentDialogOpen(false);
     setSelectedNumberForPaymentUpdate(null);
     setNewPaymentMethod(undefined);
+  };
+
+  const onSubmitEditBuyerForm = (data: EditBuyerFormInput) => {
+    if (!raffle || !numberToEditBuyer) return;
+    const success = updateBuyerDetails(raffle.id, numberToEditBuyer.id, data.newBuyerName, data.newBuyerPhone);
+    if (success) {
+      toast({
+        title: t('raffleDetailsPage.editBuyer.successTitle'),
+        description: t('raffleDetailsPage.editBuyer.successDescription', { numberId: numberToEditBuyer.id, buyerName: data.newBuyerName }),
+      });
+    } else {
+      toast({
+        title: t('raffleDetailsPage.editBuyer.errorTitle'),
+        description: t('raffleDetailsPage.editBuyer.errorDescription'),
+        variant: 'destructive',
+      });
+    }
+    setIsEditBuyerDialogOpen(false);
+    setNumberToEditBuyer(null);
   };
 
 
@@ -286,7 +341,7 @@ export default function RafflePage() {
                   {t('raffleDetailsPage.conductDrawButton')}
                 </Link>
               </Button>
-              <Button variant="default" onClick={calculateAndShowProfit} className="w-full col-span-full">
+              <Button variant="default" onClick={calculateAndShowProfit} className="w-full col-span-full md:col-span-4">
                 <DollarSign className="mr-2 h-4 w-4" />
                 {t('raffleDetailsPage.viewProfitButton')}
               </Button>
@@ -498,6 +553,63 @@ export default function RafflePage() {
                   {t('raffleDetailsPage.updatePayment.confirmButton')}
                 </AlertDialogAction>
               </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
+
+        {numberToEditBuyer && (
+          <AlertDialog open={isEditBuyerDialogOpen} onOpenChange={setIsEditBuyerDialogOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="flex items-center">
+                  <UserCog className="mr-2 h-5 w-5 text-primary"/>
+                  {t('raffleDetailsPage.editBuyer.dialogTitle', { numberId: numberToEditBuyer.id })}
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  {t('raffleDetailsPage.editBuyer.dialogDescription', {
+                    currentBuyerName: numberToEditBuyer.buyerName || t('shared.notAvailable'),
+                    currentBuyerPhone: numberToEditBuyer.buyerPhone || t('shared.notAvailable'),
+                  })}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <Form {...editBuyerForm}>
+                <form onSubmit={editBuyerForm.handleSubmit(onSubmitEditBuyerForm)} className="space-y-4 py-4">
+                  <FormField
+                    control={editBuyerForm.control}
+                    name="newBuyerName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('raffleDetailsPage.editBuyer.newNameLabel')}</FormLabel>
+                        <FormControl>
+                          <Input placeholder={t('purchaseForm.placeholders.fullName')} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={editBuyerForm.control}
+                    name="newBuyerPhone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('raffleDetailsPage.editBuyer.newPhoneLabel')}</FormLabel>
+                        <FormControl>
+                          <Input placeholder={t('purchaseForm.placeholders.phoneNumber')} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <AlertDialogFooter className="pt-4">
+                    <AlertDialogCancel onClick={() => setIsEditBuyerDialogOpen(false)}>
+                      {t('raffleDetailsPage.editBuyer.cancelButton')}
+                    </AlertDialogCancel>
+                    <AlertDialogAction type="submit">
+                      {t('raffleDetailsPage.editBuyer.confirmButton')}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </form>
+              </Form>
             </AlertDialogContent>
           </AlertDialog>
         )}

@@ -1,5 +1,4 @@
 
-
 export interface Country {
   name: string;
   code: string;
@@ -80,6 +79,11 @@ export type PurchaseFormInput = {
   paymentMethod: 'Cash' | 'Transfer' | 'Pending';
 };
 
+export type EditBuyerFormInput = {
+  newBuyerName: string;
+  newBuyerPhone: string;
+};
+
 // Authentication related types
 export interface AuthUser {
   uid: string;
@@ -100,3 +104,4 @@ export type SignupFormInput = {
   password_signup: string; // Renamed for clarity
   confirmPassword?: string; // Optional for now, good practice to add
 };
+

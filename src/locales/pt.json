@@ -65,7 +65,7 @@
       "purchasedCash": "Pago (Dinheiro)",
       "purchasedTransfer": "Pago (Transferência)"
     },
-    "viewProfitButton": "Ver Lucro",
+    "viewProfitButton": "Lucros",
     "profitDialogTitle": "Lucro da Rifa",
     "profitDialog": {
       "totalSales": "Vendas Totais (Números Pagos)",
@@ -97,6 +97,18 @@
       "successDescription": "Pagamento para o número #{{numberId}} atualizado para {{method}}.",
       "errorTitle": "Falha ao Atualizar",
       "errorDescription": "Não foi possível atualizar o pagamento. O número pode não estar mais pendente."
+    },
+    "editBuyer": {
+      "dialogTitle": "Editar Comprador do Número #{{numberId}}",
+      "dialogDescription": "Comprador atual: {{currentBuyerName}} ({{currentBuyerPhone}}). Insira os novos dados abaixo.",
+      "newNameLabel": "Novo Nome do Comprador",
+      "newPhoneLabel": "Novo Telefone do Comprador",
+      "confirmButton": "Atualizar Comprador",
+      "cancelButton": "Cancelar",
+      "successTitle": "Comprador Atualizado",
+      "successDescription": "O comprador do número #{{numberId}} foi atualizado para {{buyerName}}.",
+      "errorTitle": "Falha ao Atualizar",
+      "errorDescription": "Não foi possível atualizar os dados do comprador. Certifique-se de que o número está pago e tente novamente."
     }
   },
   "configurePage": {
@@ -286,7 +298,7 @@
     "toast": {
         "infoTitle": "Informação",
         "infoAllPrizesAwardedOrClosed": "Todos os prêmios foram entregues ou a rifa está fechada.",
-        "infoNoMorePrizesThisRound": "Não há mais prêmios para sortear nesta rodada.",
+        "infoNoMorePrizesThisRound": "Não há mais prêmios para sortear nesta ronda.",
         "winnerDrawnTitle": "Ganhador Sorteado!",
         "winnerDrawnDescription": "O número {{winningNumber}} ganha {{prizeDescription}}! Parabéns a {{winnerName}}!",
         "raffleCompleteTitle": "Rifa Completa!",

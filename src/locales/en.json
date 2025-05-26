@@ -65,7 +65,7 @@
       "purchasedCash": "Paid (Cash)",
       "purchasedTransfer": "Paid (Transfer)"
     },
-    "viewProfitButton": "View Profit",
+    "viewProfitButton": "Profit",
     "profitDialogTitle": "Raffle Profit",
     "profitDialog": {
       "totalSales": "Total Sales (Paid Numbers)",
@@ -97,6 +97,18 @@
       "successDescription": "Payment for number #{{numberId}} updated to {{method}}.",
       "errorTitle": "Update Failed",
       "errorDescription": "Could not update payment. The number might no longer be pending."
+    },
+    "editBuyer": {
+      "dialogTitle": "Edit Buyer for Number #{{numberId}}",
+      "dialogDescription": "Current buyer: {{currentBuyerName}} ({{currentBuyerPhone}}). Enter new details below.",
+      "newNameLabel": "New Buyer's Name",
+      "newPhoneLabel": "New Buyer's Phone",
+      "confirmButton": "Update Buyer",
+      "cancelButton": "Cancel",
+      "successTitle": "Buyer Updated",
+      "successDescription": "Buyer for number #{{numberId}} updated to {{buyerName}}.",
+      "errorTitle": "Update Failed",
+      "errorDescription": "Could not update buyer details. Please ensure the number is purchased and try again."
     }
   },
   "configurePage": {

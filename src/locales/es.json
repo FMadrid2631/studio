@@ -65,7 +65,7 @@
       "purchasedCash": "Pagado (Efectivo)",
       "purchasedTransfer": "Pagado (Transferencia)"
     },
-    "viewProfitButton": "Ver Ganancia",
+    "viewProfitButton": "Ganancias",
     "profitDialogTitle": "Ganancia de la Rifa",
     "profitDialog": {
       "totalSales": "Ventas Totales (Números Pagados)",
@@ -97,6 +97,18 @@
       "successDescription": "Pago para el número #{{numberId}} actualizado a {{method}}.",
       "errorTitle": "Error al Actualizar",
       "errorDescription": "No se pudo actualizar el pago. El número podría ya no estar pendiente."
+    },
+    "editBuyer": {
+      "dialogTitle": "Editar Comprador del Número #{{numberId}}",
+      "dialogDescription": "Comprador actual: {{currentBuyerName}} ({{currentBuyerPhone}}). Ingresa los nuevos datos a continuación.",
+      "newNameLabel": "Nuevo Nombre del Comprador",
+      "newPhoneLabel": "Nuevo Teléfono del Comprador",
+      "confirmButton": "Actualizar Comprador",
+      "cancelButton": "Cancelar",
+      "successTitle": "Comprador Actualizado",
+      "successDescription": "El comprador del número #{{numberId}} ha sido actualizado a {{buyerName}}.",
+      "errorTitle": "Error al Actualizar",
+      "errorDescription": "No se pudieron actualizar los datos del comprador. Asegúrate de que el número esté pagado e inténtalo de nuevo."
     }
   },
   "configurePage": {
