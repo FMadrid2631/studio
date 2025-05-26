@@ -105,3 +105,8 @@ export type SignupFormInput = {
   confirmPassword?: string; // Optional for now, good practice to add
 };
 
+export type EditProfileFormInput = {
+  displayName: string;
+  rut: string;
+};
+

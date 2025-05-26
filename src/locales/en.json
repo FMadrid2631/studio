@@ -15,7 +15,7 @@
     "createNewRaffleButton": "Create New Raffle",
     "noRafflesTitle": "No Raffles Yet",
     "noRafflesDescription": "Get started by creating your first raffle!",
-    "viewGridButton": "Ver",
+    "viewGridButton": "View",
     "purchaseButton": "Purchase",
     "availableButton": "Available",
     "drawButton": "Draw",
@@ -208,7 +208,7 @@
     "cannotEditDescriptionClosed": "This raffle cannot be edited because it is closed."
   },
   "purchaseForm": {
-    "title": "Purchase numbers",
+    "title": "Purchase Numbers",
     "description": "Select your numbers and fill in your details.",
     "labels": {
       "fullName": "Full Name",
@@ -392,8 +392,12 @@
     "loginLink": "Login",
     "profileTitle": "My Profile",
     "profileSubtitle": "View and manage your profile information.",
-    "logoutButton": "Logout",
+    "editProfileTitle": "Edit Profile",
+    "editProfileSubtitle": "Update your profile details below.",
     "editProfileButton": "Edit Profile",
+    "saveChangesButton": "Save Changes",
+    "cancelButton": "Cancel",
+    "logoutButton": "Logout",
     "toast": {
       "loginSuccessTitle": "Login Successful!",
       "loginSuccessDescription": "Welcome back, {{email}}!",
@@ -401,7 +405,11 @@
       "signupSuccessDescription": "Welcome to Rifa Fácil, {{email}}!",
       "logoutSuccessTitle": "Logged Out",
       "providerLoginTitle": "Provider Login",
-      "providerLoginDescription": "Simulating login with {{provider}}. This would trigger the {{provider}} auth flow in a real app."
+      "providerLoginDescription": "Simulating login with {{provider}}. This would trigger the {{provider}} auth flow in a real app.",
+      "updateProfileSuccessTitle": "Profile Updated",
+      "updateProfileSuccessDescription": "Your profile information has been successfully updated.",
+      "updateProfileErrorTitle": "Update Failed",
+      "updateProfileErrorNotLoggedIn": "You must be logged in to update your profile."
     },
     "validation": {
       "emailInvalid": "Please enter a valid email address.",
@@ -414,4 +422,3 @@
     }
   }
 }
-

@@ -208,7 +208,7 @@
     "cannotEditDescriptionClosed": "Esta rifa no se puede editar porque está cerrada."
   },
   "purchaseForm": {
-    "title": "Comprar números",
+    "title": "Comprar Números",
     "description": "Selecciona tus números y completa tus datos.",
     "labels": {
       "fullName": "Nombre Completo",
@@ -392,8 +392,12 @@
     "loginLink": "Iniciar Sesión",
     "profileTitle": "Mi Perfil",
     "profileSubtitle": "Ver y gestionar la información de tu perfil.",
-    "logoutButton": "Cerrar Sesión",
+    "editProfileTitle": "Editar Perfil",
+    "editProfileSubtitle": "Actualiza los datos de tu perfil a continuación.",
     "editProfileButton": "Editar Perfil",
+    "saveChangesButton": "Guardar Cambios",
+    "cancelButton": "Cancelar",
+    "logoutButton": "Cerrar Sesión",
     "toast": {
       "loginSuccessTitle": "¡Inicio de Sesión Exitoso!",
       "loginSuccessDescription": "¡Bienvenido de nuevo, {{email}}!",
@@ -401,7 +405,11 @@
       "signupSuccessDescription": "¡Bienvenido a Rifa Fácil, {{email}}!",
       "logoutSuccessTitle": "Sesión Cerrada",
       "providerLoginTitle": "Inicio de Sesión con Proveedor",
-      "providerLoginDescription": "Simulando inicio de sesión con {{provider}}. Esto activaría el flujo de autenticación de {{provider}} en una aplicación real."
+      "providerLoginDescription": "Simulando inicio de sesión con {{provider}}. Esto activaría el flujo de autenticación de {{provider}} en una aplicación real.",
+      "updateProfileSuccessTitle": "Perfil Actualizado",
+      "updateProfileSuccessDescription": "La información de tu perfil ha sido actualizada exitosamente.",
+      "updateProfileErrorTitle": "Error al Actualizar",
+      "updateProfileErrorNotLoggedIn": "Debes iniciar sesión para actualizar tu perfil."
     },
     "validation": {
       "emailInvalid": "Por favor, ingresa una dirección de correo electrónico válida.",
@@ -414,4 +422,3 @@
     }
   }
 }
-
