@@ -38,7 +38,7 @@
       "successTitle": "Rifa Eliminada",
       "successDescription": "La rifa \"{{raffleName}}\" ha sido eliminada exitosamente.",
       "errorTitle": "Error al Eliminar",
-      "errorDescription": "No se pudo eliminar la rifa \"{{raffleName}}\".",
+      "errorDescription": "No se pudo eliminar la rifa \"{{raffleName}}\". Esta rifa podría tener ventas o estar cerrada bajo condiciones que impiden su eliminación.",
       "disabledTooltip": "No se puede eliminar: esta rifa está abierta y tiene números vendidos/pendientes."
     },
     "accountPendingActivationTooltip": "Tu cuenta está pendiente de activación por un administrador. Aún no puedes crear rifas."
@@ -138,12 +138,16 @@
     },
     "accountPending": {
       "title": "Cuenta Pendiente de Aprobación",
-      "description": "Tu cuenta está actualmente pendiente de aprobación por un administrador. No puedes crear nuevas rifas hasta que tu cuenta sea activada. Para soporte, contacta a +56995474200."
+      "descriptionPart1": "Tu cuenta está actualmente pendiente de aprobación por un administrador. No puedes crear nuevas rifas hasta que tu cuenta sea activada. Para soporte, contacta a ",
+      "descriptionPart2": "."
     },
     "accountInactive": {
       "title": "Cuenta Inactiva",
-      "description": "Tu cuenta está actualmente inactiva. No puedes crear nuevas rifas. Por favor, contacta a soporte al +56995474200 si crees que esto es un error."
-    }
+      "descriptionPart1": "Tu cuenta está actualmente inactiva. No puedes crear nuevas rifas. Por favor, contacta a soporte al ",
+      "descriptionPart2": " si crees que esto es un error."
+    },
+    "whatsappSupportNumberText": "+56995474200",
+    "whatsappSupportNumberValue": "56995474200"
   },
   "configureForm": {
     "title": "Crear Nueva Rifa",
@@ -447,7 +451,8 @@
       "loginSuccessTitle": "¡Inicio de Sesión Exitoso!",
       "loginSuccessDescription": "¡Bienvenido de nuevo, {{email}}!",
       "signupSuccessTitle": "¡Registro Exitoso!",
-      "signupSuccessDescription": "¡Bienvenido a Rifa Fácil, {{email}}! Tu cuenta está pendiente de activación por un administrador.",
+      "signupSuccessDescription": "¡Bienvenido a Rifa Fácil, {{email}}!",
+      "signupPendingActivationDescription": "¡Bienvenido a Rifa Fácil, {{email}}! Tu cuenta está pendiente de activación por un administrador.",
       "logoutSuccessTitle": "Sesión Cerrada",
       "providerLoginTitle": "Inicio de Sesión con Proveedor",
       "providerLoginDescription": "Simulando inicio de sesión con {{provider}}. Esto activaría el flujo de autenticación de {{provider}} en una aplicación real.",
@@ -467,3 +472,5 @@
     }
   }
 }
+
+    

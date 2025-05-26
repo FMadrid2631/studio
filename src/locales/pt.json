@@ -38,7 +38,7 @@
       "successTitle": "Rifa Excluída",
       "successDescription": "A rifa \"{{raffleName}}\" foi excluída com sucesso.",
       "errorTitle": "Falha na Exclusão",
-      "errorDescription": "Não foi possível excluir a rifa \"{{raffleName}}\".",
+      "errorDescription": "Não foi possível excluir a rifa \"{{raffleName}}\". Esta rifa pode ter vendas ou estar fechada sob condições que impedem sua exclusão.",
       "disabledTooltip": "Não é possível excluir: esta rifa está aberta e tem números vendidos/pendentes."
     },
     "accountPendingActivationTooltip": "Sua conta está pendente de ativação por um administrador. Você ainda não pode criar rifas."
@@ -138,12 +138,16 @@
     },
     "accountPending": {
       "title": "Conta Pendente de Aprovação",
-      "description": "Sua conta está atualmente pendente de aprovação por um administrador. Você não pode criar novas rifas até que sua conta seja ativada. Para suporte, contate +56995474200."
+      "descriptionPart1": "Sua conta está atualmente pendente de aprovação por um administrador. Você não pode criar novas rifas até que sua conta seja ativada. Para suporte, contate ",
+      "descriptionPart2": "."
     },
     "accountInactive": {
       "title": "Conta Inativa",
-      "description": "Sua conta está atualmente inativa. Você não pode criar novas rifas. Por favor, contate o suporte em +56995474200 se acreditar que isso é um erro."
-    }
+      "descriptionPart1": "Sua conta está atualmente inativa. Você não pode criar novas rifas. Por favor, contate o suporte em ",
+      "descriptionPart2": " se acreditar que isto é um erro."
+    },
+    "whatsappSupportNumberText": "+56995474200",
+    "whatsappSupportNumberValue": "56995474200"
   },
   "configureForm": {
     "title": "Criar Nova Rifa",
@@ -447,12 +451,13 @@
       "loginSuccessTitle": "Login Bem-sucedido!",
       "loginSuccessDescription": "Bem-vindo de volta, {{email}}!",
       "signupSuccessTitle": "Cadastro Bem-sucedido!",
-      "signupSuccessDescription": "Bem-vindo ao Rifa Fácil, {{email}}! Sua conta está pendente de ativação por um administrador.",
+      "signupSuccessDescription": "Bem-vindo ao Rifa Fácil, {{email}}!",
+      "signupPendingActivationDescription": "Bem-vindo ao Rifa Fácil, {{email}}! Sua conta está pendente de ativação por um administrador.",
       "logoutSuccessTitle": "Sessão Encerrada",
       "providerLoginTitle": "Login com Provedor",
-      "providerLoginDescription": "Simulando login com {{provider}}. Isso acionaria o fluxo de autenticação de {{provider}} em um aplicativo real.",
+      "providerLoginDescription": "Simulando login com {{provider}}. Isto acionaria o fluxo de autenticação de {{provider}} numa aplicação real.",
       "updateProfileSuccessTitle": "Perfil Atualizado",
-      "updateProfileSuccessDescription": "Suas informações de perfil foram atualizadas com sucesso.",
+      "updateProfileSuccessDescription": "As suas informações de perfil foram atualizadas com sucesso.",
       "updateProfileErrorTitle": "Falha ao Atualizar",
       "updateProfileErrorNotLoggedIn": "Você deve estar logado para atualizar seu perfil."
     },
@@ -467,3 +472,5 @@
     }
   }
 }
+
+    

@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, AlertCircle, Ban } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import Image from 'next/image';
+
 
 export default function ConfigureRafflePage() {
   const { t, changeLocaleForRaffle } = useTranslations();
@@ -44,7 +44,6 @@ export default function ConfigureRafflePage() {
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                {/* Placeholder image removed */}
                 <p className="text-muted-foreground">{t('configurePage.accessDenied.notLoggedInDescription')}</p>
             </CardContent>
         </Card>
@@ -61,8 +60,18 @@ export default function ConfigureRafflePage() {
             </CardTitle>
         </CardHeader>
         <CardContent>
-            {/* Placeholder image removed */}
-            <p className="text-muted-foreground">{t('configurePage.accountPending.description')}</p>
+            <p className="text-muted-foreground">
+              {t('configurePage.accountPending.descriptionPart1')}
+              <a
+                href={`https://wa.me/${t('configurePage.whatsappSupportNumberValue')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline font-semibold"
+              >
+                {t('configurePage.whatsappSupportNumberText')}
+              </a>
+              {t('configurePage.accountPending.descriptionPart2')}
+            </p>
         </CardContent>
       </Card>
     );
@@ -78,8 +87,18 @@ export default function ConfigureRafflePage() {
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                {/* Placeholder image removed */}
-                <p className="text-muted-foreground">{t('configurePage.accountInactive.description')}</p>
+                 <p className="text-muted-foreground">
+                    {t('configurePage.accountInactive.descriptionPart1')}
+                    <a
+                        href={`https://wa.me/${t('configurePage.whatsappSupportNumberValue')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline font-semibold"
+                    >
+                        {t('configurePage.whatsappSupportNumberText')}
+                    </a>
+                    {t('configurePage.accountInactive.descriptionPart2')}
+                </p>
             </CardContent>
         </Card>
      );
@@ -93,3 +112,5 @@ export default function ConfigureRafflePage() {
     </div>
   );
 }
+
+    
