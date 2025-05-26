@@ -37,8 +37,8 @@
       "successTitle": "Rifa Excluída",
       "successDescription": "A rifa \"{{raffleName}}\" foi excluída com sucesso.",
       "errorTitle": "Falha na Exclusão",
-      "errorDescription": "Não foi possível excluir a rifa \"{{raffleName}}\". Pode ter números vendidos ou já está fechada.",
-      "disabledTooltip": "Não é possível excluir: a rifa tem números vendidos ou está fechada."
+      "errorDescription": "Não foi possível excluir a rifa \"{{raffleName}}\".",
+      "disabledTooltip": "Não é possível excluir: esta rifa está aberta e tem números vendidos/pendentes."
     }
   },
   "raffleDetailsPage": {
@@ -181,7 +181,7 @@
     "fieldsDisabledEdit": "Este campo não pode ser alterado após a criação se as vendas tiverem começado.",
     "bankDetails": {
       "title": "Dados para Transferência Bancária",
-      "description": "Preencha estes dados se desejar aceitar transferências bancárias. Serão mostrados aos compradores se escolherem 'Transferência' como método de pagamento."
+      "description": "Preencha estes dados if you desejar aceitar transferências bancárias. Serão mostrados aos compradores se escolherem 'Transferência' como método de pagamento."
     }
   },
   "editRafflePage": {
@@ -398,4 +398,3 @@
     }
   }
 }
-

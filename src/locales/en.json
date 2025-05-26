@@ -37,8 +37,8 @@
       "successTitle": "Raffle Deleted",
       "successDescription": "The raffle \"{{raffleName}}\" has been successfully deleted.",
       "errorTitle": "Deletion Failed",
-      "errorDescription": "Could not delete raffle \"{{raffleName}}\". It might have sold numbers or is already closed.",
-      "disabledTooltip": "Cannot delete: raffle has sold numbers or is closed."
+      "errorDescription": "Could not delete raffle \"{{raffleName}}\".",
+      "disabledTooltip": "Cannot delete: this raffle is open and has sold/pending numbers."
     }
   },
   "raffleDetailsPage": {
@@ -398,4 +398,3 @@
     }
   }
 }
-

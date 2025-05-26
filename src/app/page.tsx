@@ -144,7 +144,10 @@ export default function HomePage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {raffles.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((raffle) => {
-            const canDelete = !raffle.numbers.some(n => n.status !== 'Available') && raffle.status !== 'Closed';
+            const hasSoldOrPendingNumbers = raffle.numbers.some(n => n.status !== 'Available');
+            // Can delete if: (Open AND no sales) OR if (Closed)
+            const canDelete = (!hasSoldOrPendingNumbers && raffle.status === 'Open') || raffle.status === 'Closed';
+            
             return (
             <Card key={raffle.id} className="flex flex-col hover:shadow-xl transition-shadow duration-300">
               <CardHeader>
@@ -204,8 +207,8 @@ export default function HomePage() {
                 </Button>
               </CardFooter>
             </Card>
-            ); // Corrected: semicolon removed from previous ")};"
-          })} {/* Corrected: Added closing for map function and JSX expression */}
+            ); 
+          })} 
         </div>
       )}
 

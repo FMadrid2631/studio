@@ -37,8 +37,8 @@
       "successTitle": "Rifa Eliminada",
       "successDescription": "La rifa \"{{raffleName}}\" ha sido eliminada exitosamente.",
       "errorTitle": "Error al Eliminar",
-      "errorDescription": "No se pudo eliminar la rifa \"{{raffleName}}\". Podría tener números vendidos o ya está cerrada.",
-      "disabledTooltip": "No se puede eliminar: la rifa tiene números vendidos o está cerrada."
+      "errorDescription": "No se pudo eliminar la rifa \"{{raffleName}}\".",
+      "disabledTooltip": "No se puede eliminar: esta rifa está abierta y tiene números vendidos/pendientes."
     }
   },
   "raffleDetailsPage": {
@@ -398,4 +398,3 @@
     }
   }
 }
-
