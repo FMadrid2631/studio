@@ -24,17 +24,28 @@ export default function AdminViewUserProfilePage() {
   const dateLocale = getLocaleFromString(locale);
 
   useEffect(() => {
-    if (!authLoading && (!currentUser || currentUser.role !== 'admin')) {
-      router.replace('/');
+    if (authLoading) {
+      // Still waiting for authentication context to load
+      setViewUser(undefined); // Ensure we show loader if authLoading flips back to true
+      return;
     }
-  }, [currentUser, authLoading, router]);
 
-  useEffect(() => {
-    if (userId && !authLoading) {
-      const user = getUserById(userId);
-      setViewUser(user || null); // If user is undefined (not found), set viewUser to null
+    if (!currentUser || currentUser.role !== 'admin') {
+      router.replace('/');
+      return;
     }
-  }, [userId, getUserById, authLoading]);
+
+    // At this point, auth is done, and the current user is an admin.
+    // Now, try to fetch the user to be viewed.
+    if (userId) {
+      const user = getUserById(userId);
+      setViewUser(user || null); // If user not found, set to null to show "User Not Found"
+    } else {
+      // If userId is somehow not available from params, consider it "not found"
+      setViewUser(null);
+    }
+  }, [userId, currentUser, authLoading, getUserById, router]);
+
 
   if (authLoading || viewUser === undefined) {
     return (
@@ -44,7 +55,7 @@ export default function AdminViewUserProfilePage() {
     );
   }
 
-  if (!viewUser) { // This will now correctly catch when viewUser is null
+  if (!viewUser) { // This will catch when viewUser is null (not found or invalid userId)
     return (
       <Card className="max-w-lg mx-auto text-center shadow-lg">
         <CardHeader>
@@ -66,8 +77,8 @@ export default function AdminViewUserProfilePage() {
     );
   }
 
-  const userRoleDisplay = viewUser.role === 'admin' 
-    ? { text: t('auth.roleAdmin'), icon: <ShieldCheck className="mr-1 h-4 w-4 text-primary" />, variant: 'default' as const } 
+  const userRoleDisplay = viewUser.role === 'admin'
+    ? { text: t('auth.roleAdmin'), icon: <ShieldCheck className="mr-1 h-4 w-4 text-primary" />, variant: 'default' as const }
     : { text: t('auth.roleUser'), icon: <User className="mr-1 h-4 w-4 text-muted-foreground" />, variant: 'secondary' as const };
 
   const userStatusDisplay = () => {
