@@ -21,7 +21,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 } from '@/components/ui/dropdown-menu';
-import { Loader2, Users, AlertTriangle, CheckCircle, XCircle, Clock, MoreVertical, Eye } from 'lucide-react';
+import { Loader2, Users, AlertTriangle, CheckCircle, XCircle, Clock, MoreVertical } from 'lucide-react';
 import { format } from 'date-fns';
 import { getLocaleFromString } from '@/lib/date-fns-locales';
 import type { AuthUser } from '@/types';
@@ -160,13 +160,6 @@ export default function AdminUsersPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>{t('admin.actions.title')}</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                           <DropdownMenuItem asChild>
-                            <Link href={`/admin/users/${user.uid}`}>
-                              <Eye className="mr-2 h-4 w-4" />
-                              {t('admin.actions.viewProfile')}
-                            </Link>
-                          </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuSub>
                             <DropdownMenuSubTrigger disabled={user.uid === currentUser.uid}>
