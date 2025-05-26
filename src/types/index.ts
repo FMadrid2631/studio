@@ -95,6 +95,7 @@ export interface AuthUser {
   registrationDate?: string; // ISO String
   countryCode?: string;
   phoneNumber?: string;
+  internalCode: string; // Unique internal alphanumeric code
 }
 
 export type LoginFormInput = {

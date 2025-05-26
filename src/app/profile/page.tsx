@@ -7,7 +7,7 @@ import { useTranslations } from '@/contexts/LocalizationContext';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { Loader2, UserCircle, Edit3, Save, X, ShieldCheck, User, CheckCircle, AlertCircle, XCircle, Clock, Lock } from 'lucide-react';
+import { Loader2, UserCircle, Edit3, Save, X, ShieldCheck, User, CheckCircle, AlertCircle, XCircle, Clock, Lock, Fingerprint } from 'lucide-react';
 import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -193,6 +193,10 @@ export default function ProfilePage() {
           ) : (
             <>
               <div className="space-y-4">
+                 <div>
+                  <p className="text-sm font-medium text-muted-foreground">{t('auth.internalCodeLabel')}</p>
+                  <p className="text-lg font-mono tracking-wider bg-muted/50 px-3 py-1.5 rounded-md inline-block">{currentUser.internalCode || t('shared.notAvailable')}</p>
+                </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">{t('auth.displayNameLabel')}</p>
                   <p className="text-lg">{currentUser.displayName || t('shared.notAvailable')}</p>

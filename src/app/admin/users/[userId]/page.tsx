@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTranslations } from '@/contexts/LocalizationContext';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, UserCircle, ArrowLeft, ShieldCheck, User, CheckCircle, AlertCircle, XCircle, Clock, Mail, Phone, MapPin, CalendarDays } from 'lucide-react';
+import { Loader2, UserCircle, ArrowLeft, ShieldCheck, User, CheckCircle, AlertCircle, XCircle, Clock, Mail, Phone, MapPin, CalendarDays, Fingerprint } from 'lucide-react';
 import type { AuthUser } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
@@ -25,8 +25,7 @@ export default function AdminViewUserProfilePage() {
 
   useEffect(() => {
     if (authLoading) {
-      // Still waiting for authentication context to load
-      setViewUser(undefined); // Ensure we show loader if authLoading flips back to true
+      setViewUser(undefined); 
       return;
     }
 
@@ -35,13 +34,10 @@ export default function AdminViewUserProfilePage() {
       return;
     }
 
-    // At this point, auth is done, and the current user is an admin.
-    // Now, try to fetch the user to be viewed.
     if (userId) {
       const user = getUserById(userId);
-      setViewUser(user || null); // If user not found, set to null to show "User Not Found"
+      setViewUser(user || null); 
     } else {
-      // If userId is somehow not available from params, consider it "not found"
       setViewUser(null);
     }
   }, [userId, currentUser, authLoading, getUserById, router]);
@@ -55,7 +51,7 @@ export default function AdminViewUserProfilePage() {
     );
   }
 
-  if (!viewUser) { // This will catch when viewUser is null (not found or invalid userId)
+  if (!viewUser) { 
     return (
       <Card className="max-w-lg mx-auto text-center shadow-lg">
         <CardHeader>
@@ -114,6 +110,10 @@ export default function AdminViewUserProfilePage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground flex items-center"><Fingerprint className="mr-2 h-4 w-4" />{t('auth.internalCodeLabel')}</p>
+              <p className="text-lg font-mono tracking-wider bg-muted/50 px-3 py-1.5 rounded-md inline-block">{viewUser.internalCode || t('shared.notAvailable')}</p>
+            </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground flex items-center"><User className="mr-2 h-4 w-4" />{t('auth.displayNameLabel')}</p>
               <p className="text-lg">{viewUser.displayName || t('shared.notAvailable')}</p>

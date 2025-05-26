@@ -477,6 +477,7 @@
     "saveChangesButton": "Guardar Cambios",
     "cancelButton": "Cancelar",
     "logoutButton": "Cerrar Sesión",
+    "internalCodeLabel": "Código Interno",
     "changePasswordDialog": {
       "title": "Cambiar Contraseña",
       "description": "Ingresa tu contraseña actual y una nueva contraseña a continuación.",

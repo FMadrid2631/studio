@@ -12,6 +12,8 @@ const ADMIN_EMAIL = 'fernando.madrid21@hotmail.com';
 const ALL_USERS_STORAGE_KEY = 'rifaFacilApp_allUsers';
 const CURRENT_USER_STORAGE_KEY = 'mockAuthUser';
 
+const generateInternalCode = () => `USER-${crypto.randomUUID().substring(0, 8).toUpperCase()}`;
+
 interface AuthContextType {
   currentUser: AuthUser | null;
   isLoading: boolean;
@@ -59,58 +61,57 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       updatedUser.role = isActualAdminByEmail ? 'admin' : 'user';
       updatedUser.status = user.status || (isActualAdminByEmail ? 'active' : 'pending');
       updatedUser.registrationDate = user.registrationDate || new Date(0).toISOString();
-      return updatedUser;
+      updatedUser.internalCode = user.internalCode || generateInternalCode(); // Add internal code if missing
+      return updatedUser as AuthUser; // Ensure type
     });
     setAllUsers(migratedUsers);
 
+    let userToSet: AuthUser | null = null;
     if (typeof window !== 'undefined') {
       const storedUserJson = localStorage.getItem(CURRENT_USER_STORAGE_KEY);
       if (storedUserJson) {
         try {
-          let userToSet = JSON.parse(storedUserJson) as Partial<AuthUser>;
-          if (!userToSet.uid || !userToSet.email) {
-            setCurrentUser(null);
-          } else {
-            const isActualAdminByEmail = userToSet.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-            userToSet.role = isActualAdminByEmail ? 'admin' : 'user';
-            
-            const userFromMigratedList = migratedUsers.find(u => u.uid === userToSet.uid);
-            userToSet.status = userFromMigratedList?.status || userToSet.status || (isActualAdminByEmail ? 'active' : 'pending');
-            userToSet.registrationDate = userFromMigratedList?.registrationDate || userToSet.registrationDate || new Date(0).toISOString();
-            userToSet.displayName = userToSet.displayName || userFromMigratedList?.displayName || (isActualAdminByEmail ? 'Admin User' : 'Usuario Ejemplo');
-            userToSet.rut = userToSet.rut || userFromMigratedList?.rut;
-            userToSet.countryCode = userToSet.countryCode || userFromMigratedList?.countryCode;
-            userToSet.phoneNumber = userToSet.phoneNumber || userFromMigratedList?.phoneNumber;
-            
-            setCurrentUser(userToSet as AuthUser);
+          const parsedUser = JSON.parse(storedUserJson) as Partial<AuthUser>;
+          if (parsedUser.uid && parsedUser.email) {
+            const isActualAdminByEmail = parsedUser.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+            const userFromMigratedList = migratedUsers.find(u => u.uid === parsedUser.uid);
+
+            userToSet = {
+              uid: parsedUser.uid,
+              email: parsedUser.email,
+              displayName: parsedUser.displayName || userFromMigratedList?.displayName || (isActualAdminByEmail ? 'Admin User' : 'Usuario Ejemplo'),
+              rut: parsedUser.rut || userFromMigratedList?.rut,
+              role: isActualAdminByEmail ? 'admin' : (userFromMigratedList?.role || 'user'),
+              status: userFromMigratedList?.status || parsedUser.status || (isActualAdminByEmail ? 'active' : 'pending'),
+              registrationDate: userFromMigratedList?.registrationDate || parsedUser.registrationDate || new Date(0).toISOString(),
+              countryCode: parsedUser.countryCode || userFromMigratedList?.countryCode,
+              phoneNumber: parsedUser.phoneNumber || userFromMigratedList?.phoneNumber,
+              internalCode: parsedUser.internalCode || userFromMigratedList?.internalCode || generateInternalCode(),
+            };
           }
         } catch (e) {
           console.error("Error processing stored user:", e);
-          setCurrentUser(null);
         }
       }
     }
+    setCurrentUser(userToSet);
     setIsLoading(false);
   }, []);
 
   // Persist allUsers to localStorage
   useEffect(() => {
-    if (!isLoading) { // Avoid writing initial empty array if still loading
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(ALL_USERS_STORAGE_KEY, JSON.stringify(allUsers));
-      }
+    if (!isLoading && typeof window !== 'undefined') { // Avoid writing initial empty array if still loading
+      localStorage.setItem(ALL_USERS_STORAGE_KEY, JSON.stringify(allUsers));
     }
   }, [allUsers, isLoading]);
 
   // Persist currentUser to localStorage
   useEffect(() => {
-    if (!isLoading) { // Avoid writing initial null if still loading
-      if (typeof window !== 'undefined') {
-        if (currentUser) {
-          localStorage.setItem(CURRENT_USER_STORAGE_KEY, JSON.stringify(currentUser));
-        } else {
-          localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
-        }
+    if (!isLoading && typeof window !== 'undefined') { // Avoid writing initial null if still loading
+      if (currentUser) {
+        localStorage.setItem(CURRENT_USER_STORAGE_KEY, JSON.stringify(currentUser));
+      } else {
+        localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
       }
     }
   }, [currentUser, isLoading]);
@@ -124,19 +125,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     let userToLogin = allUsers.find(u => u.email === userEmailLower);
     
     if (userToLogin) {
-      // Ensure all fields are present, especially role and status from the allUsers list
-      const completeUser: AuthUser = {
-        uid: userToLogin.uid,
-        email: userToLogin.email,
-        displayName: userToLogin.displayName || (userToLogin.role === 'admin' ? 'Admin User' : 'Usuario Ejemplo'),
-        rut: userToLogin.rut,
-        role: userToLogin.role || (userToLogin.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? 'admin' : 'user'),
-        status: userToLogin.status || (userToLogin.role === 'admin' ? 'active' : 'pending'),
-        registrationDate: userToLogin.registrationDate || new Date().toISOString(),
-        countryCode: userToLogin.countryCode,
-        phoneNumber: userToLogin.phoneNumber,
-      };
-      setCurrentUser(completeUser);
+      setCurrentUser(userToLogin);
       toast({ title: t('auth.toast.loginSuccessTitle'), description: t('auth.toast.loginSuccessDescription', { email: data.email }) });
       router.push('/');
     } else if (userEmailLower === ADMIN_EMAIL.toLowerCase()) {
@@ -150,11 +139,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         status: 'active',
         registrationDate: new Date().toISOString(),
         countryCode: 'CL',
-        phoneNumber: '123456789'
+        phoneNumber: '123456789',
+        internalCode: generateInternalCode(),
       };
       setAllUsers(prev => {
           const existing = prev.find(u => u.email === adminUser.email);
-          return existing ? prev : [...prev, adminUser];
+          return existing ? prev.map(u => u.email === adminUser.email ? adminUser : u) : [...prev, adminUser];
       });
       setCurrentUser(adminUser);
       toast({ title: t('auth.toast.loginSuccessTitle'), description: t('auth.toast.loginSuccessDescription', { email: data.email }) });
@@ -189,6 +179,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       registrationDate: new Date().toISOString(),
       countryCode: data.countryCode,
       phoneNumber: data.phoneNumber,
+      internalCode: generateInternalCode(),
     };
 
     setAllUsers(prevAllUsers => [...prevAllUsers, newUser]);
@@ -204,23 +195,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsLoading(true);
     await new Promise(resolve => setTimeout(resolve, 500));
     setCurrentUser(null);
-    // No need to clear allUsers, they persist unless explicitly deleted
     setIsLoading(false);
     toast({ title: t('auth.toast.logoutSuccessTitle') });
     router.push('/');
   }, [router, toast, t]);
 
   const loginWithGoogle = useCallback(async () => {
-    // Simplified: uses the signup flow with predefined data
     const googleData: SignupFormInput = {
         displayName: 'Google User',
-        rut: '00000000-0', // Placeholder
+        rut: '00000000-0', 
         email: 'googleuser@example.com',
-        password_signup: 'password', // Mock
+        password_signup: 'password', 
         countryCode: 'US',
         phoneNumber: '5551234'
     };
-    // Check if user exists, otherwise sign them up
     if (!allUsers.find(u => u.email === googleData.email)) {
         await signup(googleData);
     } else {
@@ -229,12 +217,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, [signup, login, allUsers]);
 
   const loginWithApple = useCallback(async () => {
-    // Simplified: uses the signup flow with predefined data
     const appleData: SignupFormInput = {
         displayName: 'Apple User',
-        rut: '00000000-1', // Placeholder
+        rut: '00000000-1', 
         email: 'appleuser@example.com',
-        password_signup: 'password', // Mock
+        password_signup: 'password',
         countryCode: 'US',
         phoneNumber: '5555678'
     };
@@ -286,10 +273,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return false;
     }
     let userWasUpdated = false;
+    let updatedUserName = userId;
+
     setAllUsers(prevAllUsers =>
       prevAllUsers.map(user => {
         if (user.uid === userId && user.status !== newStatus) {
           userWasUpdated = true;
+          updatedUserName = user.displayName || userId;
           return { ...user, status: newStatus };
         }
         return user;
@@ -297,20 +287,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     );
 
     if (userWasUpdated) {
-      if (currentUser.uid === userId) { // If admin changes their own status (though UI prevents some of this)
+      if (currentUser.uid === userId) { 
         setCurrentUser(prev => prev ? { ...prev, status: newStatus } : null);
       }
-      const targetUser = allUsers.find(u => u.uid === userId); // Find from previous state for name
-      toast({ title: t('admin.toast.statusUpdateSuccessTitle'), description: t('admin.toast.statusUpdateSuccessDescription', { userName: targetUser?.displayName || userId, newStatus: t(`admin.userStatus.${newStatus}`) }) });
+      toast({ title: t('admin.toast.statusUpdateSuccessTitle'), description: t('admin.toast.statusUpdateSuccessDescription', { userName: updatedUserName, newStatus: t(`admin.userStatus.${newStatus}`) }) });
       return true;
     } else {
       const targetUserExists = allUsers.some(u => u.uid === userId);
       if (!targetUserExists) {
         toast({ title: t('admin.toast.statusUpdateErrorTitle'), description: t('admin.toast.statusUpdateErrorUserNotFound'), variant: 'destructive' });
-      } // else, no change was needed
+      }
       return false;
     }
-  }, [currentUser, allUsers, t, toast]); // allUsers needed for find
+  }, [currentUser, allUsers, t, toast]);
 
   const deleteUser = useCallback(async (userIdToDelete: string): Promise<boolean> => {
     if (currentUser?.role !== 'admin') {
@@ -331,7 +320,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setAllUsers(prevAllUsers => prevAllUsers.filter(user => user.uid !== userIdToDelete));
     toast({ title: t('admin.toast.deleteSuccessTitle'), description: t('admin.toast.deleteSuccessDescription', { userName: userToDelete.displayName || userIdToDelete }) });
     return true;
-  }, [currentUser, allUsers, t, toast]); // allUsers needed for find
+  }, [currentUser, allUsers, t, toast]);
 
   const getUserById = useCallback((userId: string): AuthUser | undefined => {
     return allUsers.find(user => user.uid === userId);

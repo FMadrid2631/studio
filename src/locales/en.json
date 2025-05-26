@@ -327,18 +327,7 @@
     "morePrizesHint": "{{count}} more prize(s) to draw after this one.",
     "displayLabelWinnerForPrize": "Winner for: {{prizeDescription}}",
     "displayLabelDrawingForPrize": "Drawing for: {{prizeDescription}}",
-    "displayLabelGeneral": "Winning Number",
-    "toast": {
-        "infoTitle": "Info",
-        "infoAllPrizesAwardedOrClosed": "All prizes have been awarded or the raffle is closed.",
-        "infoNoMorePrizesThisRound": "No more prizes to award in this round.",
-        "winnerDrawnTitle": "Winner Drawn!",
-        "winnerDrawnDescription": "Number {{winningNumber}} wins {{prizeDescription}}! Congratulations to {{winnerName}}!",
-        "raffleCompleteTitle": "Raffle Complete!",
-        "raffleCompleteDescription": "All prizes have been awarded. The raffle is now closed.",
-        "drawErrorTitle": "Draw Error",
-        "drawErrorDescriptionGeneric": "Failed to conduct draw."
-    }
+    "displayLabelGeneral": "Winning Number"
   },
   "raffleTabs": {
     "grid": "Raffle",
@@ -477,6 +466,7 @@
     "saveChangesButton": "Save Changes",
     "cancelButton": "Cancel",
     "logoutButton": "Logout",
+    "internalCodeLabel": "Internal Code",
     "changePasswordDialog": {
       "title": "Change Password",
       "description": "Enter your current password and a new password below.",
