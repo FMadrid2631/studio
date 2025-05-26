@@ -9,17 +9,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input'; // Added Input import
+import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
+  // DropdownMenuLabel, // Removed as per request
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
 } from '@/components/ui/dropdown-menu';
 import { Loader2, Users, AlertTriangle, CheckCircle, XCircle, Clock, MoreVertical, ShieldCheck, User as UserIcon, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -211,24 +208,28 @@ export default function AdminUsersPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>{t('admin.actions.title')}</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuSub>
-                            <DropdownMenuSubTrigger disabled={user.uid === currentUser.uid}>
-                              {t('admin.actions.changeStatusTo')}
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuSubContent>
-                              <DropdownMenuItem onClick={() => handleStatusChange(user.uid, 'active')}>
-                                {t('admin.userStatus.active')}
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleStatusChange(user.uid, 'pending')}>
-                                {t('admin.userStatus.pending')}
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleStatusChange(user.uid, 'inactive')}>
-                                {t('admin.userStatus.inactive')}
-                              </DropdownMenuItem>
-                            </DropdownMenuSubContent>
-                          </DropdownMenuSub>
+                          {/* <DropdownMenuLabel>{t('admin.actions.title')}</DropdownMenuLabel> 
+                            The label "Actions" might be redundant if the trigger is just an icon.
+                            Also removing the specific "Change Status to:" label.
+                          */}
+                          <DropdownMenuItem 
+                            onClick={() => handleStatusChange(user.uid, 'active')}
+                            disabled={user.uid === currentUser.uid && user.email?.toLowerCase() === t('auth.adminEmailValue').toLowerCase()}
+                          >
+                            {t('admin.userStatus.active')}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleStatusChange(user.uid, 'pending')}
+                            disabled={user.uid === currentUser.uid && user.email?.toLowerCase() === t('auth.adminEmailValue').toLowerCase()}
+                          >
+                            {t('admin.userStatus.pending')}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleStatusChange(user.uid, 'inactive')}
+                            disabled={user.uid === currentUser.uid && user.email?.toLowerCase() === t('auth.adminEmailValue').toLowerCase()}
+                          >
+                            {t('admin.userStatus.inactive')}
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -293,3 +294,4 @@ export default function AdminUsersPage() {
     </Card>
   );
 }
+
