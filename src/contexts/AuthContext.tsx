@@ -21,6 +21,7 @@ interface AuthContextType {
   loginWithApple: () => Promise<void>;
   updateUserProfile: (data: EditProfileFormInput) => Promise<boolean>;
   updateUserStatus: (userId: string, newStatus: AuthUser['status']) => Promise<boolean>;
+  deleteUser: (userIdToDelete: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -66,7 +67,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               throw new Error("Stored user is missing UID or email.");
           }
 
-          const isActualAdminByEmail = user.email?.toLowerCase() === ADMIN_EMAIL;
+          const isActualAdminByEmail = user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
           if (isActualAdminByEmail) {
               if (user.role !== 'admin') {
@@ -80,28 +81,34 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               }
           }
           
+          const userFromList = loadedAllUsers.find(u => u.uid === user.uid);
+
           if (!user.status) {
-            const userFromList = loadedAllUsers.find(u => u.uid === user.uid);
-            user.status = userFromList?.status || (user.role === 'admin' ? 'active' : 'pending');
+            user.status = userFromList?.status || (isActualAdminByEmail ? 'active' : 'pending');
             needsUpdateInStorage = true;
           }
           if (!user.registrationDate) {
-            const userFromList = loadedAllUsers.find(u => u.uid === user.uid);
             user.registrationDate = userFromList?.registrationDate || new Date(0).toISOString(); // Default to epoch if not found
             needsUpdateInStorage = true;
           }
           
-          user.displayName = user.displayName || (user.role === 'admin' ? 'Admin User' : 'Usuario Ejemplo');
-          // rut, countryCode, phoneNumber are optional and might not exist for older users
+          user.displayName = user.displayName || (isActualAdminByEmail ? 'Admin User' : 'Usuario Ejemplo');
+          
+          // Ensure optional fields are present even if undefined
+          user.rut = user.rut || userFromList?.rut;
+          user.countryCode = user.countryCode || userFromList?.countryCode;
+          user.phoneNumber = user.phoneNumber || userFromList?.phoneNumber;
+
 
           setCurrentUser(user as AuthUser); 
           if (needsUpdateInStorage) {
             localStorage.setItem('mockAuthUser', JSON.stringify(user));
             const userInAllUsersIndex = loadedAllUsers.findIndex(u => u.uid === user.uid);
+            const userToStoreInList = user as AuthUser;
             if (userInAllUsersIndex > -1) {
-                loadedAllUsers[userInAllUsersIndex] = user as AuthUser;
+                loadedAllUsers[userInAllUsersIndex] = userToStoreInList;
             } else {
-                loadedAllUsers.push(user as AuthUser);
+                loadedAllUsers.push(userToStoreInList);
             }
             saveAllUsers([...loadedAllUsers]);
           }
@@ -124,7 +131,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     let userToLogin = allUsers.find(u => u.email === userEmailLower);
     let isNewAdminLogin = false;
 
-    if (!userToLogin && userEmailLower === ADMIN_EMAIL) {
+    if (!userToLogin && userEmailLower === ADMIN_EMAIL.toLowerCase()) {
       userToLogin = {
         uid: 'mock-uid-' + userEmailLower,
         email: userEmailLower,
@@ -142,11 +149,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (userToLogin) {
       const completeUser: AuthUser = {
         ...userToLogin,
-        role: userToLogin.role || (userToLogin.email?.toLowerCase() === ADMIN_EMAIL ? 'admin' : 'user'),
+        role: userToLogin.role || (userToLogin.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? 'admin' : 'user'),
         status: userToLogin.status || (userToLogin.role === 'admin' ? 'active' : 'pending'),
         registrationDate: userToLogin.registrationDate || new Date().toISOString(),
         displayName: userToLogin.displayName || (userToLogin.role === 'admin' ? 'Admin User' : 'Usuario Ejemplo'),
-        // Ensure countryCode and phoneNumber are present, even if undefined
         countryCode: userToLogin.countryCode,
         phoneNumber: userToLogin.phoneNumber,
       };
@@ -156,9 +162,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       if (isNewAdminLogin && !allUsers.find(u => u.uid === completeUser.uid)) {
         saveAllUsers([...allUsers, completeUser]);
-      } else if (allUsers.find(u => u.uid === completeUser.uid && (u.role !== completeUser.role || u.status !== completeUser.status))) {
-        const updatedAll = allUsers.map(u => u.uid === completeUser.uid ? completeUser : u);
-        saveAllUsers(updatedAll);
+      } else {
+         const userInAllUsersIndex = allUsers.findIndex(u => u.uid === completeUser.uid);
+         if (userInAllUsersIndex > -1) {
+           const existingUser = allUsers[userInAllUsersIndex];
+           if (existingUser.role !== completeUser.role || existingUser.status !== completeUser.status) {
+             const updatedAll = allUsers.map(u => u.uid === completeUser.uid ? completeUser : u);
+             saveAllUsers(updatedAll);
+           }
+         } else if (!isNewAdminLogin) { // User exists in localStorage but not in allUsers list, add them
+            saveAllUsers([...allUsers, completeUser]);
+         }
       }
 
       toast({ title: t('auth.toast.loginSuccessTitle'), description: t('auth.toast.loginSuccessDescription', {email: data.email}) });
@@ -180,7 +194,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return;
     }
 
-    const userRole = userEmailLower === ADMIN_EMAIL ? 'admin' : 'user';
+    const userRole = userEmailLower === ADMIN_EMAIL.toLowerCase() ? 'admin' : 'user';
     const newUserStatus = userRole === 'admin' ? 'active' : 'pending';
 
     const newUser: AuthUser = {
@@ -225,11 +239,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             uid: 'mock-google-uid-' + Math.random().toString(36).substring(7),
             email: googleEmail,
             displayName: 'Google User',
-            role: googleEmail.toLowerCase() === ADMIN_EMAIL ? 'admin' : 'user',
-            status: googleEmail.toLowerCase() === ADMIN_EMAIL ? 'active' : 'pending',
+            role: googleEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? 'admin' : 'user',
+            status: googleEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? 'active' : 'pending',
             registrationDate: new Date().toISOString(),
-            countryCode: 'US', // Example default
-            phoneNumber: '5551234' // Example default
+            countryCode: 'US', 
+            phoneNumber: '5551234' 
         };
         saveAllUsers([...allUsers, user]);
     }
@@ -250,11 +264,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             uid: 'mock-apple-uid-' + Math.random().toString(36).substring(7),
             email: appleEmail,
             displayName: 'Apple User',
-            role: appleEmail.toLowerCase() === ADMIN_EMAIL ? 'admin' : 'user',
-            status: appleEmail.toLowerCase() === ADMIN_EMAIL ? 'active' : 'pending',
+            role: appleEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? 'admin' : 'user',
+            status: appleEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? 'active' : 'pending',
             registrationDate: new Date().toISOString(),
-            countryCode: 'US', // Example default
-            phoneNumber: '5555678' // Example default
+            countryCode: 'US', 
+            phoneNumber: '5555678' 
         };
         saveAllUsers([...allUsers, user]);
     }
@@ -319,9 +333,33 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, [currentUser, allUsers, saveAllUsers, toast, t]);
 
+  const deleteUser = useCallback(async (userIdToDelete: string): Promise<boolean> => {
+    if (currentUser?.role !== 'admin') {
+      toast({ title: t('admin.toast.deleteErrorTitle'), description: t('admin.toast.statusUpdateErrorNotAdmin'), variant: 'destructive' });
+      return false;
+    }
+    if (currentUser.uid === userIdToDelete) {
+      toast({ title: t('admin.toast.deleteErrorTitle'), description: t('admin.toast.deleteErrorSelf'), variant: 'destructive' });
+      return false;
+    }
+    
+    const userExists = allUsers.some(user => user.uid === userIdToDelete);
+    if (!userExists) {
+      toast({ title: t('admin.toast.deleteErrorTitle'), description: t('admin.toast.statusUpdateErrorUserNotFound'), variant: 'destructive' });
+      return false;
+    }
+
+    const updatedAllUsers = allUsers.filter(user => user.uid !== userIdToDelete);
+    saveAllUsers(updatedAllUsers);
+    
+    const deletedUser = allUsers.find(u => u.uid === userIdToDelete);
+    toast({ title: t('admin.toast.deleteSuccessTitle'), description: t('admin.toast.deleteSuccessDescription', { userName: deletedUser?.displayName || userIdToDelete }) });
+    return true;
+  }, [currentUser, allUsers, saveAllUsers, toast, t]);
+
 
   return (
-    <AuthContext.Provider value={{ currentUser, isLoading, allUsers, login, signup, logout, loginWithGoogle, loginWithApple, updateUserProfile, updateUserStatus }}>
+    <AuthContext.Provider value={{ currentUser, isLoading, allUsers, login, signup, logout, loginWithGoogle, loginWithApple, updateUserProfile, updateUserStatus, deleteUser }}>
       {children}
     </AuthContext.Provider>
   );

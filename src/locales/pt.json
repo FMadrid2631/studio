@@ -41,7 +41,7 @@
       "errorDescription": "Não foi possível excluir a rifa \"{{raffleName}}\".",
       "disabledTooltip": "Não é possível excluir: esta rifa está aberta e tem números vendidos/pendentes."
     },
-    "accountPendingActivationTooltip": "Sua conta está pendente de ativação por um administrador. Você ainda não pode criar rifas."
+    "accountPendingActivationTooltip": "Sua conta está pendente de ativação. Você não pode criar rifas até que ela seja ativada."
   },
   "raffleDetailsPage": {
     "raffleDetailsTitle": "Detalhes da Rifa",
@@ -116,7 +116,7 @@
     "cancelPurchase": {
       "buttonText": "Cancelar Compra",
       "dialogTitle": "Cancelar Compra de Número",
-      "dialogDescription": "Digite o número cuja compra você deseja cancelar. Isso tornará o número disponível novamente.",
+      "dialogDescription": "Digite o número cuja compra você deseja cancelar. Isto tornará o número disponível novamente.",
       "numberInputLabel": "Número para Cancelar",
       "numberInputPlaceholder": "Digite o ID do número",
       "confirmButton": "Confirmar Cancelamento",
@@ -217,7 +217,7 @@
     "fieldsDisabledEdit": "Este campo não pode ser alterado após a criação se as vendas tiverem começado.",
     "bankDetails": {
       "title": "Dados para Transferência Bancária",
-      "description": "Preencha estes dados if you desejar aceitar transferências bancárias. Serão mostrados aos compradores se escolherem 'Transferência' como método de pagamento."
+      "description": "Preencha estes dados se desejar aceitar transferências bancárias. Serão mostrados aos compradores se escolherem 'Transferência' como método de pagamento."
     }
   },
   "editRafflePage": {
@@ -392,7 +392,19 @@
       "statusUpdateSuccessDescription": "Status de {{userName}} atualizado para {{newStatus}}.",
       "statusUpdateErrorTitle": "Falha ao Atualizar",
       "statusUpdateErrorDescription": "Não foi possível atualizar o status de {{userName}}.",
-      "statusUpdateErrorNotAdmin": "Apenas administradores podem alterar o status dos usuários."
+      "statusUpdateErrorNotAdmin": "Apenas administradores podem alterar o status dos usuários.",
+      "statusUpdateErrorUserNotFound": "Usuário não encontrado.",
+      "deleteSuccessTitle": "Usuário Excluído",
+      "deleteSuccessDescription": "Usuário {{userName}} foi excluído com sucesso.",
+      "deleteErrorTitle": "Falha ao Excluir",
+      "deleteErrorSelf": "Administradores não podem excluir a própria conta."
+    },
+    "deleteUser": {
+      "buttonTitle": "Excluir Usuário",
+      "dialogTitle": "Confirmar Exclusão de Usuário",
+      "dialogDescription": "Tem certeza de que deseja excluir o usuário \"{{userName}}\"? Esta ação não pode ser desfeita.",
+      "confirmButton": "Confirmar Exclusão",
+      "cancelButton": "Cancelar"
     }
   },
   "shared": {
@@ -464,7 +476,11 @@
       "updateProfileSuccessTitle": "Perfil Atualizado",
       "updateProfileSuccessDescription": "As suas informações de perfil foram atualizadas com sucesso.",
       "updateProfileErrorTitle": "Falha ao Atualizar",
-      "updateProfileErrorNotLoggedIn": "Você deve estar logado para atualizar seu perfil."
+      "updateProfileErrorNotLoggedIn": "Você deve estar logado para atualizar seu perfil.",
+      "signupErrorTitle": "Falha no Cadastro",
+      "signupErrorEmailExists": "Este e-mail já está cadastrado.",
+      "loginErrorTitle": "Falha no Login",
+      "loginErrorDescription": "Usuário não encontrado ou credenciais incorretas."
     },
     "validation": {
       "emailInvalid": "Por favor, insira um endereço de e-mail válido.",

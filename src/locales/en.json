@@ -41,7 +41,7 @@
       "errorDescription": "Could not delete raffle \"{{raffleName}}\".",
       "disabledTooltip": "Cannot delete: this raffle is open and has sold/pending numbers."
     },
-    "accountPendingActivationTooltip": "Your account is pending activation by an administrator. You cannot create raffles yet."
+    "accountPendingActivationTooltip": "Your account is pending activation. You cannot create raffles until it is active."
   },
   "raffleDetailsPage": {
     "raffleDetailsTitle": "Raffle Details",
@@ -392,7 +392,19 @@
       "statusUpdateSuccessDescription": "Status for {{userName}} updated to {{newStatus}}.",
       "statusUpdateErrorTitle": "Update Failed",
       "statusUpdateErrorDescription": "Could not update status for {{userName}}.",
-      "statusUpdateErrorNotAdmin": "Only administrators can change user status."
+      "statusUpdateErrorNotAdmin": "Only administrators can change user status.",
+      "statusUpdateErrorUserNotFound": "User not found.",
+      "deleteSuccessTitle": "User Deleted",
+      "deleteSuccessDescription": "User {{userName}} has been successfully deleted.",
+      "deleteErrorTitle": "Deletion Failed",
+      "deleteErrorSelf": "Administrators cannot delete their own account."
+    },
+    "deleteUser": {
+      "buttonTitle": "Delete User",
+      "dialogTitle": "Confirm User Deletion",
+      "dialogDescription": "Are you sure you want to delete the user \"{{userName}}\"? This action cannot be undone.",
+      "confirmButton": "Confirm Delete",
+      "cancelButton": "Cancel"
     }
   },
   "shared": {
@@ -464,7 +476,11 @@
       "updateProfileSuccessTitle": "Profile Updated",
       "updateProfileSuccessDescription": "Your profile information has been successfully updated.",
       "updateProfileErrorTitle": "Update Failed",
-      "updateProfileErrorNotLoggedIn": "You must be logged in to update your profile."
+      "updateProfileErrorNotLoggedIn": "You must be logged in to update your profile.",
+      "signupErrorTitle": "Signup Failed",
+      "signupErrorEmailExists": "This email is already registered.",
+      "loginErrorTitle": "Login Failed",
+      "loginErrorDescription": "User not found or credentials incorrect."
     },
     "validation": {
       "emailInvalid": "Please enter a valid email address.",

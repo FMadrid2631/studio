@@ -41,7 +41,7 @@
       "errorDescription": "No se pudo eliminar la rifa \"{{raffleName}}\".",
       "disabledTooltip": "No se puede eliminar: esta rifa está abierta y tiene números vendidos/pendientes."
     },
-    "accountPendingActivationTooltip": "Tu cuenta está pendiente de activación por un administrador. Aún no puedes crear rifas."
+    "accountPendingActivationTooltip": "Tu cuenta está pendiente de activación. No puedes crear rifas hasta que esté activa."
   },
   "raffleDetailsPage": {
     "raffleDetailsTitle": "Detalles de la Rifa",
@@ -304,8 +304,8 @@
   "drawPage": {
     "backToRaffleDetails": "Volver a Detalles de la Rifa",
     "title": "Realizar Sorteo para \"{{raffleName}}\"",
-    "statusAllAwardedOrClosed": "Todos los premios han sido entregados o la rifa está cerrada.",
-    "statusReadyToDraw": "Listo para sortear el siguiente premio: {{prizeDescription}}.",
+    "statusAllAwardedOrClosed": "Todos los prêmios foram entregues ou a rifa está fechada.",
+    "statusReadyToDraw": "Pronto para sortear o próximo prêmio: {{prizeDescription}}.",
     "statusNoMorePrizes": "No hay más premios para sortear en esta rodada.",
     "errorNoEligibleNumbers": "No hay números comprados elegibles disponibles para sortear.",
     "errorDrawFailed": "El sorteo no devolvió ningún número ganador.",
@@ -392,7 +392,19 @@
       "statusUpdateSuccessDescription": "El estado de {{userName}} ha sido actualizado a {{newStatus}}.",
       "statusUpdateErrorTitle": "Error al Actualizar",
       "statusUpdateErrorDescription": "No se pudo actualizar el estado de {{userName}}.",
-      "statusUpdateErrorNotAdmin": "Solo los administradores pueden cambiar el estado de los usuarios."
+      "statusUpdateErrorNotAdmin": "Solo los administradores pueden cambiar el estado de los usuarios.",
+      "statusUpdateErrorUserNotFound": "Usuario no encontrado.",
+      "deleteSuccessTitle": "Usuario Eliminado",
+      "deleteSuccessDescription": "El usuario {{userName}} ha sido eliminado exitosamente.",
+      "deleteErrorTitle": "Error al Eliminar",
+      "deleteErrorSelf": "Los administradores no pueden eliminar su propia cuenta."
+    },
+    "deleteUser": {
+      "buttonTitle": "Eliminar Usuario",
+      "dialogTitle": "Confirmar Eliminación de Usuario",
+      "dialogDescription": "¿Estás seguro de que quieres eliminar al usuario \"{{userName}}\"? Esta acción no se puede deshacer.",
+      "confirmButton": "Confirmar Eliminación",
+      "cancelButton": "Cancelar"
     }
   },
   "shared": {
@@ -464,7 +476,11 @@
       "updateProfileSuccessTitle": "Perfil Actualizado",
       "updateProfileSuccessDescription": "La información de tu perfil ha sido actualizada exitosamente.",
       "updateProfileErrorTitle": "Error al Actualizar",
-      "updateProfileErrorNotLoggedIn": "Debes iniciar sesión para actualizar tu perfil."
+      "updateProfileErrorNotLoggedIn": "Debes iniciar sesión para actualizar tu perfil.",
+      "signupErrorTitle": "Error en el Registro",
+      "signupErrorEmailExists": "Este correo electrónico ya está registrado.",
+      "loginErrorTitle": "Error de Inicio de Sesión",
+      "loginErrorDescription": "Usuario no encontrado o credenciales incorrectas."
     },
     "validation": {
       "emailInvalid": "Por favor, ingresa una dirección de correo electrónico válida.",
