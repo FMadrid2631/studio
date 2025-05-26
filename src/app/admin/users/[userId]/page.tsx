@@ -17,39 +17,51 @@ import { COUNTRIES } from '@/lib/countries';
 export default function AdminViewUserProfilePage() {
   const params = useParams();
   const userId = params.userId as string;
-  const { currentUser, isLoading: authLoading, allUsers } = useAuth(); // Directly get allUsers
+  const { currentUser, isLoading: authLoading, allUsers } = useAuth();
   const { t, locale } = useTranslations();
   const router = useRouter();
   const [viewUser, setViewUser] = useState<AuthUser | null | undefined>(undefined); // undefined for loading, null for not found
   const dateLocale = getLocaleFromString(locale);
 
   useEffect(() => {
+    // console.log('[AdminViewUserProfilePage] Effect triggered. authLoading:', authLoading, 'userId:', userId, 'allUsers count:', allUsers.length);
+    // if (allUsers.length > 0) console.log('[AdminViewUserProfilePage] allUsers UIDs:', allUsers.map(u => u.uid));
+
     if (authLoading) {
-      setViewUser(undefined);
+      // console.log('[AdminViewUserProfilePage] Auth is loading, setting viewUser to undefined.');
+      setViewUser(undefined); // Still loading auth context (and allUsers)
       return;
     }
 
+    // Auth is loaded now. Check for admin role.
     if (!currentUser || currentUser.role !== 'admin') {
+      // console.log('[AdminViewUserProfilePage] Not an admin or no current user, redirecting.');
       router.replace('/');
       return;
     }
 
-    if (userId) {
-      if (allUsers.length > 0) { // Ensure allUsers is populated before trying to find
-        const user = allUsers.find(u => u.uid === userId);
-        setViewUser(user || null);
-      } else if (!authLoading) { 
-        // allUsers is empty, and we are not loading anymore, so user cannot be found
-        setViewUser(null);
-      }
-      // If allUsers is empty and authLoading is true, the first condition (if (authLoading)) handles it.
-    } else {
-      setViewUser(null); // No userId param
+    // Admin is logged in. Check if userId is present.
+    if (!userId) {
+      // console.log('[AdminViewUserProfilePage] No userId param, setting viewUser to null.');
+      setViewUser(null); // No userId in params
+      return;
     }
-  }, [userId, currentUser, authLoading, router, allUsers]); // Depend directly on allUsers
+
+    // At this point, auth is loaded, current user is admin, and userId is present.
+    // Now, find the user from the current allUsers list.
+    const user = allUsers.find(u => u.uid === userId);
+
+    if (user) {
+      // console.log('[AdminViewUserProfilePage] User found:', JSON.stringify(user));
+      setViewUser(user);
+    } else {
+      // console.log(`[AdminViewUserProfilePage] User NOT found with userId: ${userId}. allUsers might be stale or user truly doesn't exist.`);
+      setViewUser(null); // User not found in the current allUsers list
+    }
+  }, [userId, currentUser, authLoading, router, allUsers]);
 
 
-  if (authLoading || viewUser === undefined) {
+  if (viewUser === undefined) { // Simplified loading check
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-10rem)]">
         <Loader2 className="animate-spin rounded-full h-12 w-12 text-primary" />
