@@ -4,12 +4,12 @@
 import type { Raffle, Prize, RaffleNumber, RaffleConfigurationFormInput, BankDetails } from '@/types';
 import type React from 'react';
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { LOCAL_STORAGE_RAFFLES_KEY } from '@/lib/constants';
 import { COUNTRIES } from '@/lib/countries'; // Import COUNTRIES
+import { useAuth } from './AuthContext'; // Import useAuth to get current user
 
 interface RaffleContextType {
   raffles: Raffle[];
-  isLoading: boolean;
+  isLoading: boolean; // This will be true if auth is loading OR user-specific raffles are loading
   addRaffle: (raffleData: Omit<Raffle, 'id' | 'createdAt' | 'numbers' | 'status' | 'prizes' | 'bankDetails'> & {
     prizes: { description: string; referenceValue?: number }[];
     bankName?: string;
@@ -18,7 +18,7 @@ interface RaffleContextType {
     accountType?: string;
     identificationNumber?: string;
     transferInstructions?: string;
-   }) => Raffle;
+   }) => Raffle | undefined; // Return undefined if not logged in
   getRaffleById: (id: string) => Raffle | undefined;
   updateRaffle: (updatedRaffle: Raffle) => void;
   editRaffle: (raffleId: string, updatedData: RaffleConfigurationFormInput) => Raffle | undefined;
@@ -43,25 +43,49 @@ const RaffleContext = createContext<RaffleContextType | undefined>(undefined);
 export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [raffles, setRaffles] = useState<Raffle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { currentUser, isLoading: authIsLoading } = useAuth();
+
+  const getRafflesKey = useCallback(() => {
+    if (authIsLoading) return 'PENDING_AUTH_RAFFLE_KEY'; // Indicates auth is still resolving
+    if (!currentUser) return null; // No user, no specific key (means no raffles to load/save for non-user)
+    return `rifaFacilApp_raffles_${currentUser.uid}`;
+  }, [currentUser, authIsLoading]);
 
   const saveRaffles = useCallback((updatedRaffles: Raffle[]) => {
-    try {
-      localStorage.setItem(LOCAL_STORAGE_RAFFLES_KEY, JSON.stringify(updatedRaffles));
-      setRaffles(updatedRaffles);
-    } catch (error) {
-      console.error("Failed to save raffles to localStorage:", error);
+    const storageKey = getRafflesKey();
+    // Only save to localStorage if there's a valid user-specific key
+    if (storageKey && storageKey !== 'PENDING_AUTH_RAFFLE_KEY') {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(updatedRaffles));
+      } catch (error) {
+        console.error("Failed to save raffles to localStorage for key:", storageKey, error);
+      }
     }
-  }, []);
+    setRaffles(updatedRaffles); // Always update in-memory state
+  }, [getRafflesKey]);
 
   useEffect(() => {
+    if (authIsLoading) {
+      setIsLoading(true); // Indicate that raffle data is pending auth resolution
+      setRaffles([]);     // Clear raffles while auth status is unknown
+      return;
+    }
+
+    const storageKey = getRafflesKey();
     let initialRaffles: Raffle[] = [];
-    try {
-      const storedRaffles = localStorage.getItem(LOCAL_STORAGE_RAFFLES_KEY);
-      if (storedRaffles) {
-        initialRaffles = JSON.parse(storedRaffles) as Raffle[];
+
+    if (storageKey && storageKey !== 'PENDING_AUTH_RAFFLE_KEY') { // We have a user, try to load their raffles
+      try {
+        const storedRaffles = localStorage.getItem(storageKey);
+        if (storedRaffles) {
+          initialRaffles = JSON.parse(storedRaffles) as Raffle[];
+        }
+      } catch (error) {
+        console.error("Failed to load raffles from localStorage for key:", storageKey, error);
+        initialRaffles = []; // Fallback to empty on error
       }
-    } catch (error) {
-      console.error("Failed to load raffles from localStorage:", error);
+    } else { // No currentUser, so no raffles to load for them
+      initialRaffles = [];
     }
 
     let madeChanges = false;
@@ -92,27 +116,28 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           if (p.winningNumber && !p.winnerPaymentMethod) {
             const winningRaffleNumber = currentRaffle.numbers.find(rn => rn.id === p.winningNumber && rn.status === 'Purchased');
             if (winningRaffleNumber && winningRaffleNumber.paymentMethod) {
-              madeChanges = true; 
+              // madeChanges = true; // This was causing an infinite loop with saveRaffles in dep array
               return { ...p, winnerPaymentMethod: winningRaffleNumber.paymentMethod };
             }
           }
           return p;
         });
-        if (prizesUpdated.some((p, i) => JSON.stringify(p) !== JSON.stringify(currentRaffle.prizes[i]))) {
-          madeChanges = true;
-          currentRaffle.prizes = prizesUpdated;
+         // Check if prizes actually changed to avoid unnecessary save
+        if (!currentRaffle.prizes.every((p, i) => JSON.stringify(p) === JSON.stringify(prizesUpdated[i]))) {
+            madeChanges = true;
+            currentRaffle.prizes = prizesUpdated;
         }
       }
       return currentRaffle;
     });
 
     if (madeChanges) {
-      saveRaffles(checkedRaffles);
+      saveRaffles(checkedRaffles); // saveRaffles will use the correct key and update state
     } else {
-      setRaffles(initialRaffles);
+      setRaffles(initialRaffles); // Set the loaded (or empty) raffles
     }
-    setIsLoading(false);
-  }, [saveRaffles]);
+    setIsLoading(false); // Raffle loading is complete
+  }, [getRafflesKey, authIsLoading, saveRaffles]);
 
 
   const addRaffle = (raffleData: Omit<Raffle, 'id' | 'createdAt' | 'numbers' | 'status' | 'prizes' | 'bankDetails'> & {
@@ -123,7 +148,12 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     accountType?: string;
     identificationNumber?: string;
     transferInstructions?: string;
-   }): Raffle => {
+   }): Raffle | undefined => {
+    if (!currentUser || authIsLoading) {
+      console.warn("User must be logged in to create a raffle.");
+      // Optionally, you could show a toast message here.
+      return undefined;
+    }
     const country = COUNTRIES.find(c => c.code === raffleData.countryCode);
     if (!country) {
       throw new Error("Invalid country code provided for new raffle.");
@@ -175,6 +205,7 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   const getRaffleById = (id: string): Raffle | undefined => {
+    // This will search within the currently loaded (user-specific) raffles
     return raffles.find(raffle => raffle.id === id);
   };
 
@@ -184,20 +215,14 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   const editRaffle = (raffleId: string, updatedData: RaffleConfigurationFormInput): Raffle | undefined => {
+    if (!currentUser || authIsLoading) {
+      console.warn("User must be logged in to edit a raffle.");
+      return undefined;
+    }
     const existingRaffle = getRaffleById(raffleId);
     if (!existingRaffle) return undefined;
 
-    const hasSoldNumbers = existingRaffle.numbers.some(n => n.status !== 'Available');
-    if (hasSoldNumbers && existingRaffle.status === 'Open') { // Only block edit if open AND has sales
-      console.error("Cannot edit raffle: sales started and raffle is open.");
-      // Allow editing if closed, even with sales, or if open without sales.
-      // This logic is primarily handled by the UI enabling/disabling the edit button.
-      // This check here is more of a safeguard.
-    }
-
-
     const country = COUNTRIES.find(c => c.code === updatedData.countryCode) || existingRaffle.country;
-
     const bankDetails: BankDetails | undefined = (
         updatedData.bankName ||
         updatedData.accountHolderName ||
@@ -217,8 +242,8 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const editedRaffle: Raffle = {
       ...existingRaffle,
       name: updatedData.name,
-      country: country, // Country cannot be changed if editingRaffle exists
-      totalNumbers: existingRaffle.totalNumbers, // Total numbers cannot be changed if editingRaffle exists
+      country: country,
+      totalNumbers: existingRaffle.totalNumbers,
       numberValue: updatedData.numberValue,
       drawDate: updatedData.drawDate.toISOString(),
       prizes: updatedData.prizes.map((p, index) => ({
@@ -322,6 +347,10 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   const deleteRaffle = (raffleId: string): boolean => {
+     if (!currentUser || authIsLoading) {
+      console.warn("User must be logged in to delete a raffle.");
+      return false;
+    }
     const raffleToDelete = getRaffleById(raffleId);
     if (!raffleToDelete) {
       console.warn(`Raffle with id ${raffleId} not found for deletion.`);
@@ -373,9 +402,8 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (num.id === numberIdToCancel && (num.status === 'Purchased' || num.status === 'PendingPayment')) {
         numberCancelled = true;
         return {
-          id: num.id, // Keep the ID
-          status: 'Available', // Revert status
-          // Clear buyer and payment details
+          id: num.id, 
+          status: 'Available', 
           buyerName: undefined,
           buyerPhone: undefined,
           paymentMethod: undefined,
@@ -386,7 +414,6 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     });
 
     if (numberCancelled) {
-      // Also check if this number had won any prize and clear that prize winner info
       let prizesUpdated = false;
       const updatedPrizes = raffle.prizes.map(prize => {
         if (prize.winningNumber === numberIdToCancel) {
@@ -411,7 +438,21 @@ export const RaffleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
 
   return (
-    <RaffleContext.Provider value={{ raffles, isLoading, addRaffle, getRaffleById, updateRaffle, editRaffle, purchaseNumbers, recordPrizeWinner, closeRaffle, updatePendingPayment, deleteRaffle, updateBuyerDetails, cancelNumberPurchase }}>
+    <RaffleContext.Provider value={{ 
+        raffles, 
+        isLoading: isLoading || authIsLoading, //isLoading now also considers authIsLoading
+        addRaffle, 
+        getRaffleById, 
+        updateRaffle, 
+        editRaffle, 
+        purchaseNumbers, 
+        recordPrizeWinner, 
+        closeRaffle, 
+        updatePendingPayment, 
+        deleteRaffle, 
+        updateBuyerDetails, 
+        cancelNumberPurchase 
+    }}>
       {children}
     </RaffleContext.Provider>
   );
@@ -424,4 +465,3 @@ export const useRaffles = (): RaffleContextType => {
   }
   return context;
 };
-
