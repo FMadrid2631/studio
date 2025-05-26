@@ -38,7 +38,7 @@
       "successTitle": "Raffle Deleted",
       "successDescription": "The raffle \"{{raffleName}}\" has been successfully deleted.",
       "errorTitle": "Deletion Failed",
-      "errorDescription": "Could not delete raffle \"{{raffleName}}\". This raffle might have sales or is closed under conditions that prevent deletion.",
+      "errorDescription": "Could not delete raffle \"{{raffleName}}\".",
       "disabledTooltip": "Cannot delete: this raffle is open and has sold/pending numbers."
     },
     "accountPendingActivationTooltip": "Your account is pending activation by an administrator. You cannot create raffles yet."
@@ -299,7 +299,6 @@
     "countSummary": "{{availableCount}} of {{totalCount}} numbers available.",
     "noBankDetailsProvided": "No bank details have been provided for this raffle.",
     "exportAllSuccessDescription": "Image of available numbers and bank details exported successfully.",
-    "exportAvailableSuccessDescription": "Image of available numbers and bank details exported successfully.",
     "exportDisabledRaffleClosedTooltip": "Export not available: raffle is closed."
   },
   "drawPage": {
@@ -433,6 +432,10 @@
     "displayNamePlaceholder": "John Doe",
     "rutLabel": "National ID",
     "rutPlaceholder": "12345678-9",
+    "countryLabel": "Country",
+    "countryPlaceholder": "Select your country",
+    "phoneNumberLabel": "Phone Number",
+    "phoneNumberPlaceholder": "+1234567890",
     "roleLabel": "Role",
     "roleUser": "User",
     "roleAdmin": "Administrator",
@@ -470,6 +473,8 @@
       "displayNameMin": "Full name must be at least 2 characters.",
       "rutMin": "National ID must be at least 8 characters.",
       "rutFormat": "National ID format is invalid (e.g., 12345678-9).",
+      "countryRequired": "Country is required.",
+      "phoneMin": "Phone number must be at least 5 characters.",
       "passwordsNoMatch": "Passwords do not match."
     }
   }

@@ -38,7 +38,7 @@
       "successTitle": "Rifa Excluída",
       "successDescription": "A rifa \"{{raffleName}}\" foi excluída com sucesso.",
       "errorTitle": "Falha na Exclusão",
-      "errorDescription": "Não foi possível excluir a rifa \"{{raffleName}}\". Esta rifa pode ter vendas ou estar fechada sob condições que impedem sua exclusão.",
+      "errorDescription": "Não foi possível excluir a rifa \"{{raffleName}}\".",
       "disabledTooltip": "Não é possível excluir: esta rifa está aberta e tem números vendidos/pendentes."
     },
     "accountPendingActivationTooltip": "Sua conta está pendente de ativação por um administrador. Você ainda não pode criar rifas."
@@ -299,7 +299,6 @@
     "countSummary": "{{availableCount}} de {{totalCount}} números disponíveis.",
     "noBankDetailsProvided": "Nenhum detalhe bancário foi fornecido para esta rifa.",
     "exportAllSuccessDescription": "Imagem de números disponíveis e dados bancários exportada com sucesso.",
-    "exportAvailableSuccessDescription": "Imagem de números disponíveis e dados bancários exportada com sucesso.",
     "exportDisabledRaffleClosedTooltip": "Exportação não disponível: rifa encerrada."
   },
   "drawPage": {
@@ -433,6 +432,10 @@
     "displayNamePlaceholder": "João Silva",
     "rutLabel": "CPF/CNPJ",
     "rutPlaceholder": "123.456.789-00",
+    "countryLabel": "País",
+    "countryPlaceholder": "Selecione seu país",
+    "phoneNumberLabel": "Número de Telefone",
+    "phoneNumberPlaceholder": "+5511912345678",
     "roleLabel": "Função",
     "roleUser": "Usuário",
     "roleAdmin": "Administrador",
@@ -470,6 +473,8 @@
       "displayNameMin": "O nome completo deve ter pelo menos 2 caracteres.",
       "rutMin": "CPF/CNPJ deve ter pelo menos 11 caracteres.",
       "rutFormat": "Formato de CPF/CNPJ inválido (ex: 123.456.789-00 ou 12.345.678/0001-90).",
+      "countryRequired": "O país é obrigatório.",
+      "phoneMin": "O número de telefone deve ter pelo menos 5 caracteres.",
       "passwordsNoMatch": "As senhas não coincidem."
     }
   }

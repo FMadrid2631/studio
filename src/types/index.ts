@@ -89,25 +89,30 @@ export interface AuthUser {
   uid: string;
   email: string | null;
   displayName: string | null;
-  rut?: string; // Assuming Chilean RUT
-  role?: 'admin' | 'user'; // User role
+  rut?: string;
+  role?: 'admin' | 'user';
+  status?: 'active' | 'inactive' | 'pending';
+  registrationDate?: string; // ISO String
+  countryCode?: string;
+  phoneNumber?: string;
 }
 
 export type LoginFormInput = {
   email: string;
-  password_login: string; // Renamed to avoid conflict if signup form is on same conceptual page later
+  password_login: string;
 };
 
 export type SignupFormInput = {
   displayName: string;
   rut: string;
   email: string;
-  password_signup: string; // Renamed for clarity
-  confirmPassword?: string; // Optional for now, good practice to add
+  password_signup: string;
+  confirmPassword?: string;
+  countryCode: string;
+  phoneNumber: string;
 };
 
 export type EditProfileFormInput = {
   displayName: string;
   rut: string;
 };
-

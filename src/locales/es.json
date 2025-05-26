@@ -38,7 +38,7 @@
       "successTitle": "Rifa Eliminada",
       "successDescription": "La rifa \"{{raffleName}}\" ha sido eliminada exitosamente.",
       "errorTitle": "Error al Eliminar",
-      "errorDescription": "No se pudo eliminar la rifa \"{{raffleName}}\". Esta rifa podría tener ventas o estar cerrada bajo condiciones que impiden su eliminación.",
+      "errorDescription": "No se pudo eliminar la rifa \"{{raffleName}}\".",
       "disabledTooltip": "No se puede eliminar: esta rifa está abierta y tiene números vendidos/pendientes."
     },
     "accountPendingActivationTooltip": "Tu cuenta está pendiente de activación por un administrador. Aún no puedes crear rifas."
@@ -299,7 +299,6 @@
     "countSummary": "{{availableCount}} de {{totalCount}} números disponibles.",
     "noBankDetailsProvided": "No se han proporcionado detalles bancarios para esta rifa.",
     "exportAllSuccessDescription": "Imagen de números disponibles y datos bancarios exportada exitosamente.",
-    "exportAvailableSuccessDescription": "Imagen de números disponibles y datos bancarios exportada exitosamente.",
     "exportDisabledRaffleClosedTooltip": "Exportación no disponible: la rifa está cerrada."
   },
   "drawPage": {
@@ -433,6 +432,10 @@
     "displayNamePlaceholder": "Juan Pérez",
     "rutLabel": "RUT (Cédula de Identidad)",
     "rutPlaceholder": "12345678-9",
+    "countryLabel": "País",
+    "countryPlaceholder": "Selecciona tu país",
+    "phoneNumberLabel": "Número de Teléfono",
+    "phoneNumberPlaceholder": "+56912345678",
     "roleLabel": "Rol",
     "roleUser": "Usuario",
     "roleAdmin": "Administrador",
@@ -470,6 +473,8 @@
       "displayNameMin": "El nombre completo debe tener al menos 2 caracteres.",
       "rutMin": "El RUT debe tener al menos 8 caracteres.",
       "rutFormat": "El formato del RUT es inválido (ej: 12345678-9).",
+      "countryRequired": "El país es obligatorio.",
+      "phoneMin": "El número de teléfono debe tener al menos 5 caracteres.",
       "passwordsNoMatch": "Las contraseñas no coinciden."
     }
   }

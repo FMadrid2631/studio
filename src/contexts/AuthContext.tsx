@@ -13,14 +13,14 @@ const ADMIN_EMAIL = 'fernando.madrid21@hotmail.com';
 interface AuthContextType {
   currentUser: AuthUser | null;
   isLoading: boolean;
-  allUsers: AuthUser[]; // Exposed for admin page
+  allUsers: AuthUser[];
   login: (data: LoginFormInput) => Promise<void>;
   signup: (data: SignupFormInput) => Promise<void>;
   logout: () => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   loginWithApple: () => Promise<void>;
   updateUserProfile: (data: EditProfileFormInput) => Promise<boolean>;
-  updateUserStatus: (userId: string, newStatus: AuthUser['status']) => Promise<boolean>; // Exposed for admin page
+  updateUserStatus: (userId: string, newStatus: AuthUser['status']) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -74,7 +74,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                   needsUpdateInStorage = true;
               }
           } else {
-              if (user.role !== 'user') { // Handles undefined or incorrect 'admin' role
+              if (user.role !== 'user') {
                   user.role = 'user';
                   needsUpdateInStorage = true;
               }
@@ -87,24 +87,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           }
           if (!user.registrationDate) {
             const userFromList = loadedAllUsers.find(u => u.uid === user.uid);
-            user.registrationDate = userFromList?.registrationDate || new Date(0).toISOString();
+            user.registrationDate = userFromList?.registrationDate || new Date(0).toISOString(); // Default to epoch if not found
             needsUpdateInStorage = true;
           }
           
           user.displayName = user.displayName || (user.role === 'admin' ? 'Admin User' : 'Usuario Ejemplo');
-          // rut is optional
+          // rut, countryCode, phoneNumber are optional and might not exist for older users
 
           setCurrentUser(user as AuthUser); 
           if (needsUpdateInStorage) {
             localStorage.setItem('mockAuthUser', JSON.stringify(user));
-            // If the current user was updated, reflect this in the allUsers list too
             const userInAllUsersIndex = loadedAllUsers.findIndex(u => u.uid === user.uid);
             if (userInAllUsersIndex > -1) {
                 loadedAllUsers[userInAllUsersIndex] = user as AuthUser;
             } else {
                 loadedAllUsers.push(user as AuthUser);
             }
-            saveAllUsers([...loadedAllUsers]); // Use spread to ensure new array reference for state update
+            saveAllUsers([...loadedAllUsers]);
           }
 
         } catch (e) {
@@ -114,7 +113,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     }
     setIsLoading(false);
-  }, [saveAllUsers]); // Added saveAllUsers to dependency array
+  }, [saveAllUsers]);
 
 
   const login = useCallback(async (data: LoginFormInput) => {
@@ -134,6 +133,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         role: 'admin',
         status: 'active',
         registrationDate: new Date().toISOString(),
+        countryCode: 'CL', // Default for admin example
+        phoneNumber: '123456789' // Default for admin example
       };
       isNewAdminLogin = true;
     }
@@ -145,6 +146,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         status: userToLogin.status || (userToLogin.role === 'admin' ? 'active' : 'pending'),
         registrationDate: userToLogin.registrationDate || new Date().toISOString(),
         displayName: userToLogin.displayName || (userToLogin.role === 'admin' ? 'Admin User' : 'Usuario Ejemplo'),
+        // Ensure countryCode and phoneNumber are present, even if undefined
+        countryCode: userToLogin.countryCode,
+        phoneNumber: userToLogin.phoneNumber,
       };
       
       setCurrentUser(completeUser);
@@ -153,7 +157,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (isNewAdminLogin && !allUsers.find(u => u.uid === completeUser.uid)) {
         saveAllUsers([...allUsers, completeUser]);
       } else if (allUsers.find(u => u.uid === completeUser.uid && (u.role !== completeUser.role || u.status !== completeUser.status))) {
-        // If existing user's role/status in allUsers differs, update it
         const updatedAll = allUsers.map(u => u.uid === completeUser.uid ? completeUser : u);
         saveAllUsers(updatedAll);
       }
@@ -188,6 +191,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       role: userRole,
       status: newUserStatus,
       registrationDate: new Date().toISOString(),
+      countryCode: data.countryCode,
+      phoneNumber: data.phoneNumber,
     };
 
     saveAllUsers([...allUsers, newUser]);
@@ -223,6 +228,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             role: googleEmail.toLowerCase() === ADMIN_EMAIL ? 'admin' : 'user',
             status: googleEmail.toLowerCase() === ADMIN_EMAIL ? 'active' : 'pending',
             registrationDate: new Date().toISOString(),
+            countryCode: 'US', // Example default
+            phoneNumber: '5551234' // Example default
         };
         saveAllUsers([...allUsers, user]);
     }
@@ -246,6 +253,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             role: appleEmail.toLowerCase() === ADMIN_EMAIL ? 'admin' : 'user',
             status: appleEmail.toLowerCase() === ADMIN_EMAIL ? 'active' : 'pending',
             registrationDate: new Date().toISOString(),
+            countryCode: 'US', // Example default
+            phoneNumber: '5555678' // Example default
         };
         saveAllUsers([...allUsers, user]);
     }
@@ -325,5 +334,3 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
-
-    

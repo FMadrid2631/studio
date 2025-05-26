@@ -9,22 +9,26 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
 import type { SignupFormInput } from '@/types';
 import { useTranslations } from '@/contexts/LocalizationContext';
 import { Loader2 } from 'lucide-react';
+import { COUNTRIES } from '@/lib/countries';
 
 // Define Zod schema using translation function for messages
 const createSignupFormSchema = (t: Function) => z.object({
   displayName: z.string().min(2, { message: t('auth.validation.displayNameMin') }),
-  rut: z.string().min(8, { message: t('auth.validation.rutMin') }) // Basic validation, real RUT validation is complex
+  rut: z.string().min(8, { message: t('auth.validation.rutMin') })
              .regex(/^[0-9]+-[0-9kK]$/, { message: t('auth.validation.rutFormat') }),
   email: z.string().email({ message: t('auth.validation.emailInvalid') }),
+  countryCode: z.string().min(1, { message: t('auth.validation.countryRequired')}),
+  phoneNumber: z.string().min(5, { message: t('auth.validation.phoneMin')}),
   password_signup: z.string().min(6, { message: t('auth.validation.passwordMin') }),
   confirmPassword: z.string().min(6, { message: t('auth.validation.passwordMin') })
 }).refine(data => data.password_signup === data.confirmPassword, {
   message: t('auth.validation.passwordsNoMatch'),
-  path: ["confirmPassword"], // path of error
+  path: ["confirmPassword"],
 });
 
 export default function SignupPage() {
@@ -39,6 +43,8 @@ export default function SignupPage() {
       displayName: '',
       rut: '',
       email: '',
+      countryCode: '',
+      phoneNumber: '',
       password_signup: '',
       confirmPassword: '',
     },
@@ -97,6 +103,43 @@ export default function SignupPage() {
                     <FormLabel>{t('auth.emailLabel')}</FormLabel>
                     <FormControl>
                       <Input placeholder={t('auth.emailPlaceholder')} {...field} type="email" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="countryCode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('auth.countryLabel')}</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder={t('auth.countryPlaceholder')} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {COUNTRIES.map((country) => (
+                          <SelectItem key={country.code} value={country.code}>
+                            {country.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="phoneNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('auth.phoneNumberLabel')}</FormLabel>
+                    <FormControl>
+                      <Input placeholder={t('auth.phoneNumberPlaceholder')} {...field} type="tel" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
