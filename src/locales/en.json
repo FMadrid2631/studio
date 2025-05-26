@@ -86,11 +86,11 @@
     "shareMessageTextShort": "Check out this raffle: {{raffleName}}!",
     "shareLinkCopiedTitle": "Link Copied!",
     "shareLinkCopiedDescription": "Raffle link ({{url}}) copied to clipboard. Share it on Instagram!",
-    "exportImageButton": "Export Available Details & Bank Info",
+    "exportImageButton": "Export Image",
     "exportErrorTitle": "Export Failed",
     "exportErrorDescription": "Could not export the image. Please try again.",
     "exportSuccessTitle": "Excellent",
-    "exportSuccessDescription": "Image of available numbers exported successfully.",
+    "exportSuccessDescription": "Image of numbers exported successfully.",
     "updatePayment": {
       "dialogTitle": "Update Payment for Number #{{numberId}}",
       "dialogDescription": "Confirm payment method for {{buyerName}} (Phone: {{buyerPhone}}).",
@@ -131,7 +131,6 @@
     }
   },
   "configurePage": {
-    "title": "Create New Raffle",
     "accessDenied": {
         "title": "Access Denied",
         "notLoggedInDescription": "You must be logged in to create a raffle. Please log in to continue."
@@ -292,7 +291,6 @@
   },
   "availableNumbersPage": {
     "backToRaffleDetails": "Back to Raffle Details",
-    "title": "Available Numbers for \"{{raffleName}}\"",
     "listTitle": "Available Numbers",
     "listDescription": "These numbers are still up for grabs! Each costs {{price}}.",
     "allSoldOut": "All numbers have been sold or are pending payment!",
@@ -409,7 +407,15 @@
     "actions": {
       "title": "Actions",
       "changeStatusTo": "Change Status to:",
-      "deleteUserItemText": "Delete User"
+      "deleteUserItemText": "Delete User",
+      "viewProfile": "View Profile"
+    },
+    "viewProfile": {
+      "pageTitle": "User Profile Details",
+      "profileDetailsTitle": "Profile Details",
+      "userNotFoundTitle": "User Not Found",
+      "userNotFoundDescription": "The user you are trying to view does not exist.",
+      "backToUsersList": "Back to Users List"
     }
   },
   "shared": {
@@ -500,4 +506,3 @@
     }
   }
 }
-

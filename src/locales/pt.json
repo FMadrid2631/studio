@@ -38,7 +38,7 @@
       "successTitle": "Rifa Excluída",
       "successDescription": "A rifa \"{{raffleName}}\" foi excluída com sucesso.",
       "errorTitle": "Falha na Exclusão",
-      "errorDescription": "Não foi possível excluir a rifa \"{{raffleName}}\". Apenas rifas abertas sem vendas ou rifas fechadas podem ser excluídas.",
+      "errorDescription": "Não foi possível excluir a rifa \"{{raffleName}}\".",
       "disabledTooltip": "Não é possível excluir: esta rifa está aberta e tem números vendidos/pendentes."
     },
     "accountPendingActivationTooltip": "Sua conta está pendente de ativação. Você não pode criar rifas até que ela seja ativada."
@@ -86,11 +86,11 @@
     "shareMessageTextShort": "Confira esta rifa: {{raffleName}}!",
     "shareLinkCopiedTitle": "Link Copiado!",
     "shareLinkCopiedDescription": "Link da rifa ({{url}}) copiado para a área de transferência. Compartilhe no Instagram!",
-    "exportImageButton": "Exportar Detalhes de Disponíveis e Banco",
+    "exportImageButton": "Exportar Imagem",
     "exportErrorTitle": "Falha ao Exportar",
     "exportErrorDescription": "Não foi possível exportar a imagem. Por favor, tente novamente.",
     "exportSuccessTitle": "Excelente",
-    "exportSuccessDescription": "Imagem dos números disponíveis exportada com sucesso.",
+    "exportSuccessDescription": "Imagem dos números exportada com sucesso.",
     "updatePayment": {
       "dialogTitle": "Atualizar Pagamento para Número #{{numberId}}",
       "dialogDescription": "Confirmar método de pagamento para {{buyerName}} (Telefone: {{buyerPhone}}).",
@@ -131,7 +131,6 @@
     }
   },
   "configurePage": {
-    "title": "Criar Nova Rifa",
     "accessDenied": {
       "title": "Acesso Negado",
       "notLoggedInDescription": "Você deve estar logado para criar uma rifa. Por favor, faça login para continuar."
@@ -292,7 +291,6 @@
   },
   "availableNumbersPage": {
     "backToRaffleDetails": "Voltar para Detalhes da Rifa",
-    "title": "Números Disponíveis para \"{{raffleName}}\"",
     "listTitle": "Números Disponíveis",
     "listDescription": "Estes números ainda estão disponíveis! Cada um custa {{price}}.",
     "allSoldOut": "Todos os números foram vendidos ou estão com pagamento pendente!",
@@ -409,7 +407,15 @@
     "actions": {
       "title": "Ações",
       "changeStatusTo": "Alterar Status Para:",
-      "deleteUserItemText": "Excluir Usuário"
+      "deleteUserItemText": "Excluir Usuário",
+      "viewProfile": "Ver Perfil"
+    },
+     "viewProfile": {
+      "pageTitle": "Detalhes do Perfil do Usuário",
+      "profileDetailsTitle": "Detalhes do Perfil",
+      "userNotFoundTitle": "Usuário Não Encontrado",
+      "userNotFoundDescription": "O usuário que você está tentando visualizar não existe.",
+      "backToUsersList": "Voltar para a Lista de Usuários"
     }
   },
   "shared": {
@@ -500,4 +506,3 @@
     }
   }
 }
-
