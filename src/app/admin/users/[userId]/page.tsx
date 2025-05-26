@@ -32,7 +32,7 @@ export default function AdminViewUserProfilePage() {
   useEffect(() => {
     if (userId && !authLoading) {
       const user = getUserById(userId);
-      setViewUser(user);
+      setViewUser(user || null); // If user is undefined (not found), set viewUser to null
     }
   }, [userId, getUserById, authLoading]);
 
@@ -44,7 +44,7 @@ export default function AdminViewUserProfilePage() {
     );
   }
 
-  if (!viewUser) {
+  if (!viewUser) { // This will now correctly catch when viewUser is null
     return (
       <Card className="max-w-lg mx-auto text-center shadow-lg">
         <CardHeader>
