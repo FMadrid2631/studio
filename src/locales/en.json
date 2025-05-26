@@ -227,7 +227,7 @@
     "cannotEditDescriptionClosed": "This raffle cannot be edited because it is closed."
   },
   "purchaseForm": {
-    "title": "Purchase Numbers",
+    "title": "Purchase numbers",
     "description": "Select your numbers and fill in your details.",
     "labels": {
       "fullName": "Full Name",
@@ -327,7 +327,18 @@
     "morePrizesHint": "{{count}} more prize(s) to draw after this one.",
     "displayLabelWinnerForPrize": "Winner for: {{prizeDescription}}",
     "displayLabelDrawingForPrize": "Drawing for: {{prizeDescription}}",
-    "displayLabelGeneral": "Winning Number"
+    "displayLabelGeneral": "Winning Number",
+    "toast": {
+        "infoTitle": "Information",
+        "infoAllPrizesAwardedOrClosed": "All prizes have been awarded or the raffle is closed.",
+        "infoNoMorePrizesThisRound": "No more prizes to award in this round.",
+        "winnerDrawnTitle": "Winner Drawn!",
+        "winnerDrawnDescription": "Number {{winningNumber}} wins {{prizeDescription}}! Congratulations to {{winnerName}}!",
+        "raffleCompleteTitle": "Raffle Complete!",
+        "raffleCompleteDescription": "All prizes have been awarded. The raffle is now closed.",
+        "drawErrorTitle": "Draw Error",
+        "drawErrorDescriptionGeneric": "Failed to conduct draw."
+    }
   },
   "raffleTabs": {
     "grid": "Raffle",
@@ -410,7 +421,8 @@
   },
   "shared": {
     "notApplicable": "N/A",
-    "notAvailable": "Not available"
+    "notAvailable": "Not available",
+    "notAuthorized": "You are not authorized to view this page."
   },
   "loading": "Loading...",
   "actions": {
@@ -510,3 +522,5 @@
     }
   }
 }
+
+    

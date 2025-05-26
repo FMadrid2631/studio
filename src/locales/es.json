@@ -86,7 +86,7 @@
     "shareMessageTextShort": "¡Mira esta rifa: {{raffleName}}!",
     "shareLinkCopiedTitle": "¡Enlace Copiado!",
     "shareLinkCopiedDescription": "Enlace de la rifa ({{url}}) copiado al portapapeles. ¡Compártelo en Instagram!",
-    "exportImageButton": "Exportar Detalles de Disponibles y Banco",
+    "exportImageButton": "Exportar Imagen",
     "exportErrorTitle": "Error al Exportar",
     "exportErrorDescription": "No se pudo exportar la imagen. Por favor, inténtalo de nuevo.",
     "exportSuccessTitle": "Excelente",
@@ -197,7 +197,7 @@
         "numberValuePositive": "El valor del número debe ser positivo.",
         "numberOfPrizesPositive": "La cantidad de premios debe ser positiva.",
         "numberOfPrizesMin": "Mínimo 1 premio.",
-        "numberOfPrizesMax": "Máximo 20 premios.",
+        "numberOfPrizesMax": "Máximo 20 prêmios.",
         "prizeDescriptionEmpty": "La descripción del premio no puede estar vacía.",
         "referenceValueMin": "El valor referencial debe ser 0 o mayor.",
         "atLeastOnePrize": "Se requiere al menos un premio.",
@@ -227,7 +227,7 @@
     "cannotEditDescriptionClosed": "Esta rifa no se puede editar porque está cerrada."
   },
   "purchaseForm": {
-    "title": "Comprar Números",
+    "title": "Comprar números",
     "description": "Selecciona tus números y completa tus datos.",
     "labels": {
       "fullName": "Nombre Completo",
@@ -335,7 +335,7 @@
         "winnerDrawnTitle": "¡Ganador Sorteado!",
         "winnerDrawnDescription": "¡El número {{winningNumber}} gana {{prizeDescription}}! ¡Felicitaciones a {{winnerName}}!",
         "raffleCompleteTitle": "¡Rifa Completada!",
-        "raffleCompleteDescription": "Todos los premios han sido entregados. La rifa ahora está cerrada.",
+        "raffleCompleteDescription": "Todos los premios han sido entregues. A rifa agora está fechada.",
         "drawErrorTitle": "Error en el Sorteo",
         "drawErrorDescriptionGeneric": "Error al realizar el sorteo."
     }
@@ -421,7 +421,8 @@
   },
   "shared": {
     "notApplicable": "N/A",
-    "notAvailable": "No disponible"
+    "notAvailable": "No disponible",
+    "notAuthorized": "No estás autorizado para ver esta página."
   },
   "loading": "Cargando...",
   "actions": {
@@ -521,3 +522,5 @@
     }
   }
 }
+
+    

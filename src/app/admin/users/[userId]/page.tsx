@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslations } from '@/contexts/LocalizationContext';
@@ -20,48 +20,31 @@ export default function AdminViewUserProfilePage() {
   const { currentUser, isLoading: authLoading, allUsers } = useAuth();
   const { t, locale } = useTranslations();
   const router = useRouter();
-  const [viewUser, setViewUser] = useState<AuthUser | null | undefined>(undefined); // undefined for loading, null for not found
   const dateLocale = getLocaleFromString(locale);
 
+  // Effect for redirection if not admin
   useEffect(() => {
-    // console.log('[AdminViewUserProfilePage] Effect triggered. authLoading:', authLoading, 'userId:', userId, 'allUsers count:', allUsers.length);
-    // if (allUsers.length > 0) console.log('[AdminViewUserProfilePage] allUsers UIDs:', allUsers.map(u => u.uid));
-
-    if (authLoading) {
-      // console.log('[AdminViewUserProfilePage] Auth is loading, setting viewUser to undefined.');
-      setViewUser(undefined); // Still loading auth context (and allUsers)
-      return;
-    }
-
-    // Auth is loaded now. Check for admin role.
-    if (!currentUser || currentUser.role !== 'admin') {
-      // console.log('[AdminViewUserProfilePage] Not an admin or no current user, redirecting.');
+    if (!authLoading && (!currentUser || currentUser.role !== 'admin')) {
       router.replace('/');
-      return;
     }
+  }, [authLoading, currentUser, router]);
 
-    // Admin is logged in. Check if userId is present.
-    if (!userId) {
-      // console.log('[AdminViewUserProfilePage] No userId param, setting viewUser to null.');
-      setViewUser(null); // No userId in params
-      return;
+  // Derive viewUser directly from context props
+  const viewUser = useMemo(() => {
+    if (authLoading || !userId || !currentUser || currentUser.role !== 'admin') {
+      // If auth is loading, or no userId, or current user is not loaded or not an admin,
+      // we can't determine the viewUser yet or shouldn't try.
+      return undefined;
     }
-
-    // At this point, auth is loaded, current user is admin, and userId is present.
+    // At this point, auth is loaded, currentUser is admin, and userId is present.
     // Now, find the user from the current allUsers list.
-    const user = allUsers.find(u => u.uid === userId);
-
-    if (user) {
-      // console.log('[AdminViewUserProfilePage] User found:', JSON.stringify(user));
-      setViewUser(user);
-    } else {
-      // console.log(`[AdminViewUserProfilePage] User NOT found with userId: ${userId}. allUsers might be stale or user truly doesn't exist.`);
-      setViewUser(null); // User not found in the current allUsers list
-    }
-  }, [userId, currentUser, authLoading, router, allUsers]);
+    return allUsers.find(u => u.uid === userId) || null; // null if not found
+  }, [authLoading, userId, currentUser, allUsers]);
 
 
-  if (viewUser === undefined) { // Simplified loading check
+  if (authLoading || viewUser === undefined) {
+    // Show loader if auth is still loading OR if viewUser is undefined
+    // (meaning conditions to find user weren't met yet, e.g., currentUser not yet admin)
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-10rem)]">
         <Loader2 className="animate-spin rounded-full h-12 w-12 text-primary" />
@@ -69,7 +52,31 @@ export default function AdminViewUserProfilePage() {
     );
   }
 
-  if (!viewUser) {
+  // This check is somewhat redundant if the useEffect for redirection works,
+  // but serves as a fallback if somehow the component renders before redirect.
+  if (!currentUser || currentUser.role !== 'admin') {
+    return (
+      <Card className="max-w-lg mx-auto text-center shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-2xl text-destructive flex items-center justify-center">
+            <AlertCircle className="mr-2 h-6 w-6" />
+            {t('configurePage.accessDenied.title')}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">{t('shared.notAuthorized')}</p>
+        </CardContent>
+         <CardFooter>
+          <Button variant="outline" onClick={() => router.push('/')}>
+            {t('actions.backToHome')}
+          </Button>
+        </CardFooter>
+      </Card>
+    );
+  }
+
+
+  if (viewUser === null) { // viewUser is explicitly null, meaning user was not found
     return (
       <Card className="max-w-lg mx-auto text-center shadow-lg">
         <CardHeader>
@@ -91,6 +98,7 @@ export default function AdminViewUserProfilePage() {
     );
   }
 
+  // If viewUser is an AuthUser object, render the profile details
   const userRoleDisplay = viewUser.role === 'admin'
     ? { text: t('auth.roleAdmin'), icon: <ShieldCheck className="mr-1 h-4 w-4 text-primary" />, variant: 'default' as const }
     : { text: t('auth.roleUser'), icon: <User className="mr-1 h-4 w-4 text-muted-foreground" />, variant: 'secondary' as const };
@@ -180,3 +188,5 @@ export default function AdminViewUserProfilePage() {
     </div>
   );
 }
+
+    
