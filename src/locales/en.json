@@ -369,6 +369,10 @@
   "admin": {
     "usersPageTitle": "Manage Users",
     "usersPageDescription": "View and manage all registered users.",
+    "usersPage": {
+      "searchPlaceholder": "Search by name, email, ID, etc...",
+      "searchClearHint": "Clear the search to see all users."
+    },
     "tableHeaders": {
       "name": "Name",
       "email": "Email",
@@ -389,6 +393,7 @@
     "changeStatusPrompt": "Change status to:",
     "noUsersFound": "No Users Found",
     "noUsersFoundDescription": "There are no users registered in the system yet.",
+    "noUsersMatchSearch": "No users match your search criteria.",
     "toast": {
       "statusUpdateSuccessTitle": "Status Updated",
       "statusUpdateSuccessDescription": "Status for {{userName}} updated to {{newStatus}}.",

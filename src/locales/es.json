@@ -369,6 +369,10 @@
   "admin": {
     "usersPageTitle": "Administrar Usuarios",
     "usersPageDescription": "Ver y gestionar todos los usuarios registrados.",
+    "usersPage": {
+      "searchPlaceholder": "Buscar por nombre, email, RUT, etc...",
+      "searchClearHint": "Limpia la búsqueda para ver todos los usuarios."
+    },
     "tableHeaders": {
       "name": "Nombre",
       "email": "Correo Electrónico",
@@ -389,6 +393,7 @@
     "changeStatusPrompt": "Cambiar estado a:",
     "noUsersFound": "No se Encontraron Usuarios",
     "noUsersFoundDescription": "Aún no hay usuarios registrados en el sistema.",
+    "noUsersMatchSearch": "Ningún usuario coincide con tus criterios de búsqueda.",
     "toast": {
       "statusUpdateSuccessTitle": "Estado Actualizado",
       "statusUpdateSuccessDescription": "El estado de {{userName}} ha sido actualizado a {{newStatus}}.",

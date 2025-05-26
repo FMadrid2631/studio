@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input'; // Added Input import
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,6 +46,7 @@ export default function AdminUsersPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [userToDeleteId, setUserToDeleteId] = useState<string | null>(null);
   const [userToDeleteName, setUserToDeleteName] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     if (!isLoading && (!currentUser || currentUser.role !== 'admin')) {
@@ -66,7 +68,7 @@ export default function AdminUsersPage() {
 
   const handleDeleteClick = (user: AuthUser) => {
     setUserToDeleteId(user.uid);
-    setUserToDeleteName(user.displayName || user.email || 'Usuario');
+    setUserToDeleteName(user.displayName || user.email || t('auth.anonymousUser'));
     setIsDeleteDialogOpen(true);
   };
 
@@ -126,6 +128,24 @@ export default function AdminUsersPage() {
   
   const sortedUsers = [...allUsers].sort((a, b) => new Date(b.registrationDate || 0).getTime() - new Date(a.registrationDate || 0).getTime());
 
+  const displayedUsers = sortedUsers.filter(user => {
+    const term = searchTerm.toLowerCase();
+    const countryName = user.countryCode ? COUNTRIES.find(c => c.code === user.countryCode)?.name.toLowerCase() : '';
+    const statusText = user.status ? t(`admin.userStatus.${user.status}`).toLowerCase() : '';
+    const roleText = user.role ? t(user.role === 'admin' ? 'auth.roleAdmin' : 'auth.roleUser').toLowerCase() : '';
+
+    return (
+      user.displayName?.toLowerCase().includes(term) ||
+      user.email?.toLowerCase().includes(term) ||
+      user.rut?.toLowerCase().includes(term) ||
+      user.internalCode?.toLowerCase().includes(term) ||
+      user.phoneNumber?.toLowerCase().includes(term) ||
+      countryName.includes(term) ||
+      statusText.includes(term) ||
+      roleText.includes(term)
+    );
+  });
+
   return (
     <Card className="shadow-lg">
       <CardHeader>
@@ -138,11 +158,26 @@ export default function AdminUsersPage() {
         </div>
       </CardHeader>
       <CardContent>
-        {sortedUsers.length === 0 ? (
+        <div className="mb-4">
+          <Input
+            type="text"
+            placeholder={t('admin.usersPage.searchPlaceholder')}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="max-w-sm"
+          />
+        </div>
+        {allUsers.length === 0 ? (
           <div className="text-center py-10">
             <AlertTriangle className="mx-auto h-12 w-12 text-muted-foreground" />
             <p className="mt-4 text-lg font-semibold">{t('admin.noUsersFound')}</p>
             <p className="text-sm text-muted-foreground">{t('admin.noUsersFoundDescription')}</p>
+          </div>
+        ) : displayedUsers.length === 0 ? (
+          <div className="text-center py-10">
+            <AlertTriangle className="mx-auto h-12 w-12 text-muted-foreground" />
+            <p className="mt-4 text-lg font-semibold">{t('admin.noUsersMatchSearch')}</p>
+            <p className="text-sm text-muted-foreground">{t('admin.usersPage.searchClearHint')}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -159,11 +194,11 @@ export default function AdminUsersPage() {
                   <TableHead>{t('admin.tableHeaders.internalCode')}</TableHead>
                   <TableHead>{t('admin.tableHeaders.role')}</TableHead>
                   <TableHead>{t('admin.tableHeaders.registrationDate')}</TableHead>
-                  <TableHead className="text-right"><span className="sr-only">{t('admin.actions.deleteUserItemText')}</span></TableHead>
+                  <TableHead className="text-right"><span className="sr-only">{t('admin.deleteUser.deleteUserItemText')}</span></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {sortedUsers.map((user) => {
+                {displayedUsers.map((user) => {
                   const countryName = user.countryCode ? COUNTRIES.find(c => c.code === user.countryCode)?.name : t('shared.notAvailable');
                   return (
                   <TableRow key={user.uid}>
