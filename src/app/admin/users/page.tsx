@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslations } from '@/contexts/LocalizationContext';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -132,25 +131,18 @@ export default function AdminUsersPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>{t('admin.tableHeaders.actions')}</TableHead>
                   <TableHead>{t('admin.tableHeaders.name')}</TableHead>
                   <TableHead>{t('admin.tableHeaders.email')}</TableHead>
                   <TableHead>{t('admin.tableHeaders.rut')}</TableHead>
                   <TableHead>{t('admin.tableHeaders.registrationDate')}</TableHead>
                   <TableHead className="text-center">{t('admin.tableHeaders.status')}</TableHead>
-                  <TableHead className="text-right">{t('admin.tableHeaders.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {sortedUsers.map((user) => (
                   <TableRow key={user.uid}>
-                    <TableCell className="font-medium">{user.displayName || t('shared.notAvailable')}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.rut || t('shared.notAvailable')}</TableCell>
                     <TableCell>
-                      {user.registrationDate ? format(new Date(user.registrationDate), 'PPpp', { locale: dateLocale }) : t('shared.notAvailable')}
-                    </TableCell>
-                    <TableCell className="text-center">{getStatusBadge(user.status)}</TableCell>
-                    <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -188,6 +180,13 @@ export default function AdminUsersPage() {
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
+                    <TableCell className="font-medium">{user.displayName || t('shared.notAvailable')}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.rut || t('shared.notAvailable')}</TableCell>
+                    <TableCell>
+                      {user.registrationDate ? format(new Date(user.registrationDate), 'PPpp', { locale: dateLocale }) : t('shared.notAvailable')}
+                    </TableCell>
+                    <TableCell className="text-center">{getStatusBadge(user.status)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
