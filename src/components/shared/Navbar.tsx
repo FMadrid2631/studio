@@ -1,7 +1,7 @@
 
 'use client';
 import Link from 'next/link';
-import { Home, PlusCircle, Ticket, UserCircle, LogIn, UserPlus, LogOut, ShieldCheck } from 'lucide-react'; // Changed Settings to ShieldCheck
+import { Home, PlusCircle, Ticket, UserCircle, LogIn, UserPlus, LogOut, ShieldCheck } from 'lucide-react'; // UserPlus can be removed if not used elsewhere
 import { Button } from '@/components/ui/button';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -90,7 +90,7 @@ export function Navbar() {
                 </DropdownMenuItem>
                 {currentUser.role === 'admin' && (
                   <DropdownMenuItem onClick={() => router.push('/admin/users')}>
-                    <ShieldCheck className="mr-2 h-4 w-4" /> {/* Changed icon to ShieldCheck */}
+                    <ShieldCheck className="mr-2 h-4 w-4" />
                     <span>{t('navbar.adminUsers')}</span>
                   </DropdownMenuItem>
                 )}
@@ -108,11 +108,7 @@ export function Navbar() {
                   <LogIn className="mr-2 h-4 w-4" /> {t('auth.login')}
                 </Link>
               </Button>
-              <Button asChild>
-                <Link href="/signup">
-                  <UserPlus className="mr-2 h-4 w-4" /> {t('auth.signup')}
-                </Link>
-              </Button>
+              {/* Signup button removed */}
             </>
           )}
         </div>
