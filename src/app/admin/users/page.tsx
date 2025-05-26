@@ -132,11 +132,11 @@ export default function AdminUsersPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>{t('admin.tableHeaders.actions')}</TableHead>
+                  <TableHead className="text-center">{t('admin.tableHeaders.status')}</TableHead>
                   <TableHead>{t('admin.tableHeaders.name')}</TableHead>
                   <TableHead>{t('admin.tableHeaders.email')}</TableHead>
                   <TableHead>{t('admin.tableHeaders.rut')}</TableHead>
                   <TableHead>{t('admin.tableHeaders.registrationDate')}</TableHead>
-                  <TableHead className="text-center">{t('admin.tableHeaders.status')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -180,13 +180,13 @@ export default function AdminUsersPage() {
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
+                    <TableCell className="text-center">{getStatusBadge(user.status)}</TableCell>
                     <TableCell className="font-medium">{user.displayName || t('shared.notAvailable')}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{user.rut || t('shared.notAvailable')}</TableCell>
                     <TableCell>
                       {user.registrationDate ? format(new Date(user.registrationDate), 'PPpp', { locale: dateLocale }) : t('shared.notAvailable')}
                     </TableCell>
-                    <TableCell className="text-center">{getStatusBadge(user.status)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
