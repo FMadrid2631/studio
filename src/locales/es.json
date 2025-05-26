@@ -478,7 +478,7 @@
     "alreadyAccountPrompt": "¿Ya tienes una cuenta?",
     "loginLink": "Iniciar Sesión",
     "profileTitle": "Mi Perfil",
-    "profileSubtitle": "View and manage your profile information.",
+    "profileSubtitle": "Ve y gestiona la información de tu perfil.",
     "editProfileTitle": "Editar Perfil",
     "editProfileSubtitle": "Actualiza los datos de tu perfil a continuación.",
     "editProfileButton": "Editar Perfil",
@@ -531,3 +531,5 @@
     }
   }
 }
+
+    
