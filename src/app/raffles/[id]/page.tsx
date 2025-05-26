@@ -6,7 +6,7 @@ import { useRaffles } from '@/contexts/RaffleContext';
 import { RaffleGrid } from '@/components/raffle/RaffleGrid';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Edit, Settings, Trophy, DollarSign, ListChecks, Share2, MessageSquare, Facebook, Instagram, Twitter, Download, UserCog, Undo2 } from 'lucide-react';
+import { Edit, Settings, Trophy, DollarSign, ListChecks, Share2, MessageSquare, Facebook, Instagram, Twitter, UserCog, Undo2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -88,7 +88,7 @@ export default function RafflePage() {
     if (raffle) {
       changeLocaleForRaffle(raffle.country.code);
       if (typeof window !== 'undefined') {
-        setShareUrl(window.location.origin + `/raffles/${raffle.id}`);
+        setShareUrl(window.location.href);
       }
     }
   }, [raffle, changeLocaleForRaffle]);
@@ -355,21 +355,21 @@ export default function RafflePage() {
                 <div className="bg-primary h-2.5 rounded-full" style={{ width: `${progress}%` }}></div>
               </div>
             </div>
-            <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-3">
+            <div className="mt-4 grid grid-cols-3 gap-3">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="w-full">
                   {canEditConfiguration ? (
                     <Button variant="outline" asChild className="w-full">
                       <Link href={`/raffles/${raffle.id}/edit`}>
-                        {t('raffleDetailsPage.configureButton')}
                         <Settings />
+                        {t('raffleDetailsPage.configureButton')}
                       </Link>
                     </Button>
                   ) : (
                     <Button variant="outline" disabled className="w-full">
-                      {t('raffleDetailsPage.configureButton')}
-                      <Settings />
+                       <Settings />
+                       {t('raffleDetailsPage.configureButton')}
                     </Button>
                   )}
                   </div>
@@ -382,27 +382,27 @@ export default function RafflePage() {
               </Tooltip>
               <Button variant="outline" asChild disabled={raffle.status === 'Closed'} className="w-full">
                 <Link href={`/raffles/${raffle.id}/purchase`}>
-                  <Edit className="mr-2 h-4 w-4" /> {t('raffleDetailsPage.purchaseNumbersButton')}
+                  <Edit /> {t('raffleDetailsPage.purchaseNumbersButton')}
                 </Link>
               </Button>
               <Button variant="outline" asChild className="w-full">
                  <Link href={`/raffles/${raffle.id}/available`}>
-                    <ListChecks className="mr-2 h-4 w-4" />
+                    <ListChecks />
                     {t('homePage.availableButton')}
                  </Link>
               </Button>
               <Button variant="default" asChild disabled={raffle.status === 'Closed'} className="w-full">
                 <Link href={`/raffles/${raffle.id}/draw`}>
-                  <Trophy className="mr-2 h-4 w-4" />
+                  <Trophy />
                   {t('raffleDetailsPage.conductDrawButton')}
                 </Link>
               </Button>
               <Button variant="outline" onClick={handleOpenCancelPurchaseDialog} disabled={raffle.status === 'Closed'} className="w-full">
-                <Undo2 className="mr-2 h-4 w-4" />
+                <Undo2 />
                 {t('raffleDetailsPage.cancelPurchase.buttonText')}
               </Button>
-              <Button variant="default" onClick={calculateAndShowProfit} className="w-full md:col-span-3">
-                <DollarSign className="mr-2 h-4 w-4" />
+              <Button variant="default" onClick={calculateAndShowProfit} className="w-full">
+                <DollarSign />
                 {t('raffleDetailsPage.viewProfitButton')}
               </Button>
             </div>
@@ -470,7 +470,7 @@ export default function RafflePage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-xl flex items-center">
-              <Share2 className="mr-2 h-5 w-5 text-primary" />
+              <Share2 />
               {t('raffleDetailsPage.shareSectionTitle')}
             </CardTitle>
           </CardHeader>
@@ -484,7 +484,7 @@ export default function RafflePage() {
                   disabled={raffle.status === 'Closed' || !shareUrl}
                   aria-label={t('raffleDetailsPage.shareOnWhatsApp')}
                 >
-                  <MessageSquare className="h-5 w-5" />
+                  <MessageSquare />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>{t('raffleDetailsPage.shareOnWhatsApp')}</TooltipContent>
@@ -499,7 +499,7 @@ export default function RafflePage() {
                   disabled={raffle.status === 'Closed' || !shareUrl}
                   aria-label={t('raffleDetailsPage.shareOnFacebook')}
                 >
-                  <Facebook className="h-5 w-5" />
+                  <Facebook />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>{t('raffleDetailsPage.shareOnFacebook')}</TooltipContent>
@@ -514,7 +514,7 @@ export default function RafflePage() {
                   disabled={raffle.status === 'Closed' || !shareUrl}
                   aria-label={t('raffleDetailsPage.shareOnX')}
                 >
-                  <Twitter className="h-5 w-5" />
+                  <Twitter />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>{t('raffleDetailsPage.shareOnX')}</TooltipContent>
@@ -529,7 +529,7 @@ export default function RafflePage() {
                   disabled={raffle.status === 'Closed' || !shareUrl}
                   aria-label={t('raffleDetailsPage.shareOnInstagram')}
                 >
-                  <Instagram className="h-5 w-5" />
+                  <Instagram />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>{t('raffleDetailsPage.shareOnInstagramTooltip')}</TooltipContent>
@@ -622,7 +622,7 @@ export default function RafflePage() {
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle className="flex items-center">
-                  <UserCog className="mr-2 h-5 w-5 text-primary"/>
+                  <UserCog />
                   {t('raffleDetailsPage.editBuyer.dialogTitle', { numberId: numberToEditBuyer.id })}
                 </AlertDialogTitle>
                 <AlertDialogDescription>
@@ -710,5 +710,6 @@ export default function RafflePage() {
     
 
     
+
 
 
