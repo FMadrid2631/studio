@@ -7,7 +7,8 @@
   "navbar": {
     "home": "Home",
     "newRaffle": "New Raffle",
-    "language": "Language"
+    "language": "Language",
+    "adminUsers": "Manage Users"
   },
   "homePage": {
     "welcomeTitle": "Welcome to Rifa Fácil!",
@@ -39,7 +40,8 @@
       "errorTitle": "Deletion Failed",
       "errorDescription": "Could not delete raffle \"{{raffleName}}\".",
       "disabledTooltip": "Cannot delete: this raffle is open and has sold/pending numbers."
-    }
+    },
+    "accountPendingActivationTooltip": "Your account is pending activation by an administrator. You cannot create raffles yet."
   },
   "raffleDetailsPage": {
     "raffleDetailsTitle": "Raffle Details",
@@ -84,10 +86,6 @@
     "shareMessageTextShort": "Check out this raffle: {{raffleName}}!",
     "shareLinkCopiedTitle": "Link Copied!",
     "shareLinkCopiedDescription": "Raffle link ({{url}}) copied to clipboard. Share it on Instagram!",
-    "exportImageButton": "Export Available Details & Bank Info",
-    "exportSuccessTitle": "Excellent!",
-    "exportErrorTitle": "Export Error",
-    "exportErrorDescription": "Could not export the image. Please try again.",
     "updatePayment": {
       "dialogTitle": "Update Payment for Number #{{numberId}}",
       "dialogDescription": "Confirm payment method for {{buyerName}} (Phone: {{buyerPhone}}).",
@@ -192,7 +190,8 @@
       "updateSuccessDescription": "Raffle \"{{raffleName}}\" updated.",
       "errorTitle": "Error",
       "errorCountry": "Invalid country selected.",
-      "errorUpdate": "Failed to update raffle. It might be locked or an issue occurred."
+      "errorUpdate": "Failed to update raffle. It might be locked or an issue occurred.",
+      "creationDisabledPendingAccount": "Your account is pending activation. You cannot create raffles yet."
     },
     "fieldsDisabledEdit": "This field cannot be changed after creation if sales have started.",
     "bankDetails": {
@@ -349,6 +348,30 @@
     "Transfer": "Transfer",
     "Pending": "Pending Payment"
   },
+  "admin": {
+    "usersPageTitle": "Manage Users",
+    "usersPageDescription": "View and manage all registered users.",
+    "tableHeaders": {
+      "name": "Name",
+      "email": "Email",
+      "rut": "National ID",
+      "registrationDate": "Registered On",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "userStatus": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "pending": "Pending"
+    },
+    "changeStatusPrompt": "Change status to:",
+    "toast": {
+      "statusUpdateSuccessTitle": "Status Updated",
+      "statusUpdateSuccessDescription": "Status for {{userName}} updated to {{newStatus}}.",
+      "statusUpdateErrorTitle": "Update Failed",
+      "statusUpdateErrorDescription": "Could not update status for {{userName}}."
+    }
+  },
   "shared": {
     "notApplicable": "N/A",
     "notAvailable": "Not available"
@@ -386,6 +409,9 @@
     "displayNamePlaceholder": "John Doe",
     "rutLabel": "National ID",
     "rutPlaceholder": "12345678-9",
+    "roleLabel": "Role",
+    "roleUser": "User",
+    "roleAdmin": "Administrator",
     "confirmPasswordLabel": "Confirm Password",
     "signupButton": "Sign Up",
     "alreadyAccountPrompt": "Already have an account?",
@@ -403,6 +429,7 @@
       "loginSuccessDescription": "Welcome back, {{email}}!",
       "signupSuccessTitle": "Signup Successful!",
       "signupSuccessDescription": "Welcome to Rifa Fácil, {{email}}!",
+      "signupPendingActivationDescription": "Welcome to Rifa Fácil, {{email}}! Your account is pending activation by an administrator.",
       "logoutSuccessTitle": "Logged Out",
       "providerLoginTitle": "Provider Login",
       "providerLoginDescription": "Simulating login with {{provider}}. This would trigger the {{provider}} auth flow in a real app.",

@@ -7,7 +7,8 @@
   "navbar": {
     "home": "Início",
     "newRaffle": "Nova Rifa",
-    "language": "Idioma"
+    "language": "Idioma",
+    "adminUsers": "Gerenciar Usuários"
   },
   "homePage": {
     "welcomeTitle": "Bem-vindo ao Rifa Fácil!",
@@ -39,7 +40,8 @@
       "errorTitle": "Falha na Exclusão",
       "errorDescription": "Não foi possível excluir a rifa \"{{raffleName}}\".",
       "disabledTooltip": "Não é possível excluir: esta rifa está aberta e tem números vendidos/pendentes."
-    }
+    },
+    "accountPendingActivationTooltip": "Sua conta está pendente de ativação por um administrador. Você ainda não pode criar rifas."
   },
   "raffleDetailsPage": {
     "raffleDetailsTitle": "Detalhes da Rifa",
@@ -84,10 +86,6 @@
     "shareMessageTextShort": "Confira esta rifa: {{raffleName}}!",
     "shareLinkCopiedTitle": "Link Copiado!",
     "shareLinkCopiedDescription": "Link da rifa ({{url}}) copiado para a área de transferência. Compartilhe no Instagram!",
-    "exportImageButton": "Exportar Detalhes de Disponíveis e Banco",
-    "exportSuccessTitle": "Excelente!",
-    "exportErrorTitle": "Erro de Exportação",
-    "exportErrorDescription": "Não foi possível exportar a imagem. Por favor, tente novamente.",
     "updatePayment": {
       "dialogTitle": "Atualizar Pagamento para Número #{{numberId}}",
       "dialogDescription": "Confirmar método de pagamento para {{buyerName}} (Telefone: {{buyerPhone}}).",
@@ -192,7 +190,8 @@
       "updateSuccessDescription": "Rifa \"{{raffleName}}\" atualizada.",
       "errorTitle": "Erro",
       "errorCountry": "País selecionado inválido.",
-      "errorUpdate": "Falha ao atualizar a rifa. Pode estar bloqueada ou ocorreu um problema."
+      "errorUpdate": "Falha ao atualizar a rifa. Pode estar bloqueada ou ocorreu um problema.",
+      "creationDisabledPendingAccount": "Sua conta está pendente de ativação. Você ainda não pode criar rifas."
     },
     "fieldsDisabledEdit": "Este campo não pode ser alterado após a criação se as vendas tiverem começado.",
     "bankDetails": {
@@ -349,6 +348,30 @@
     "Transfer": "Transferência",
     "Pending": "Pagamento Pendente"
   },
+  "admin": {
+    "usersPageTitle": "Gerenciar Usuários",
+    "usersPageDescription": "Ver e gerenciar todos os usuários registrados.",
+    "tableHeaders": {
+      "name": "Nome",
+      "email": "E-mail",
+      "rut": "CPF/CNPJ",
+      "registrationDate": "Data de Registro",
+      "status": "Status",
+      "actions": "Ações"
+    },
+    "userStatus": {
+      "active": "Ativo",
+      "inactive": "Inativo",
+      "pending": "Pendente"
+    },
+    "changeStatusPrompt": "Alterar status para:",
+    "toast": {
+      "statusUpdateSuccessTitle": "Status Atualizado",
+      "statusUpdateSuccessDescription": "Status de {{userName}} atualizado para {{newStatus}}.",
+      "statusUpdateErrorTitle": "Falha ao Atualizar",
+      "statusUpdateErrorDescription": "Não foi possível atualizar o status de {{userName}}."
+    }
+  },
   "shared": {
     "notApplicable": "N/D",
     "notAvailable": "Não disponível"
@@ -386,6 +409,9 @@
     "displayNamePlaceholder": "João Silva",
     "rutLabel": "CPF/CNPJ",
     "rutPlaceholder": "123.456.789-00",
+    "roleLabel": "Função",
+    "roleUser": "Usuário",
+    "roleAdmin": "Administrador",
     "confirmPasswordLabel": "Confirmar Senha",
     "signupButton": "Cadastrar",
     "alreadyAccountPrompt": "Já tem uma conta?",
@@ -403,6 +429,7 @@
       "loginSuccessDescription": "Bem-vindo de volta, {{email}}!",
       "signupSuccessTitle": "Cadastro Bem-sucedido!",
       "signupSuccessDescription": "Bem-vindo ao Rifa Fácil, {{email}}!",
+      "signupPendingActivationDescription": "Bem-vindo ao Rifa Fácil, {{email}}! Sua conta está pendente de ativação por um administrador.",
       "logoutSuccessTitle": "Sessão Encerrada",
       "providerLoginTitle": "Login com Provedor",
       "providerLoginDescription": "Simulando login com {{provider}}. Isso acionaria o fluxo de autenticação de {{provider}} em um aplicativo real.",

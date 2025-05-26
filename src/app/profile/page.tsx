@@ -7,7 +7,7 @@ import { useTranslations } from '@/contexts/LocalizationContext';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { Loader2, UserCircle, Edit3, Save, X } from 'lucide-react';
+import { Loader2, UserCircle, Edit3, Save, X, ShieldCheck, User } from 'lucide-react'; // Added ShieldCheck, User
 import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -15,6 +15,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { EditProfileFormInput } from '@/types';
+import { Badge } from '@/components/ui/badge'; // Added Badge for role display
 
 const createEditProfileFormSchema = (t: Function) => z.object({
   displayName: z.string().min(2, { message: t('auth.validation.displayNameMin') }),
@@ -72,6 +73,11 @@ export default function ProfilePage() {
     });
     setIsEditing(false);
   };
+
+  const userRoleDisplay = currentUser.role === 'admin' 
+    ? { text: t('auth.roleAdmin'), icon: <ShieldCheck className="mr-1 h-4 w-4 text-primary" />, variant: 'default' as const } 
+    : { text: t('auth.roleUser'), icon: <User className="mr-1 h-4 w-4 text-muted-foreground" />, variant: 'secondary' as const };
+
 
   return (
     <div className="flex justify-center items-start pt-10 min-h-[calc(100vh-10rem)]">
@@ -133,7 +139,7 @@ export default function ProfilePage() {
             </Form>
           ) : (
             <>
-              <div className="space-y-3">
+              <div className="space-y-4"> {/* Increased spacing a bit */}
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">{t('auth.displayNameLabel')}</p>
                   <p className="text-lg">{currentUser.displayName || t('shared.notAvailable')}</p>
@@ -148,8 +154,15 @@ export default function ProfilePage() {
                     <p className="text-lg">{currentUser.rut}</p>
                   </div>
                 )}
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">{t('auth.roleLabel')}</p>
+                  <Badge variant={userRoleDisplay.variant} className="text-base px-3 py-1">
+                    {userRoleDisplay.icon}
+                    {userRoleDisplay.text}
+                  </Badge>
+                </div>
               </div>
-              <Button variant="default" className="w-full mt-6" onClick={() => setIsEditing(true)}>
+              <Button variant="default" className="w-full mt-8" onClick={() => setIsEditing(true)}> {/* Increased top margin */}
                 <Edit3 className="mr-2 h-4 w-4" />
                 {t('auth.editProfileButton')}
               </Button>

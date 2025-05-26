@@ -7,7 +7,8 @@
   "navbar": {
     "home": "Inicio",
     "newRaffle": "Nueva Rifa",
-    "language": "Idioma"
+    "language": "Idioma",
+    "adminUsers": "Administrar Usuarios"
   },
   "homePage": {
     "welcomeTitle": "¡Bienvenido a Rifa Fácil!",
@@ -39,7 +40,8 @@
       "errorTitle": "Error al Eliminar",
       "errorDescription": "No se pudo eliminar la rifa \"{{raffleName}}\".",
       "disabledTooltip": "No se puede eliminar: esta rifa está abierta y tiene números vendidos/pendientes."
-    }
+    },
+    "accountPendingActivationTooltip": "Tu cuenta está pendiente de activación por un administrador. Aún no puedes crear rifas."
   },
   "raffleDetailsPage": {
     "raffleDetailsTitle": "Detalles de la Rifa",
@@ -84,10 +86,6 @@
     "shareMessageTextShort": "¡Mira esta rifa: {{raffleName}}!",
     "shareLinkCopiedTitle": "¡Enlace Copiado!",
     "shareLinkCopiedDescription": "Enlace de la rifa ({{url}}) copiado al portapapeles. ¡Compártelo en Instagram!",
-    "exportImageButton": "Exportar Detalles de Disponibles y Banco",
-    "exportSuccessTitle": "Excelente",
-    "exportErrorTitle": "Error de Exportación",
-    "exportErrorDescription": "No se pudo exportar la imagen. Por favor, inténtalo de nuevo.",
     "updatePayment": {
       "dialogTitle": "Actualizar Pago para Número #{{numberId}}",
       "dialogDescription": "Confirmar método de pago para {{buyerName}} (Teléfono: {{buyerPhone}}).",
@@ -192,7 +190,8 @@
       "updateSuccessDescription": "Rifa \"{{raffleName}}\" actualizada.",
       "errorTitle": "Error",
       "errorCountry": "País seleccionado inválido.",
-      "errorUpdate": "Error al actualizar la rifa. Podría estar bloqueada o ocurrió un problema."
+      "errorUpdate": "Error al actualizar la rifa. Podría estar bloqueada o ocurrió un problema.",
+      "creationDisabledPendingAccount": "Tu cuenta está pendiente de activación. Aún no puedes crear rifas."
     },
     "fieldsDisabledEdit": "Este campo no se puede cambiar después de la creación si las ventas han comenzado.",
     "bankDetails": {
@@ -349,6 +348,30 @@
     "Transfer": "Transferencia",
     "Pending": "Pago Pendiente"
   },
+  "admin": {
+    "usersPageTitle": "Administrar Usuarios",
+    "usersPageDescription": "Ver y gestionar todos los usuarios registrados.",
+    "tableHeaders": {
+      "name": "Nombre",
+      "email": "Correo Electrónico",
+      "rut": "RUT/Cédula",
+      "registrationDate": "Fecha de Registro",
+      "status": "Estado",
+      "actions": "Acciones"
+    },
+    "userStatus": {
+      "active": "Activo",
+      "inactive": "Inactivo",
+      "pending": "Pendiente"
+    },
+    "changeStatusPrompt": "Cambiar estado a:",
+    "toast": {
+      "statusUpdateSuccessTitle": "Estado Actualizado",
+      "statusUpdateSuccessDescription": "El estado de {{userName}} ha sido actualizado a {{newStatus}}.",
+      "statusUpdateErrorTitle": "Error al Actualizar",
+      "statusUpdateErrorDescription": "No se pudo actualizar el estado de {{userName}}."
+    }
+  },
   "shared": {
     "notApplicable": "N/A",
     "notAvailable": "No disponible"
@@ -386,6 +409,9 @@
     "displayNamePlaceholder": "Juan Pérez",
     "rutLabel": "RUT (Cédula de Identidad)",
     "rutPlaceholder": "12345678-9",
+    "roleLabel": "Rol",
+    "roleUser": "Usuario",
+    "roleAdmin": "Administrador",
     "confirmPasswordLabel": "Confirmar Contraseña",
     "signupButton": "Registrarse",
     "alreadyAccountPrompt": "¿Ya tienes una cuenta?",
@@ -403,6 +429,7 @@
       "loginSuccessDescription": "¡Bienvenido de nuevo, {{email}}!",
       "signupSuccessTitle": "¡Registro Exitoso!",
       "signupSuccessDescription": "¡Bienvenido a Rifa Fácil, {{email}}!",
+      "signupPendingActivationDescription": "¡Bienvenido a Rifa Fácil, {{email}}! Tu cuenta está pendiente de activación por un administrador.",
       "logoutSuccessTitle": "Sesión Cerrada",
       "providerLoginTitle": "Inicio de Sesión con Proveedor",
       "providerLoginDescription": "Simulando inicio de sesión con {{provider}}. Esto activaría el flujo de autenticación de {{provider}} en una aplicación real.",
